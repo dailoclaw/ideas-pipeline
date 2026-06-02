@@ -51,7 +51,7 @@ export default function SummaryPage({ onOpenIdea }) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Stats bar */}
-      <div className="flex gap-2 px-4 py-3 bg-white border-b border-gray-100 overflow-x-auto flex-shrink-0">
+      <div className="flex gap-2 px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 overflow-x-auto flex-shrink-0">
         {[['all', 'All', '#5254d6'], ['building','🔨','#2563eb'], ['ready','✅','#059669'], ['idea','💡','#9090b8'], ['done','✓','#5254d6'], ['shelved','🗄','#d97706']].map(([s, label, color]) => (
           <button
             key={s}
@@ -66,7 +66,7 @@ export default function SummaryPage({ onOpenIdea }) {
       </div>
 
       {/* Search + sort + export */}
-      <div className="flex gap-2 px-4 py-2 bg-white border-b border-gray-100 flex-shrink-0">
+      <div className="flex gap-2 px-4 py-2 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}

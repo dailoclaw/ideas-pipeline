@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useStore } from './lib/store'
+import { useDarkMode } from './hooks/useDarkMode'
 import LayoutPage   from './pages/LayoutPage'
 import SummaryPage  from './pages/SummaryPage'
 import IdeaModal    from './components/IdeaModal'
@@ -17,6 +18,7 @@ export default function App() {
   const [editId, setEditId]   = useState(null)
   const [addOpen, setAddOpen] = useState(false)
   const [triageOpen, setTriageOpen] = useState(false)
+  const [dark, toggleDark]    = useDarkMode()
 
   const { load, loading, error, ideas, getStatus } = useStore()
 
@@ -50,14 +52,19 @@ export default function App() {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-bg">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 flex-shrink-0">
+      <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
         <div className="flex items-center gap-3">
           <h1 className="text-sm font-bold text-gray-900">Ideas Pipeline</h1>
           <span className="text-xs text-gray-400">{ideas.length} ideas</span>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={toggleDark}
+            className="text-lg px-2 py-1 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
+          >{dark ? '☀️' : '🌙'}</button>
           <button
             onClick={() => setTriageOpen(true)}
             className="relative text-xs font-bold border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50"
@@ -81,7 +88,7 @@ export default function App() {
       </main>
 
       {/* Bottom tab nav (mobile-first) */}
-      <nav className="bottom-nav flex bg-white border-t border-gray-100 flex-shrink-0">
+      <nav className="bottom-nav flex bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 flex-shrink-0">
         {TABS.map(t => (
           <button
             key={t.id}

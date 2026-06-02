@@ -20,7 +20,7 @@ export default function LayoutPage({ onOpenIdea }) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Toggle bar */}
-      <div className="flex gap-2 px-4 py-2.5 bg-white border-b border-gray-100 flex-shrink-0 overflow-x-auto">
+      <div className="flex gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 overflow-x-auto">
         {VIEWS.map(v => (
           <button
             key={v}

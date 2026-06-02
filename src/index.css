@@ -52,3 +52,70 @@ body {
 /* Multi-col cards */
 .kb-cards { columns: 155px; column-gap: 8px; }
 .kb-card { break-inside: avoid; display: block; margin-bottom: 6px; }
+
+/* ── Dark mode ──────────────────────────────────────────────────────────────
+   Applied via .dark class on <html>. Covers the full Tailwind palette used
+   throughout the app so individual components need minimal dark: classes.
+   ────────────────────────────────────────────────────────────────────────── */
+.dark body { background: #0f172a; color: #f1f5f9; }
+
+/* Surfaces */
+.dark .bg-white   { background-color: #1e293b !important; }
+.dark .bg-gray-50 { background-color: #1e293b !important; }
+.dark .bg-\[\#f5f5fb\] { background-color: #0f172a !important; }
+
+/* Borders */
+.dark .border-gray-100 { border-color: #334155 !important; }
+.dark .border-gray-200 { border-color: #334155 !important; }
+
+/* Text */
+.dark .text-gray-900 { color: #f1f5f9 !important; }
+.dark .text-gray-800 { color: #e2e8f0 !important; }
+.dark .text-gray-700 { color: #cbd5e1 !important; }
+.dark .text-gray-600 { color: #94a3b8 !important; }
+.dark .text-gray-500 { color: #64748b !important; }
+.dark .text-gray-400 { color: #475569 !important; }
+
+/* Hovers */
+.dark .hover\:bg-gray-50:hover { background-color: #273348 !important; }
+.dark .hover\:bg-gray-100:hover { background-color: #334155 !important; }
+.dark .divide-gray-50 > * + * { border-color: #1e293b !important; }
+
+/* Inputs */
+.dark .input { background: #273348 !important; border-color: #334155 !important; color: #f1f5f9 !important; }
+.dark .input:focus { border-color: #818cf8 !important; }
+
+/* Cards */
+.dark .idea-card { background-color: #1e293b !important; border-color: #334155 !important; }
+.dark .idea-card:hover { border-color: #818cf8 !important; }
+
+/* Pills — keep colourful, just soften backgrounds */
+.dark .bg-green-100  { background-color: rgba(5,150,105,.2) !important; }
+.dark .bg-blue-100   { background-color: rgba(37,99,235,.2) !important; }
+.dark .bg-amber-100  { background-color: rgba(217,119,6,.2) !important; }
+.dark .bg-violet-100 { background-color: rgba(109,40,217,.2) !important; }
+.dark .bg-violet-50  { background-color: rgba(109,40,217,.15) !important; }
+.dark .bg-pink-100   { background-color: rgba(219,39,119,.2) !important; }
+.dark .bg-cyan-100   { background-color: rgba(8,145,178,.2) !important; }
+.dark .bg-red-50     { background-color: rgba(220,38,38,.15) !important; }
+
+/* Matrix quads */
+.dark .bg-green-50\/50  { background-color: rgba(5,150,105,.08) !important; }
+.dark .bg-amber-50\/50  { background-color: rgba(217,119,6,.08) !important; }
+.dark .bg-violet-50\/50 { background-color: rgba(109,40,217,.08) !important; }
+.dark .bg-gray-50\/50   { background-color: rgba(100,116,139,.08) !important; }
+.dark .border-green-200  { border-color: rgba(5,150,105,.3) !important; }
+.dark .border-amber-200  { border-color: rgba(217,119,6,.3) !important; }
+.dark .border-violet-200 { border-color: rgba(109,40,217,.3) !important; }
+.dark .border-gray-200   { border-color: #334155 !important; }
+
+/* Misc backgrounds used in components */
+.dark .bg-slate-900 { background-color: #0f172a; }
+.dark .bg-slate-800 { background-color: #1e293b; }
+
+/* Score tooltip — already dark, no change needed */
+
+/* Build Next banner */
+.dark .from-green-50 { --tw-gradient-from: rgba(5,150,105,.08) !important; }
+.dark .to-violet-50  { --tw-gradient-to: rgba(109,40,217,.08) !important; }
+.dark .border-green-200.bg-gradient-to-r { border-color: rgba(5,150,105,.3) !important; }
