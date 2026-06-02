@@ -65,26 +65,28 @@ export default function SummaryPage({ onOpenIdea }) {
         ))}
       </div>
 
-      {/* Search + sort + export */}
-      <div className="flex gap-2 px-4 py-2 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
+      {/* Search row */}
+      <div className="px-4 py-2 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 space-y-2">
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search ideas…"
-          className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-1.5 outline-none focus:border-violet-400 bg-gray-50"
+          className="w-full text-sm border border-gray-200 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-1.5 outline-none focus:border-violet-400 bg-gray-50"
         />
-        <select
-          value={sort}
-          onChange={e => setSort(e.target.value)}
-          className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 outline-none"
-        >
-          <option value="score">Score ↓</option>
-          <option value="name">Name</option>
-          <option value="id">ID</option>
-        </select>
-        <button onClick={exportMd} className="text-xs font-bold border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50 whitespace-nowrap">
-          ⬇ MD
-        </button>
+        <div className="flex items-center gap-2">
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value)}
+            className="flex-1 text-xs border border-gray-200 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-2 py-1.5 bg-gray-50 outline-none"
+          >
+            <option value="score">Sort: Score ↓</option>
+            <option value="name">Sort: Name A–Z</option>
+            <option value="id">Sort: ID</option>
+          </select>
+          <button onClick={exportMd} className="text-xs font-bold border border-gray-200 dark:border-slate-600 dark:text-slate-300 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 whitespace-nowrap flex-shrink-0">
+            ⬇ Export MD
+          </button>
+        </div>
       </div>
 
       {/* Table */}
@@ -96,18 +98,19 @@ export default function SummaryPage({ onOpenIdea }) {
             return (
               <div
                 key={i.id}
-                className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer"
+                className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer transition-colors"
                 onClick={() => onOpenIdea(i.id)}
               >
-                <span className="text-xs text-gray-400 w-7 flex-shrink-0">#{i.id}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-semibold text-gray-800 truncate">{i.name}</div>
-                  <div className="text-xs text-gray-400 truncate hidden sm:block">{i.pitch.slice(0,80)}</div>
+                {/* Title row — always wraps */}
+                <div className="flex items-start gap-2 mb-1.5">
+                  <span className="text-xs text-gray-400 dark:text-slate-500 flex-shrink-0 mt-0.5 w-7">#{i.id}</span>
+                  <span className="text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug">{i.name}</span>
                 </div>
-                <div className="flex items-center gap-1.5 flex-shrink-0">
+                {/* Pills row */}
+                <div className="flex items-center gap-1.5 flex-wrap pl-9">
                   <StatusBadge status={st} />
                   <TimePill time={i.time} />
-                  <span className="hidden sm:block text-[0.6875rem] font-bold text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-lg">{gradeFromScore(s)} {s}</span>
+                  <span className="text-[0.6875rem] font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-900/30 px-1.5 py-0.5 rounded-lg">{gradeFromScore(s)} {s}</span>
                 </div>
               </div>
             )
