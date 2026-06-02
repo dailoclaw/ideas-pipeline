@@ -58,28 +58,29 @@ export default function App() {
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
       {/* Header */}
-      <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
+      {/* font-size fixed in px so header buttons never scale with user font-size setting */}
+      <header className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0" style={{fontSize:'13px'}}>
         <div className="flex items-center gap-3">
-          <h1 className="text-sm font-bold text-gray-900">Ideas Pipeline</h1>
-          <span className="text-xs text-gray-400">{ideas.length} ideas</span>
+          <h1 className="font-bold text-gray-900 dark:text-slate-100" style={{fontSize:'14px'}}>Ideas Pipeline</h1>
+          <span className="text-gray-400" style={{fontSize:'11px'}}>{ideas.length} ideas</span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={() => setSettingsOpen(true)}
-            className="text-xs font-bold border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+            className="btn-header"
           >⚙️ Customise</button>
           <button
             onClick={() => setTriageOpen(true)}
-            className="relative text-xs font-bold border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50"
+            className="btn-header relative"
           >
             Triage
             {triageCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-violet-600 text-white text-[0.5625rem] font-bold px-1.5 rounded-full">{triageCount}</span>
+              <span className="absolute -top-1 -right-1 bg-violet-600 text-white font-bold rounded-full leading-none" style={{fontSize:'9px',padding:'2px 4px'}}>{triageCount}</span>
             )}
           </button>
           <button
             onClick={() => setAddOpen(true)}
-            className="text-xs font-bold bg-violet-600 text-white rounded-lg px-3 py-1.5"
+            className="btn-header-primary"
           >+ Add</button>
         </div>
       </header>
