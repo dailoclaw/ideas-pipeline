@@ -7,6 +7,7 @@ import LayoutPage      from './pages/LayoutPage'
 import SummaryPage     from './pages/SummaryPage'
 import StrategyPage    from './pages/StrategyPage'
 import GroupsPage      from './pages/GroupsPage'
+import SprintPage      from './pages/SprintPage'
 import IdeaModal       from './components/IdeaModal'
 import AddIdeaModal    from './components/AddIdeaModal'
 import TriageModal     from './components/TriageModal'
@@ -14,6 +15,7 @@ import TriageModal     from './components/TriageModal'
 const TABS = [
   { id: 'layout',   label: 'Layout',   icon: '📋' },
   { id: 'strategy', label: 'Strategy', icon: '🎯' },
+  { id: 'sprint',   label: 'Sprint',   icon: '🏃' },
   { id: 'groups',   label: 'Groups',   icon: '🗂' },
   { id: 'summary',  label: 'Summary',  icon: '📊' },
 ]
@@ -77,6 +79,7 @@ export default function App() {
       <main className="flex-1 overflow-hidden">
         {tab === 'layout'   && <LayoutPage   onOpenIdea={setOpenId} />}
         {tab === 'strategy' && <StrategyPage onOpenIdea={setOpenId} />}
+        {tab === 'sprint'   && <SprintPage   onOpenIdea={setOpenId} />}
         {tab === 'groups'   && <GroupsPage   onOpenIdea={setOpenId} />}
         {tab === 'summary'  && <SummaryPage  onOpenIdea={setOpenId} />}
       </main>

@@ -99,7 +99,7 @@ export const SEED_IDEAS = [
     win:'The structural foundation that makes compression detection, equity analysis, and negotiation ranges actually meaningful. Without bands, everything else is noise.',
     notes:'Captured 2026-05-11.' },
 
-  { id:65, name:'HR Tech Stack Mapper', status:'idea', time:'1w', plat:'html',
+  { id:65, name:'HR Tech Stack Mapper', status:'done', time:'1w', plat:'html',
     pitch:'Build and maintain a living visual map of every HR system you use, what data flows between them, where the gaps are, and where data lives in two places.',
     target:'HR manager preparing for a new system purchase or integration project.',
     pain:"Most HR teams have 5–8 systems that partially overlap and partially gap. Nobody has mapped it. Integration problems only emerge post-purchase.",
@@ -681,7 +681,7 @@ export const SEED_IDEAS = [
 
   // ── New ideas added 2026-05-19 ────────────────────────────────────────────────
 
-  { id:159, name:'HR Initiative Tracker', status:'idea', time:'1w', plat:'html',
+  { id:159, name:'HR Initiative Tracker', status:'ready', time:'1w', plat:'html',
     pitch:'Track HR’s own projects and commitments against the HR plan — what was promised, current status, expected and actual completion — so HR can report on its own delivery without scrambling.',
     target:'HR manager who presents to exec quarterly and spends hours before each meeting reconstructing what they’ve done from emails and memory.',
     pain:'HR manages everyone else’s performance but rarely tracks its own. The annual HR plan has 12 initiatives. By Q3, nobody can easily say which are done, which are behind, and which were quietly deprioritised.',
@@ -705,7 +705,7 @@ export const SEED_IDEAS = [
     win:'Creates the institutional memory that prevents paying for the same question twice — and surfaces where internal capability should replace external spend.',
     notes:'Captured 2026-05-19.' },
 
-  { id:179, name:'pay_modeller: Manager Recommendation Layer', status:'idea', time:'2-4w', plat:'pay',
+  { id:179, name:'pay_modeller: Manager Recommendation Layer', status:'done', time:'2-4w', plat:'pay',
     pitch:'A manager-facing view of their team during the pay cycle — managers see only their direct reports, enter recommended increases with a reason, and submit to HR for review. HR sees all submissions consolidated.',
     target:'HR manager running a pay review who currently collects manager input via email or spreadsheet, manually enters it, and chases missing responses.',
     pain:'The pay review is a collaboration happening through copy-paste. HR either does all data entry themselves or collects manager recommendations via email, manually inputs them, and chases missing responses.',
