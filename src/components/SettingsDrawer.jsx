@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 
 const SIZE_OPTIONS = [
-  { key: 'default', label: 'Default', desc: 'Standard', px: 15 },
-  { key: 'large',   label: 'Large',   desc: 'Easier to read', px: 17 },
-  { key: 'xl',      label: 'XL',      desc: 'Maximum comfort', px: 19 },
+  { key: 'default', label: 'Default', desc: 'Standard',        zoom: 1,    aaSize: 16 },
+  { key: 'large',   label: 'Large',   desc: 'Easier to read',  zoom: 1.15, aaSize: 18 },
+  { key: 'xl',      label: 'XL',      desc: 'Maximum comfort', zoom: 1.30, aaSize: 21 },
 ]
 
 export default function SettingsDrawer({ open, onClose, dark, toggleDark, fontSize, setFontSizeKey }) {
@@ -84,7 +84,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, fontSi
                     </div>
                     <div
                       className={`font-bold ${active ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-slate-500'}`}
-                      style={{ fontSize: opt.px }}
+                      style={{ fontSize: opt.aaSize }}
                     >Aa</div>
                   </button>
                 )
