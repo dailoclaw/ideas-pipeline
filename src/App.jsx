@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useStore } from './lib/store'
 import { useDarkMode } from './hooks/useDarkMode'
+import { useSettings } from './hooks/useSettings'
+import SettingsDrawer from './components/SettingsDrawer'
 import LayoutPage   from './pages/LayoutPage'
 import SummaryPage  from './pages/SummaryPage'
 import IdeaModal    from './components/IdeaModal'
@@ -19,6 +21,8 @@ export default function App() {
   const [addOpen, setAddOpen] = useState(false)
   const [triageOpen, setTriageOpen] = useState(false)
   const [dark, toggleDark]    = useDarkMode()
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const { fontSize, setFontSizeKey } = useSettings()
 
   const { load, loading, error, ideas, getStatus } = useStore()
 
@@ -61,10 +65,9 @@ export default function App() {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={toggleDark}
-            className="text-lg px-2 py-1 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
-            title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-          >{dark ? '☀️' : '🌙'}</button>
+            onClick={() => setSettingsOpen(true)}
+            className="text-xs font-bold border border-gray-200 dark:border-slate-700 rounded-lg px-3 py-1.5 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+          >⚙️ Customise</button>
           <button
             onClick={() => setTriageOpen(true)}
             className="relative text-xs font-bold border border-gray-200 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50"
@@ -117,6 +120,16 @@ export default function App() {
         />
       )}
       {triageOpen && <TriageModal onClose={() => setTriageOpen(false)} />}
+      {settingsOpen && (
+        <SettingsDrawer
+          open={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+          dark={dark}
+          toggleDark={toggleDark}
+          fontSize={fontSize}
+          setFontSizeKey={setFontSizeKey}
+        />
+      )}
     </div>
   )
 }
