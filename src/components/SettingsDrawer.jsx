@@ -1,9 +1,9 @@
 import { useEffect } from 'react'
 
 const SIZE_OPTIONS = [
-  { key: 'default', label: 'Default', desc: 'Standard',        zoom: 1,    aaSize: 16 },
-  { key: 'large',   label: 'Large',   desc: 'Easier to read',  zoom: 1.15, aaSize: 18 },
-  { key: 'xl',      label: 'XL',      desc: 'Maximum comfort', zoom: 1.30, aaSize: 21 },
+  { key: 'default', label: 'Default', desc: 'Standard',        aaSize: 16 },
+  { key: 'large',   label: 'Large',   desc: 'Easier to read',  aaSize: 20 },
+  { key: 'xl',      label: 'XL',      desc: 'Maximum comfort', aaSize: 24 },
 ]
 
 export default function SettingsDrawer({ open, onClose, dark, toggleDark, fontSize, setFontSizeKey }) {

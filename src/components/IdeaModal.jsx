@@ -79,7 +79,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           {idea.pain && <Section label="The Problem" value={idea.pain} />}
           {idea.mvp?.length > 0 && (
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">MVP</div>
+              <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400 mb-1.5">MVP</div>
               <ul className="list-disc list-inside space-y-1">
                 {idea.mvp.map((m, i) => (
                   <li key={i} className="text-sm text-gray-600">{m}</li>
@@ -89,7 +89,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           )}
           {idea.win && (
             <div>
-              <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Why it wins</div>
+              <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400 mb-1.5">Why it wins</div>
               <div className="text-sm text-green-700 border-l-2 border-green-300 pl-3">{idea.win}</div>
             </div>
           )}
@@ -97,7 +97,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
 
           {/* Status timeline */}
           <div className="border-t border-gray-100 pt-3">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-2">Status history</div>
+            <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400 mb-2">Status history</div>
             {history.length === 0 && !idea.isNew && (
               <div className="flex items-center gap-2 text-xs text-gray-400">
                 <div className="w-2 h-2 rounded-full bg-gray-200" />
@@ -150,7 +150,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
 function Section({ label, value }) {
   return (
     <div>
-      <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">{label}</div>
+      <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400 mb-1">{label}</div>
       <div className="text-sm text-gray-600 leading-relaxed">{value}</div>
     </div>
   )

@@ -85,10 +85,10 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
             className="mt-0.5 flex-shrink-0 accent-violet-600"
           />
         </div>
-        <div className="text-[11px] text-gray-400 leading-snug mb-1.5">{i.pitch.slice(0, 60)}…</div>
+        <div className="text-[0.6875rem] text-gray-400 leading-snug mb-1.5">{i.pitch.slice(0, 60)}…</div>
         <div className="flex items-center gap-1 flex-wrap">
           <ScoreBadge idea={i} />
-          {stale && <span className="text-[10px] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">🟠 {daysOld(i)}d</span>}
+          {stale && <span className="text-[0.625rem] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">🟠 {daysOld(i)}d</span>}
         </div>
       </div>
     )
@@ -99,7 +99,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
       value={ks[col] || 'score'}
       onChange={e => setKanbanSort(col, e.target.value)}
       onClick={e => e.stopPropagation()}
-      className="text-[10px] border border-gray-200 rounded-md px-1 py-0.5 bg-gray-50 text-gray-500 outline-none"
+      className="text-[0.625rem] border border-gray-200 rounded-md px-1 py-0.5 bg-gray-50 text-gray-500 outline-none"
     >
       <option value="score">Score</option>
       <option value="name">Name</option>
@@ -110,7 +110,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
   const Col = ({ ideas, label, color, col }) => (
     <div className="min-w-0">
       <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-gray-100">
-        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color }}>{label} ({ideas.length})</span>
+        <span className="text-[0.6875rem] font-bold uppercase tracking-wider" style={{ color }}>{label} ({ideas.length})</span>
         {col && <SortSelect col={col} />}
       </div>
       <div className="kb-cards">{ideas.map(card)}</div>
@@ -122,16 +122,16 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
       {/* Build Next banner */}
       {recommend && (
         <div className="flex items-center gap-2 flex-wrap bg-gradient-to-r from-green-50 to-violet-50 border border-green-200 rounded-xl px-3 py-2 mb-3">
-          <span className="text-[10px] font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">⭐ Build Next</span>
+          <span className="text-[0.625rem] font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">⭐ Build Next</span>
           <span className="text-xs font-bold text-gray-800 flex-1 min-w-0 truncate">#{recommend.id} {recommend.name}</span>
           <TimePill time={recommend.time} />
           <button
             onClick={() => setStatus(recommend.id, 'building')}
-            className="text-[11px] font-bold bg-green-600 text-white px-2.5 py-1 rounded-lg whitespace-nowrap"
+            className="text-[0.6875rem] font-bold bg-green-600 text-white px-2.5 py-1 rounded-lg whitespace-nowrap"
           >🔨 Start</button>
           <button
             onClick={() => onOpen(recommend.id)}
-            className="text-[11px] font-semibold text-gray-500 border border-gray-200 px-2.5 py-1 rounded-lg whitespace-nowrap"
+            className="text-[0.6875rem] font-semibold text-gray-500 border border-gray-200 px-2.5 py-1 rounded-lg whitespace-nowrap"
           >Details</button>
         </div>
       )}
@@ -164,11 +164,11 @@ function MatrixView({ ideas, getStatus, onOpen }) {
 
   const Quad = ({ ideas, label, color, bg, border }) => (
     <div className={`rounded-xl p-3 ${bg} border ${border}`}>
-      <div className="text-[10px] font-bold uppercase tracking-wide mb-2" style={{ color }}>{label}</div>
+      <div className="text-[0.625rem] font-bold uppercase tracking-wide mb-2" style={{ color }}>{label}</div>
       {ideas.map(i => (
         <div key={i.id} className="text-xs text-gray-600 py-0.5 cursor-pointer hover:text-violet-600" onClick={() => onOpen(i.id)}>
           <span className="font-semibold text-gray-800">#{i.id}</span> {i.name}
-          {i.isNew && <span className="ml-1 text-[9px] font-bold bg-violet-100 text-violet-600 px-1 py-0.5 rounded">NEW</span>}
+          {i.isNew && <span className="ml-1 text-[0.5625rem] font-bold bg-violet-100 text-violet-600 px-1 py-0.5 rounded">NEW</span>}
         </div>
       ))}
     </div>
@@ -176,14 +176,14 @@ function MatrixView({ ideas, getStatus, onOpen }) {
 
   return (
     <div className="space-y-1.5">
-      <div className="flex justify-between text-[10px] text-gray-400 px-1"><span>← High effort</span><span>Low effort →</span></div>
+      <div className="flex justify-between text-[0.625rem] text-gray-400 px-1"><span>← High effort</span><span>Low effort →</span></div>
       <div className="grid grid-cols-2 gap-2">
         <Quad ideas={q2} label="⬆ High impact · High effort — Build next quarter" color="#d97706" bg="bg-amber-50/50" border="border-amber-200" />
         <Quad ideas={q1} label="★ High impact · Low effort — Build now"          color="#059669" bg="bg-green-50/50"  border="border-green-200" />
         <Quad ideas={q4} label="Low impact · High effort — Reconsider"            color="#9090b8" bg="bg-gray-50/50"   border="border-gray-200" />
         <Quad ideas={q3} label="Low impact · Low effort — Fill gaps"              color="#5254d6" bg="bg-violet-50/50" border="border-violet-200" />
       </div>
-      <div className="flex justify-between text-[10px] text-gray-400 px-1"><span>↑ Low impact</span><span>High impact ↑</span></div>
+      <div className="flex justify-between text-[0.625rem] text-gray-400 px-1"><span>↑ Low impact</span><span>High impact ↑</span></div>
     </div>
   )
 }

@@ -79,14 +79,14 @@ export default function TriageModal({ onClose }) {
 
               {current.pain && (
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1">The Problem</div>
+                  <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400 mb-1">The Problem</div>
                   <p className="text-sm text-gray-600">{current.pain}</p>
                 </div>
               )}
 
               {current.mvp?.length > 0 && (
                 <div>
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-1.5">MVP</div>
+                  <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400 mb-1.5">MVP</div>
                   <ul className="list-disc list-inside space-y-1">
                     {current.mvp.map((m, i) => <li key={i} className="text-sm text-gray-600">{m}</li>)}
                   </ul>

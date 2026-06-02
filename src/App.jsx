@@ -74,7 +74,7 @@ export default function App() {
           >
             Triage
             {triageCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-violet-600 text-white text-[9px] font-bold px-1.5 rounded-full">{triageCount}</span>
+              <span className="absolute -top-1.5 -right-1.5 bg-violet-600 text-white text-[0.5625rem] font-bold px-1.5 rounded-full">{triageCount}</span>
             )}
           </button>
           <button
@@ -96,7 +96,7 @@ export default function App() {
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 flex flex-col items-center py-2 gap-0.5 text-[11px] font-semibold transition-colors
+            className={`flex-1 flex flex-col items-center py-2 gap-0.5 text-[0.6875rem] font-semibold transition-colors
               ${tab === t.id ? 'text-violet-600' : 'text-gray-400'}`}
           >
             <span className="text-base">{t.icon}</span>

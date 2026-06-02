@@ -107,7 +107,7 @@ export default function SummaryPage({ onOpenIdea }) {
                 <div className="flex items-center gap-1.5 flex-shrink-0">
                   <StatusBadge status={st} />
                   <TimePill time={i.time} />
-                  <span className="hidden sm:block text-[11px] font-bold text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-lg">{gradeFromScore(s)} {s}</span>
+                  <span className="hidden sm:block text-[0.6875rem] font-bold text-violet-600 bg-violet-50 px-1.5 py-0.5 rounded-lg">{gradeFromScore(s)} {s}</span>
                 </div>
               </div>
             )

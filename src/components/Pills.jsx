@@ -15,7 +15,7 @@ const PLAT_LABELS = { html: 'HTML', pay: 'Pay', hub: 'Hub' }
 
 export function TimePill({ time }) {
   return (
-    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${TIME_STYLES[time] || ''}`}>
+    <span className={`inline-block text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${TIME_STYLES[time] || ''}`}>
       {TIME_LABELS[time] || time}
     </span>
   )
@@ -23,7 +23,7 @@ export function TimePill({ time }) {
 
 export function PlatPill({ plat }) {
   return (
-    <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${PLAT_STYLES[plat] || 'bg-gray-100 text-gray-600'}`}>
+    <span className={`inline-block text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${PLAT_STYLES[plat] || 'bg-gray-100 text-gray-600'}`}>
       {PLAT_LABELS[plat] || plat}
     </span>
   )
@@ -41,7 +41,7 @@ export function StatusBadge({ status }) {
     idea: '💡 Idea', ready: '✅ Ready', building: '🔨 Building', done: '✅ Done', shelved: '🗄 Shelved'
   }
   return (
-    <span className={`inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full ${styles[status] || ''}`}>
+    <span className={`inline-block text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full ${styles[status] || ''}`}>
       {labels[status] || status}
     </span>
   )
@@ -51,7 +51,7 @@ export function ScoreBadge({ idea }) {
   const score = scoreIdea(idea)
   const d = scoreDimensions(idea)
   return (
-    <span className="score-badge relative inline-block text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200 cursor-default ml-1 align-middle">
+    <span className="score-badge relative inline-block text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200 cursor-default ml-1 align-middle">
       S:{score}
       <span className="score-tip">
         <div className="flex justify-between gap-3"><span>Effort</span><span>{d.effort}</span></div>

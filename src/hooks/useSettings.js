@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
 
-const ZOOM_LEVELS = {
-  default: 1,
-  large:   1.15,
-  xl:      1.30,
+const FONT_SIZES = {
+  default: 16,
+  large:   19,
+  xl:      22,
 }
 
 export function useSettings() {
@@ -12,9 +12,10 @@ export function useSettings() {
   )
 
   useEffect(() => {
-    const zoom = ZOOM_LEVELS[fontSize] || 1
-    // zoom on <html> scales everything uniformly — px values, rem, padding, borders
-    document.documentElement.style.zoom = zoom
+    // Remove any lingering zoom
+    document.documentElement.style.zoom = ''
+    const px = FONT_SIZES[fontSize] || 16
+    document.documentElement.style.fontSize = `${px}px`
     localStorage.setItem('ideas-font-size', fontSize)
   }, [fontSize])
 
