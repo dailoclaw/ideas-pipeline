@@ -24,7 +24,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Drawer */}
-      <div className="relative w-full sm:w-80 bg-white dark:bg-slate-800 h-full shadow-2xl flex flex-col z-10 overflow-y-auto">
+      <div className="settings-drawer relative w-full sm:w-80 bg-white dark:bg-slate-800 h-full shadow-2xl flex flex-col z-10 overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
           <h2 className="text-base font-bold text-gray-900 dark:text-slate-100">Customise</h2>

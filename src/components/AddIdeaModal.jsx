@@ -51,7 +51,7 @@ export default function AddIdeaModal({ editId, onClose }) {
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] flex flex-col shadow-2xl">
+      <div className="app-dialog bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] flex flex-col shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
           <h2 className="text-base font-bold text-gray-900">{existing ? 'Edit idea' : 'Add new idea'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1">✕</button>

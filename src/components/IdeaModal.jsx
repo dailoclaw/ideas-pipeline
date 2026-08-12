@@ -84,7 +84,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
     >
       <div
         ref={ref}
-        className="bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl"
+        className="app-dialog bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl"
       >
         {/* Header */}
         <div className="flex items-start justify-between p-4 border-b border-gray-100 flex-shrink-0">

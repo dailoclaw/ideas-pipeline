@@ -24,21 +24,21 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   const clearSelected = () => setSelected(new Set())
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="layout-page flex flex-col h-full overflow-hidden">
       {/* Toggle bar */}
-      <div className="flex gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 flex-wrap">
+      <div className="view-switcher flex gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 flex-wrap">
         {VIEWS.map(v => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all
-              ${view === v ? 'bg-violet-600 text-white' : 'border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+            className={`view-switcher__button px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all
+              ${view === v ? 'is-active bg-violet-600 text-white' : 'border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
           >{VIEW_LABELS[v]}</button>
         ))}
       </div>
 
       {/* View */}
-      <div className="flex-1 overflow-auto p-3 sm:p-4">
+      <div className="layout-canvas flex-1 overflow-auto p-3 sm:p-4">
         {view === 'kanban'   && <KanbanView ideas={filteredIdeas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={selected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} />}
         {view === 'matrix'  && <MatrixView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
         {view === 'features' && <FeaturesView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
@@ -114,8 +114,8 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
   )
 
   const Col = ({ ideas, label, color, col }) => (
-    <div className="min-w-0">
-      <div className="flex items-center justify-between mb-2 pb-1.5 border-b border-gray-100">
+    <div className="kanban-column min-w-0">
+      <div className="kanban-column__header flex items-center justify-between mb-2 pb-1.5 border-b border-gray-100">
         <span className="text-[0.6875rem] font-bold uppercase tracking-wider" style={{ color }}>{label} ({ideas.length})</span>
         {col && <SortSelect col={col} />}
       </div>
@@ -127,7 +127,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
     <div>
       {/* Build Next banner */}
       {recommend && (
-        <div className="flex items-center gap-2 flex-wrap bg-gradient-to-r from-green-50 to-violet-50 border border-green-200 rounded-xl px-3 py-2 mb-3">
+        <div className="build-next flex items-center gap-2 flex-wrap bg-gradient-to-r from-green-50 to-violet-50 border border-green-200 rounded-xl px-3 py-2 mb-3">
           <span className="text-[0.625rem] font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">⭐ Build Next</span>
           <span className="text-xs font-bold text-gray-800 flex-1 min-w-0 truncate">#{recommend.id} {recommend.name}</span>
           <TimePill time={recommend.time} />

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
-const STORAGE_KEY = 'ideas-ui-theme'
-const DEFAULT_THEME = 'calm'
+const STORAGE_KEY = 'ideas-ui-theme-v2'
+const DEFAULT_THEME = 'glass'
 
 export const UI_THEMES = {
   calm: {

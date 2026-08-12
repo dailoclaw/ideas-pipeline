@@ -1,5 +1,13 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.3.1 (2026-08-12) — Theme redesign correction
+### Changed
+- Reworked the mobile app shell with a branded two-row header and one-tap theme switch
+- Replaced emoji navigation with a floating icon dock and clearer active states
+- Changed phone Kanban cards to a readable single-column layout with stronger hierarchy
+- Increased the visual distinction between Calm Command and Luminous Glass across cards, controls, backgrounds, navigation, and modal surfaces
+- Made Luminous Glass the default visual system for new and upgraded sessions
+
 ## v1.3.0 (2026-08-12) — Luminous Glass & Calm Command
 ### Added
 - Switchable Calm Command and Luminous Glass visual systems, persisted between sessions

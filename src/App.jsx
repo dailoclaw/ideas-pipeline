@@ -15,16 +15,31 @@ import AddIdeaModal    from './components/AddIdeaModal'
 import TriageModal     from './components/TriageModal'
 
 const TABS = [
-  { id: 'layout',   label: 'Layout',   icon: '📋' },
-  { id: 'strategy', label: 'Strategy', icon: '🎯' },
-  { id: 'sprint',   label: 'Sprint',   icon: '🏃' },
-  { id: 'groups',   label: 'Groups',   icon: '🗂' },
-  { id: 'summary',  label: 'Summary',  icon: '📊' },
+  { id: 'layout',   label: 'Layout',   icon: 'layout' },
+  { id: 'strategy', label: 'Strategy', icon: 'target' },
+  { id: 'sprint',   label: 'Sprint',   icon: 'bolt' },
+  { id: 'groups',   label: 'Groups',   icon: 'groups' },
+  { id: 'summary',  label: 'Summary',  icon: 'chart' },
 ]
 
-// Fixed-size header button style (px not rem — never scales with font setting)
-const HDR = 'border border-gray-200 dark:border-slate-700 rounded-lg font-semibold text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors'
-const HDR_STYLE = { fontSize: '11px', padding: '5px 10px' }
+const ICON_PATHS = {
+  layout: <><rect x="3" y="4" width="7" height="16" rx="2"/><rect x="14" y="4" width="7" height="7" rx="2"/><rect x="14" y="15" width="7" height="5" rx="2"/></>,
+  target: <><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M18 6l3-3M17 3h4v4"/></>,
+  bolt: <path d="M13 2L4.5 13h6L9.5 22 19.5 9h-6L13 2z"/>,
+  groups: <><rect x="3" y="4" width="8" height="7" rx="2"/><rect x="13" y="4" width="8" height="7" rx="2"/><rect x="3" y="13" width="8" height="7" rx="2"/><rect x="13" y="13" width="8" height="7" rx="2"/></>,
+  chart: <><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></>,
+  settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 00-1.88-.34 1.7 1.7 0 00-1.03 1.56V21h-4v-.08A1.7 1.7 0 008.96 19.4a1.7 1.7 0 00-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 004.6 15a1.7 1.7 0 00-1.56-1.03H3v-4h.08A1.7 1.7 0 004.6 8.96a1.7 1.7 0 00-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 008.96 4.6 1.7 1.7 0 0010 3.08V3h4v.08a1.7 1.7 0 001.03 1.56 1.7 1.7 0 001.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0019.4 9c.23.62.82 1.03 1.48 1.03H21v4h-.08A1.7 1.7 0 0019.4 15z"/></>,
+  sparkle: <><path d="M12 2l1.25 4.25L17.5 7.5l-4.25 1.25L12 13l-1.25-4.25L6.5 7.5l4.25-1.25L12 2z"/><path d="M18.5 13.5l.75 2.25 2.25.75-2.25.75-.75 2.25-.75-2.25-2.25-.75 2.25-.75.75-2.25z"/><path d="M5 14l.65 1.85L7.5 16.5l-1.85.65L5 19l-.65-1.85-1.85-.65 1.85-.65L5 14z"/></>,
+  plus: <><path d="M12 5v14M5 12h14"/></>,
+}
+
+function Icon({ name, size = 18 }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {ICON_PATHS[name]}
+    </svg>
+  )
+}
 
 export default function App() {
   const [tab, setTab]         = useState('layout')
@@ -62,46 +77,59 @@ export default function App() {
   )
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
+    <div className="app-shell flex flex-col h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
 
-      {/* ── Header ── fixed px sizes, never scales ── */}
-      <header
-        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0"
-        style={{ fontSize: '13px' }}
-      >
-        {/* Group filter — always visible */}
-        {(
-          <div className="flex items-center gap-1.5 flex-1 min-w-0">
-            <span className="text-gray-400 dark:text-slate-500 font-semibold shrink-0" style={{ fontSize: '11px' }}>Group:</span>
+      <header className="app-header bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
+        <div className="brand-lockup">
+          <span className="brand-mark"><Icon name="sparkle" size={18} /></span>
+          <span className="brand-copy">
+            <strong>Idea Flow</strong>
+            <small>{theme === 'glass' ? 'Luminous Glass' : 'Calm Command'}</small>
+          </span>
+        </div>
+
+        <div className="header-filter min-w-0">
+            <span className="header-filter__label text-gray-400 dark:text-slate-500 font-semibold">Workspace</span>
             <select
               value={groupFilter}
               onChange={e => setGroupFilter(e.target.value)}
-              className={`rounded-lg border px-2 py-1 font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200
+              aria-label="Filter ideas by workspace"
+              className={`header-filter__select rounded-lg border font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200
                 ${groupFilter ? 'border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' : 'border-gray-200 bg-white text-gray-600'}`}
-              style={{ fontSize: '11px' }}
             >
               <option value="">All ideas</option>
               <option value="__none__">∅ No group yet</option>
               {GROUPS.map(g => <option key={g.key} value={g.key}>{g.icon} {g.label}</option>)}
             </select>
             {groupFilter && (
-              <button onClick={() => setGroupFilter('')} className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-300" style={{ fontSize: '11px' }}>×</button>
+              <button onClick={() => setGroupFilter('')} className="header-filter__clear text-gray-400 hover:text-gray-600 dark:hover:text-slate-300" aria-label="Clear workspace filter">×</button>
             )}
-          </div>
-        )}
+        </div>
 
-        <button onClick={() => setSettingsOpen(true)} className={HDR} style={HDR_STYLE} title="Customise">⚙️</button>
-        <button onClick={() => setTriageOpen(true)}   className={`${HDR} relative`} style={HDR_STYLE}>
-          Triage
+        <div className="header-actions">
+          <button
+            onClick={() => setTheme(theme === 'glass' ? 'calm' : 'glass')}
+            className="header-action theme-quick-toggle"
+            title={`Switch to ${theme === 'glass' ? 'Calm Command' : 'Luminous Glass'}`}
+            aria-label={`Switch to ${theme === 'glass' ? 'Calm Command' : 'Luminous Glass'} theme`}
+          >
+            <Icon name="sparkle" size={16} />
+            <span className="theme-quick-label">{theme === 'glass' ? 'Glass' : 'Calm'}</span>
+          </button>
+          <button onClick={() => setSettingsOpen(true)} className="header-action header-action--icon" title="Customise" aria-label="Customise appearance"><Icon name="settings" size={17} /></button>
+          <button onClick={() => setTriageOpen(true)} className="header-action header-action--triage relative">
+            <Icon name="target" size={16} />
+            <span>Triage</span>
           {triageCount > 0 && (
-            <span className="absolute -top-1 -right-1 bg-violet-600 text-white rounded-full leading-none font-bold" style={{ fontSize: '9px', padding: '2px 4px' }}>{triageCount}</span>
+              <span className="triage-count">{triageCount}</span>
           )}
-        </button>
-        <button onClick={() => setAddOpen(true)} className="rounded-lg font-semibold bg-violet-600 text-white" style={HDR_STYLE}>+ Add</button>
+          </button>
+          <button onClick={() => setAddOpen(true)} className="header-action header-action--primary"><Icon name="plus" size={15} /><span>New</span></button>
+        </div>
       </header>
 
       {/* ── Main content ── */}
-      <main className="flex-1 overflow-hidden">
+      <main className="app-main flex-1 overflow-hidden">
         {tab === 'layout'   && <LayoutPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
         {tab === 'strategy' && <StrategyPage onOpenIdea={setOpenId} groupFilter={groupFilter} />}
         {tab === 'sprint'   && <SprintPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
@@ -110,16 +138,16 @@ export default function App() {
       </main>
 
       {/* ── Bottom tab nav ── */}
-      <nav className="bottom-nav flex bg-white dark:bg-slate-800 border-t border-gray-100 dark:border-slate-700 flex-shrink-0">
+      <nav className="bottom-nav flex bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 flex-shrink-0" aria-label="Primary navigation">
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 flex flex-col items-center py-2 gap-0.5 font-semibold transition-colors ${tab === t.id ? 'text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-slate-500'}`}
-            style={{ fontSize: '10px' }}
+            className={`bottom-nav__item flex-1 flex flex-col items-center font-semibold transition-colors ${tab === t.id ? 'is-active text-violet-600 dark:text-violet-400' : 'text-gray-400 dark:text-slate-500'}`}
+            aria-current={tab === t.id ? 'page' : undefined}
           >
-            <span style={{ fontSize: '18px' }}>{t.icon}</span>
-            {t.label}
+            <span className="bottom-nav__icon"><Icon name={t.icon} size={19} /></span>
+            <span>{t.label}</span>
           </button>
         ))}
       </nav>
