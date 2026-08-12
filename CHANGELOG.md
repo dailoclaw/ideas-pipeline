@@ -1,5 +1,35 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.3.0 (2026-08-12) — Luminous Glass & Calm Command
+### Added
+- Switchable Calm Command and Luminous Glass visual systems, persisted between sessions
+- Theme-aware styling across dashboard surfaces, navigation, cards, controls, inputs, modals, drawers, hover, and focus states
+- Responsive visual refinement for mobile and desktop layouts
+
+## v1.2.0 (2026-06-03) — Universal status editor
+### Added
+- Status dropdown in every idea modal — works for all ideas (seed and user-added), all statuses in all directions
+- Can now move any idea from shelved back to idea/researching/ready/building/done
+- Replaces the scattered quick-action buttons with a single consistent status selector
+- Loading state while status saves to Supabase
+
+### Removed
+- Separate Shelve/Unshelve/Unmark-done buttons (replaced by dropdown)
+
+## v1.1.2 (2026-06-03) — Fix add idea error
+### Fixed
+- "null value in column id" error when adding a new idea — ID is now generated client-side as `max(existing ids) + 1` (schema has no auto-increment)
+
+## v1.1.1 (2026-06-03) — Notes dark mode fix
+### Fixed
+- Notes textarea now respects dark mode (dark bg, light text, correct border and placeholder colour)
+
+## v1.1.0 (2026-06-03) — Editable notes
+### Added
+- Inline editable notes textarea in the idea modal for ALL ideas (seed and user-added)
+- Debounced autosave to Supabase (800ms) with "Saving…" / "✓ Saved" indicator
+- `updateNotes` action added to Zustand store
+
 ## v1.0.0 (2026-06-02) — Initial build
 ### Stack
 - React + Vite + Tailwind CSS + Supabase + Zustand

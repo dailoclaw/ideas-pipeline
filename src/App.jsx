@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useStore } from './lib/store'
 import { useDarkMode } from './hooks/useDarkMode'
+import { useUiTheme } from './hooks/useUiTheme'
 import { useSettings } from './hooks/useSettings'
+import { GROUPS } from './data/groups'
 import SettingsDrawer  from './components/SettingsDrawer'
 import LayoutPage      from './pages/LayoutPage'
 import SummaryPage     from './pages/SummaryPage'
@@ -26,12 +28,14 @@ const HDR_STYLE = { fontSize: '11px', padding: '5px 10px' }
 
 export default function App() {
   const [tab, setTab]         = useState('layout')
+  const [groupFilter, setGroupFilter] = useState('')
   const [openId, setOpenId]   = useState(null)
   const [editId, setEditId]   = useState(null)
   const [addOpen, setAddOpen] = useState(false)
   const [triageOpen, setTriageOpen]   = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [dark, toggleDark]    = useDarkMode()
+  const { theme, setTheme }    = useUiTheme()
   const { fontSize, setFontSizeKey }  = useSettings()
 
   const { load, loading, error, ideas, getStatus } = useStore()
@@ -62,9 +66,30 @@ export default function App() {
 
       {/* ── Header ── fixed px sizes, never scales ── */}
       <header
-        className="flex items-center justify-end gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0"
+        className="flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0"
         style={{ fontSize: '13px' }}
       >
+        {/* Group filter — always visible */}
+        {(
+          <div className="flex items-center gap-1.5 flex-1 min-w-0">
+            <span className="text-gray-400 dark:text-slate-500 font-semibold shrink-0" style={{ fontSize: '11px' }}>Group:</span>
+            <select
+              value={groupFilter}
+              onChange={e => setGroupFilter(e.target.value)}
+              className={`rounded-lg border px-2 py-1 font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200
+                ${groupFilter ? 'border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' : 'border-gray-200 bg-white text-gray-600'}`}
+              style={{ fontSize: '11px' }}
+            >
+              <option value="">All ideas</option>
+              <option value="__none__">∅ No group yet</option>
+              {GROUPS.map(g => <option key={g.key} value={g.key}>{g.icon} {g.label}</option>)}
+            </select>
+            {groupFilter && (
+              <button onClick={() => setGroupFilter('')} className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-300" style={{ fontSize: '11px' }}>×</button>
+            )}
+          </div>
+        )}
+
         <button onClick={() => setSettingsOpen(true)} className={HDR} style={HDR_STYLE} title="Customise">⚙️</button>
         <button onClick={() => setTriageOpen(true)}   className={`${HDR} relative`} style={HDR_STYLE}>
           Triage
@@ -77,11 +102,11 @@ export default function App() {
 
       {/* ── Main content ── */}
       <main className="flex-1 overflow-hidden">
-        {tab === 'layout'   && <LayoutPage   onOpenIdea={setOpenId} />}
-        {tab === 'strategy' && <StrategyPage onOpenIdea={setOpenId} />}
-        {tab === 'sprint'   && <SprintPage   onOpenIdea={setOpenId} />}
-        {tab === 'groups'   && <GroupsPage   onOpenIdea={setOpenId} />}
-        {tab === 'summary'  && <SummaryPage  onOpenIdea={setOpenId} />}
+        {tab === 'layout'   && <LayoutPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
+        {tab === 'strategy' && <StrategyPage onOpenIdea={setOpenId} groupFilter={groupFilter} />}
+        {tab === 'sprint'   && <SprintPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
+        {tab === 'groups'   && <GroupsPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
+        {tab === 'summary'  && <SummaryPage  onOpenIdea={setOpenId} groupFilter={groupFilter} />}
       </main>
 
       {/* ── Bottom tab nav ── */}
@@ -109,6 +134,8 @@ export default function App() {
           onClose={() => setSettingsOpen(false)}
           dark={dark}
           toggleDark={toggleDark}
+          theme={theme}
+          setTheme={setTheme}
           fontSize={fontSize}
           setFontSizeKey={setFontSizeKey}
         />

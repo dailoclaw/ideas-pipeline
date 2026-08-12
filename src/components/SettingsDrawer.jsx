@@ -6,7 +6,7 @@ const SIZE_OPTIONS = [
   { key: 'xl',      label: 'XL',      desc: 'Maximum comfort', aaSize: 24 },
 ]
 
-export default function SettingsDrawer({ open, onClose, dark, toggleDark, fontSize, setFontSizeKey }) {
+export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme, setTheme, fontSize, setFontSizeKey }) {
   useEffect(() => {
     const handler = e => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handler)
@@ -33,9 +33,38 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, fontSi
 
         <div className="flex-1 p-5 space-y-7">
 
-          {/* Theme */}
+          {/* Visual system */}
           <section>
-            <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">Theme</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">Visual system</div>
+            <div className="space-y-2">
+              {[
+                { key: 'calm', label: 'Calm Command', desc: 'Spacious and reassuring', swatches: ['#153a37', '#4e9189', '#c49a44'] },
+                { key: 'glass', label: 'Luminous Glass', desc: 'Layered and luminous', swatches: ['#11162b', '#8b7cff', '#64e7d1'] },
+              ].map(opt => {
+                const active = theme === opt.key
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => setTheme(opt.key)}
+                    className={`theme-choice w-full flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 transition-all text-left ${active ? 'theme-choice--active' : ''}`}
+                  >
+                    <span className="theme-choice__swatches" aria-hidden="true">
+                      {opt.swatches.map(color => <i key={color} style={{ backgroundColor: color }} />)}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block font-bold text-gray-800 dark:text-slate-200">{opt.label}</span>
+                      <span className="block text-xs text-gray-400 dark:text-slate-500 mt-0.5">{opt.desc}</span>
+                    </span>
+                    <span className={`theme-choice__check ml-auto ${active ? 'theme-choice__check--active' : ''}`} aria-hidden="true">✓</span>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+
+          {/* Appearance */}
+          <section>
+            <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">Appearance</div>
             <div className="flex gap-3">
               {[
                 { key: 'light', icon: '☀️', label: 'Light' },

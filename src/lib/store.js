@@ -9,6 +9,7 @@ export const useStore = create((set, get) => ({
   ideas: [],
   statusOverrides: {},   // { [id]: 'done' | 'shelved' | null }
   statusHistory: {},     // { [id]: [{status, date}] }
+  groupAssignments: {},  // { [id]: groupKey }
   loading: true,
   error: null,
 
@@ -56,6 +57,13 @@ export const useStore = create((set, get) => ({
         })
       }
 
+      // Fetch group assignments
+      const { data: groupRows } = await supabase
+        .from('idea_group_assignments')
+        .select('idea_id, group_key')
+      const groupMap = {}
+      if (groupRows) groupRows.forEach(r => { groupMap[r.idea_id] = r.group_key })
+
       // Normalise: Supabase uses snake_case, app uses camelCase
       const ideas = rows.map(r => ({
         id: r.id,
@@ -73,9 +81,11 @@ export const useStore = create((set, get) => ({
         isNew: !r.is_seed,
         isV2: r.is_v2 || false,
         originalId: r.original_id,
+        scoreAdjust: r.score_adjust || 0,
+        isPriority: r.is_priority || false,
       }))
 
-      set({ ideas, statusOverrides: overrideMap, statusHistory: historyMap, loading: false })
+      set({ ideas, statusOverrides: overrideMap, statusHistory: historyMap, groupAssignments: groupMap, loading: false })
     } catch (err) {
       console.error('Load error:', err)
       set({ error: err.message, loading: false })
@@ -107,7 +117,10 @@ export const useStore = create((set, get) => ({
 
   // ── Add idea ──────────────────────────────────────────────────────────────
   async addIdea(fields) {
+    const { ideas } = get()
+    const maxId = ideas.length > 0 ? Math.max(...ideas.map(i => i.id)) : 0
     const newRow = {
+      id: maxId + 1,
       name: fields.name,
       status: 'idea',
       time: fields.time || '1-2w',
@@ -192,6 +205,18 @@ export const useStore = create((set, get) => ({
     }))
   },
 
+  // ── Update notes (any idea — seed or user-added) ───────────────────────────
+  async updateNotes(id, notes) {
+    const { error } = await supabase
+      .from('ideas')
+      .update({ notes, updated_at: new Date().toISOString() })
+      .eq('id', id)
+    if (error) throw error
+    set(s => ({
+      ideas: s.ideas.map(i => i.id === id ? { ...i, notes } : i)
+    }))
+  },
+
   // ── Batch set status ──────────────────────────────────────────────────────
   async batchSetStatus(ids, status) {
     await Promise.all([...ids].map(id => get().setStatus(id, status)))
@@ -210,6 +235,37 @@ export const useStore = create((set, get) => ({
     const map = JSON.parse(localStorage.getItem('ideas-webapp-sprint-weeks') || '{}')
     map[id] = weeks
     localStorage.setItem('ideas-webapp-sprint-weeks', JSON.stringify(map))
+  },
+
+  // ── Score adjustment + priority ──────────────────────────────────────────────────────
+  async setScoreAdjust(id, scoreAdjust) {
+    const adj = Math.max(-99, Math.min(99, parseInt(scoreAdjust) || 0))
+    await supabase.from('ideas').update({ score_adjust: adj, updated_at: new Date().toISOString() }).eq('id', id)
+    set(s => ({ ideas: s.ideas.map(i => i.id === id ? { ...i, scoreAdjust: adj } : i) }))
+  },
+  async setPriority(id, isPriority) {
+    await supabase.from('ideas').update({ is_priority: isPriority, updated_at: new Date().toISOString() }).eq('id', id)
+    set(s => ({ ideas: s.ideas.map(i => i.id === id ? { ...i, isPriority } : i) }))
+  },
+
+  // ── Group assignment ──────────────────────────────────────────────────────
+  getGroup(ideaId) {
+    return get().groupAssignments[ideaId] || ''
+  },
+  async setGroupAssignment(ideaId, groupKey) {
+    if (groupKey) {
+      await supabase.from('idea_group_assignments').upsert(
+        { idea_id: ideaId, group_key: groupKey, updated_at: new Date().toISOString() },
+        { onConflict: 'idea_id' }
+      )
+    } else {
+      await supabase.from('idea_group_assignments').delete().eq('idea_id', ideaId)
+    }
+    set(s => {
+      const ga = { ...s.groupAssignments }
+      if (groupKey) { ga[ideaId] = groupKey } else { delete ga[ideaId] }
+      return { groupAssignments: ga }
+    })
   },
 
   // ── Kanban sort (localStorage) ─────────────────────────────────────────────

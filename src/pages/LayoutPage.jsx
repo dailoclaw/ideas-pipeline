@@ -6,10 +6,16 @@ import { TimePill, PlatPill, ScoreBadge } from '../components/Pills'
 const VIEWS = ['kanban', 'matrix', 'features']
 const VIEW_LABELS = { kanban: 'Kanban', matrix: 'Matrix', features: 'Feature Cards' }
 
-export default function LayoutPage({ onOpenIdea }) {
+export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   const [view, setView] = useState('kanban')
-  const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort } = useStore()
+  const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, getGroup } = useStore()
   const [selected, setSelected] = useState(new Set())
+
+  const filteredIdeas = groupFilter === '__none__'
+    ? ideas.filter(i => !getGroup(i.id))
+    : groupFilter
+      ? ideas.filter(i => getGroup(i.id) === groupFilter)
+      : ideas
 
   const toggleSelect = (id, e) => {
     e.stopPropagation()
@@ -20,7 +26,7 @@ export default function LayoutPage({ onOpenIdea }) {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Toggle bar */}
-      <div className="flex gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 overflow-x-auto">
+      <div className="flex gap-2 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 flex-wrap">
         {VIEWS.map(v => (
           <button
             key={v}
@@ -33,9 +39,9 @@ export default function LayoutPage({ onOpenIdea }) {
 
       {/* View */}
       <div className="flex-1 overflow-auto p-3 sm:p-4">
-        {view === 'kanban'   && <KanbanView ideas={ideas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={selected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} />}
-        {view === 'matrix'  && <MatrixView ideas={ideas} getStatus={getStatus} onOpen={onOpenIdea} />}
-        {view === 'features' && <FeaturesView ideas={ideas} getStatus={getStatus} onOpen={onOpenIdea} />}
+        {view === 'kanban'   && <KanbanView ideas={filteredIdeas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={selected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} />}
+        {view === 'matrix'  && <MatrixView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
+        {view === 'features' && <FeaturesView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
       </div>
 
       {/* Batch bar */}
@@ -75,7 +81,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
       >
         <div className="flex items-start justify-between gap-1 mb-1">
           <div className="text-xs font-semibold text-gray-800 leading-snug flex-1">
-            #{i.id} {i.name}
+            {i.isPriority && <span className="mr-1">⭐</span>}#{i.id} {i.name}
           </div>
           <input
             type="checkbox"

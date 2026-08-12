@@ -1,10 +1,11 @@
 export function scoreIdea(i) {
-  const effortPts = { '1w': 40, '1-2w': 28, '2-4w': 16 }[i.time] || 16
-  const platPts   = { hub: 25, html: 20, pay: 18 }[i.plat] || 16
-  const mvpPts    = Math.min(20, (i.mvp || []).length * 2.5)
+  const effortPts  = { '1w': 40, '1-2w': 28, '2-4w': 16 }[i.time] || 16
+  const platPts    = { hub: 25, html: 20, pay: 18 }[i.plat] || 16
+  const mvpPts     = Math.min(20, (i.mvp || []).length * 2.5)
   const noveltyPts = Math.min(15, Math.floor((i.win || '').length / 12))
-  const painPts   = Math.min(5, Math.floor((i.pain || '').length / 80))
-  return Math.round(effortPts + platPts + mvpPts + noveltyPts + painPts)
+  const painPts    = Math.min(5, Math.floor((i.pain || '').length / 80))
+  const base       = Math.round(effortPts + platPts + mvpPts + noveltyPts + painPts)
+  return Math.max(1, base + (i.scoreAdjust || 0))
 }
 
 export function scoreDimensions(i) {
@@ -26,10 +27,11 @@ export function gradeFromScore(s) {
 
 export function getBuildNext(ideas, getStatus) {
   const effortBonus = { '1w': 20, '1-2w': 8, '2-4w': 0 }
-  return ideas
+  const candidates = ideas
     .filter(i => { const s = getStatus(i); return s === 'idea' || s === 'ready' })
-    .map(i => ({ idea: i, score: scoreIdea(i) + (effortBonus[i.time] || 0) }))
-    .sort((a, b) => b.score - a.score)[0]?.idea || null
+    .map(i => ({ idea: i, score: scoreIdea(i) + (effortBonus[i.time] || 0) + (i.isPriority ? 10000 : 0) }))
+    .sort((a, b) => b.score - a.score)
+  return candidates[0]?.idea || null
 }
 
 export function isStale(idea, getStatus) {
@@ -44,9 +46,10 @@ export function daysOld(idea) {
 }
 
 export function sortIdeas(ideas, sort, getStatus) {
-  if (sort === 'score') return [...ideas].sort((a, b) => scoreIdea(b) - scoreIdea(a))
-  if (sort === 'name')  return [...ideas].sort((a, b) => a.name.localeCompare(b.name))
-  if (sort === 'id')    return [...ideas].sort((a, b) => a.id - b.id)
+  const priorityFirst = (a, b) => (b.isPriority ? 1 : 0) - (a.isPriority ? 1 : 0)
+  if (sort === 'score') return [...ideas].sort((a, b) => priorityFirst(a, b) || scoreIdea(b) - scoreIdea(a))
+  if (sort === 'name')  return [...ideas].sort((a, b) => priorityFirst(a, b) || a.name.localeCompare(b.name))
+  if (sort === 'id')    return [...ideas].sort((a, b) => priorityFirst(a, b) || a.id - b.id)
   return ideas
 }
 

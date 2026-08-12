@@ -9,14 +9,18 @@ const GRADE_STYLE = {
   D: 'text-gray-500 bg-gray-50 border-gray-200 dark:text-slate-400 dark:bg-slate-900/30 dark:border-slate-700',
 }
 
-export default function StrategyPage({ onOpenIdea }) {
-  const { ideas, getStatus, setStatus } = useStore()
+export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
+  const { ideas, getStatus, setStatus, getGroup } = useStore()
 
-  const active = ideas
+  const groupIdeas = groupFilter === '__none__'
+    ? ideas.filter(i => !getGroup(i.id))
+    : groupFilter ? ideas.filter(i => getGroup(i.id) === groupFilter) : ideas
+
+  const active = groupIdeas
     .filter(i => !['done', 'shelved'].includes(getStatus(i)))
     .sort((a, b) => scoreIdea(b) - scoreIdea(a))
 
-  const recommend = getBuildNext(ideas, getStatus)
+  const recommend = getBuildNext(groupIdeas, getStatus)
 
   return (
     <div className="h-full overflow-auto p-3 space-y-4">

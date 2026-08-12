@@ -6,8 +6,8 @@ import { TimePill, PlatPill } from '../components/Pills'
 
 const WEEKS = 8
 
-export default function SprintPage({ onOpenIdea }) {
-  const { ideas, getStatus, getSprintWeeks } = useStore()
+export default function SprintPage({ onOpenIdea, groupFilter = '' }) {
+  const { ideas, getStatus, getSprintWeeks, getGroup } = useStore()
   const [plan, setPlan]       = useState({})   // { [ideaId]: weekNum }
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
@@ -25,7 +25,8 @@ export default function SprintPage({ onOpenIdea }) {
     })()
   }, [])
 
-  const active      = ideas.filter(i => !['done','shelved'].includes(getStatus(i))).sort((a,b) => scoreIdea(b) - scoreIdea(a))
+  const groupIdeas  = groupFilter === '__none__' ? ideas.filter(i => !getGroup(i.id)) : groupFilter ? ideas.filter(i => getGroup(i.id) === groupFilter) : ideas
+  const active      = groupIdeas.filter(i => !['done','shelved'].includes(getStatus(i))).sort((a,b) => scoreIdea(b) - scoreIdea(a))
   const scheduled   = active.filter(i => plan[i.id])
   const unscheduled = active.filter(i => !plan[i.id])
   const totalWeeks  = scheduled.reduce((sum, i) => sum + (getSprintWeeks(i.id, i) || 1), 0)

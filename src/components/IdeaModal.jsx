@@ -1,9 +1,20 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { useStore } from '../lib/store'
 import { TimePill, PlatPill, StatusBadge, ScoreBadge } from './Pills'
+import { GROUPS } from '../data/groups'
+import { scoreIdea } from '../lib/scoring'
+
+const ALL_STATUSES = [
+  { value: 'idea',        label: '💡 Idea' },
+  { value: 'researching', label: '🔍 Researching' },
+  { value: 'ready',       label: '✅ Ready' },
+  { value: 'building',    label: '🔨 Building' },
+  { value: 'done',        label: '✓ Done' },
+  { value: 'shelved',     label: '🗄 Shelved' },
+]
 
 export default function IdeaModal({ ideaId, onClose, onEdit }) {
-  const { ideas, statusHistory, getStatus, setStatus, deleteIdea } = useStore()
+  const { ideas, statusHistory, getStatus, setStatus, deleteIdea, updateNotes, getGroup, setGroupAssignment, setScoreAdjust, setPriority } = useStore()
   const idea = ideas.find(i => i.id === ideaId)
   const ref = useRef()
 
@@ -12,6 +23,52 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
     document.addEventListener('keydown', handler)
     return () => document.removeEventListener('keydown', handler)
   }, [onClose])
+
+  const [localNotes, setLocalNotes] = useState('')
+  const [groupSaving, setGroupSaving] = useState(false)
+  const [statusSaving, setStatusSaving] = useState(false)
+  const [adjSaving, setAdjSaving] = useState(false)
+  const [localAdj, setLocalAdj] = useState(0)
+  const adjTimer = useRef(null)
+
+  useEffect(() => {
+    if (idea) setLocalAdj(idea.scoreAdjust || 0)
+  }, [idea?.id])
+  const [saveState, setSaveState] = useState('idle') // idle | saving | saved
+  const saveTimer = useRef(null)
+  const notesKey = idea?.id
+
+  // Sync localNotes when idea changes
+  useEffect(() => {
+    if (idea) setLocalNotes(idea.notes || '')
+  }, [notesKey])
+
+  const handleNotesChange = useCallback((val) => {
+    setLocalNotes(val)
+    setSaveState('saving')
+    clearTimeout(saveTimer.current)
+    saveTimer.current = setTimeout(async () => {
+      try {
+        await updateNotes(idea.id, val)
+        setSaveState('saved')
+        setTimeout(() => setSaveState('idle'), 1500)
+      } catch {
+        setSaveState('idle')
+      }
+    }, 800)
+  }, [idea?.id, updateNotes])
+
+  useEffect(() => () => clearTimeout(saveTimer.current), [])
+
+  const handleStatusChange = useCallback(async (newStatus) => {
+    if (!idea) return
+    setStatusSaving(true)
+    try {
+      await setStatus(idea.id, newStatus)
+    } finally {
+      setStatusSaving(false)
+    }
+  }, [idea?.id, setStatus])
 
   if (!idea) return null
 
@@ -46,33 +103,93 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {/* Quick actions for seed ideas */}
-          {!idea.isNew && status !== 'done' && status !== 'shelved' && (
-            <div className="flex gap-2 flex-wrap">
-              <button
-                onClick={() => setStatus(idea.id, 'building')}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-blue-600 text-white"
-              >🔨 Start Building</button>
-              <button
-                onClick={() => setStatus(idea.id, 'ready')}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-green-600 text-white"
-              >✅ Move to Ready</button>
-              <button
-                onClick={() => setStatus(idea.id, 'done')}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg bg-violet-600 text-white"
-              >✓ Mark Done</button>
-              <button
-                onClick={() => setStatus(idea.id, 'shelved')}
-                className="text-xs font-bold px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500"
-              >🗄 Shelve</button>
-            </div>
-          )}
-          {!idea.isNew && status === 'done' && (
+          {/* Priority flag */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Priority</span>
             <button
-              onClick={() => setStatus(idea.id, null)}
-              className="text-xs font-bold px-3 py-1.5 rounded-lg border border-gray-200 text-gray-500"
-            >↩ Unmark done</button>
-          )}
+              onClick={async () => { await setPriority(idea.id, !idea.isPriority) }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+                ${idea.isPriority
+                  ? 'bg-amber-50 border-amber-300 text-amber-700'
+                  : 'border-gray-200 text-gray-400 hover:border-amber-200 hover:text-amber-500'}`}
+            >
+              {idea.isPriority ? '⭐ Priority — floats to top' : '☆ Set as priority'}
+            </button>
+          </div>
+
+          {/* Score adjustment */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Score</span>
+            <div className="flex items-center gap-2 flex-1">
+              <span className="text-xs text-gray-400">Base: {Math.max(1, scoreIdea({ ...idea, scoreAdjust: 0 }))}</span>
+              <span className="text-xs text-gray-300">→</span>
+              <input
+                type="number"
+                min="-99" max="99" step="5"
+                value={localAdj}
+                onChange={e => {
+                  const v = parseInt(e.target.value) || 0
+                  setLocalAdj(v)
+                  setAdjSaving(true)
+                  clearTimeout(adjTimer.current)
+                  adjTimer.current = setTimeout(async () => {
+                    await setScoreAdjust(idea.id, v)
+                    setAdjSaving(false)
+                  }, 600)
+                }}
+                className="w-20 text-sm font-bold text-center border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
+              />
+              <span className={`text-xs font-bold ${
+                localAdj > 0 ? 'text-green-600' : localAdj < 0 ? 'text-red-500' : 'text-gray-400'
+              }`}>
+                {localAdj > 0 ? `+${localAdj}` : localAdj < 0 ? `${localAdj}` : '±0'}
+              </span>
+              <span className="text-xs font-bold text-violet-600">
+                = {Math.max(1, scoreIdea({ ...idea, scoreAdjust: 0 }) + localAdj)}
+              </span>
+              {adjSaving && <span className="text-[0.625rem] text-gray-400">Saving…</span>}
+            </div>
+          </div>
+
+          {/* Group assignment — works for all ideas */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Group</span>
+            <select
+              value={getGroup(idea.id)}
+              disabled={groupSaving}
+              onChange={async e => {
+                setGroupSaving(true)
+                try { await setGroupAssignment(idea.id, e.target.value) }
+                finally { setGroupSaving(false) }
+              }}
+              className="flex-1 text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 bg-white text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
+            >
+              <option value="">No group</option>
+              {GROUPS.map(g => (
+                <option key={g.key} value={g.key}>{g.icon} {g.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Universal status selector — works for all ideas, all statuses */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Status</span>
+            <div className="relative flex-1">
+              <select
+                value={status}
+                disabled={statusSaving}
+                onChange={e => handleStatusChange(e.target.value)}
+                className="w-full text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 pr-8 appearance-none bg-white text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
+              >
+                {ALL_STATUSES.map(s => (
+                  <option key={s.value} value={s.value}>{s.label}</option>
+                ))}
+              </select>
+              <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                {statusSaving ? '…' : '▾'}
+              </span>
+            </div>
+          </div>
 
           <Section label="Pitch" value={idea.pitch} />
           {idea.target && <Section label="Who it's for" value={idea.target} />}
@@ -93,7 +210,20 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               <div className="text-sm text-green-700 border-l-2 border-green-300 pl-3">{idea.win}</div>
             </div>
           )}
-          {idea.notes && <Section label="Notes" value={idea.notes} />}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400">Notes</div>
+              {saveState === 'saving' && <span className="text-[0.625rem] text-gray-400">Saving…</span>}
+              {saveState === 'saved' && <span className="text-[0.625rem] text-green-500 font-semibold">✓ Saved</span>}
+            </div>
+            <textarea
+              className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 placeholder-gray-300"
+              rows={3}
+              placeholder="Add notes…"
+              value={localNotes}
+              onChange={e => handleNotesChange(e.target.value)}
+            />
+          </div>
 
           {/* Status timeline */}
           <div className="border-t border-gray-100 pt-3">
@@ -128,10 +258,6 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               onClick={() => onEdit(idea.id)}
               className="flex-1 text-sm font-bold py-2 rounded-xl border border-gray-200 text-gray-600"
             >✏️ Edit</button>
-            {idea.status !== 'shelved'
-              ? <button onClick={() => setStatus(idea.id, 'shelved')} className="flex-1 text-sm font-bold py-2 rounded-xl border border-gray-200 text-amber-600">🗄 Shelve</button>
-              : <button onClick={() => setStatus(idea.id, 'idea')} className="flex-1 text-sm font-bold py-2 rounded-xl border border-gray-200 text-green-600">↩ Unshelve</button>
-            }
             <button
               onClick={async () => {
                 if (!confirm(`Delete "${idea.name}"?`)) return

@@ -5,19 +5,26 @@ import { TimePill, PlatPill, StatusBadge } from '../components/Pills'
 
 const STATUSES = ['building', 'ready', 'idea', 'done', 'shelved']
 
-export default function SummaryPage({ onOpenIdea }) {
-  const { ideas, getStatus } = useStore()
+export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
+  const { ideas, getStatus, getGroup } = useStore()
   const [filterStatus, setFilterStatus] = useState('all')
   const [sort, setSort] = useState('score')
   const [search, setSearch] = useState('')
 
+  // Apply group filter first
+  const groupIdeas = groupFilter === '__none__'
+    ? ideas.filter(i => !getGroup(i.id))
+    : groupFilter
+      ? ideas.filter(i => getGroup(i.id) === groupFilter)
+      : ideas
+
   const counts = STATUSES.reduce((acc, s) => {
-    acc[s] = ideas.filter(i => getStatus(i) === s).length
+    acc[s] = groupIdeas.filter(i => getStatus(i) === s).length
     return acc
   }, {})
-  counts.all = ideas.length
+  counts.all = groupIdeas.length
 
-  let filtered = ideas.filter(i => filterStatus === 'all' || getStatus(i) === filterStatus)
+  let filtered = groupIdeas.filter(i => filterStatus === 'all' || getStatus(i) === filterStatus)
   if (search) {
     const q = search.toLowerCase()
     filtered = filtered.filter(i => i.name.toLowerCase().includes(q) || i.pitch.toLowerCase().includes(q) || String(i.id).includes(q))
@@ -32,7 +39,7 @@ export default function SummaryPage({ onOpenIdea }) {
   const exportMd = () => {
     const date = new Date().toISOString().slice(0,10)
     const sections = ['building','ready','idea','done'].map(s => {
-      const rows = ideas.filter(i => getStatus(i) === s)
+      const rows = groupIdeas.filter(i => getStatus(i) === s)
       if (!rows.length) return ''
       const labels = { building:'🔨 Building', ready:'✅ Ready to Build', idea:'💡 Ideas', done:'✅ Done' }
       const body = rows.map(i => {

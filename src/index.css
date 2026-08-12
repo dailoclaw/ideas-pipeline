@@ -96,6 +96,9 @@ body {
 /* Inputs */
 .dark .input { background: #273348 !important; border-color: #334155 !important; color: #f1f5f9 !important; }
 .dark .input:focus { border-color: #818cf8 !important; }
+.dark textarea { background: #273348 !important; border-color: #334155 !important; color: #f1f5f9 !important; }
+.dark textarea:focus { border-color: #818cf8 !important; }
+.dark textarea::placeholder { color: #475569 !important; }
 
 /* Cards */
 .dark .idea-card { background-color: #1e293b !important; border-color: #334155 !important; }
@@ -131,3 +134,305 @@ body {
 .dark .from-green-50 { --tw-gradient-from: rgba(5,150,105,.08) !important; }
 .dark .to-violet-50  { --tw-gradient-to: rgba(109,40,217,.08) !important; }
 .dark .border-green-200.bg-gradient-to-r { border-color: rgba(5,150,105,.3) !important; }
+
+/* ── UI themes ──────────────────────────────────────────────────────────────
+   The existing Tailwind classes remain in place for component portability;
+   these tokens unify their visual language across Calm Command and Luminous
+   Glass without changing the information architecture.
+   ────────────────────────────────────────────────────────────────────────── */
+:root {
+  --ui-canvas: #eef3f3;
+  --ui-surface: #ffffff;
+  --ui-surface-muted: #f5f8f7;
+  --ui-border: #d9e4e3;
+  --ui-border-strong: #bfd2d0;
+  --ui-text: #153a37;
+  --ui-text-soft: #50626a;
+  --ui-text-muted: #78878b;
+  --ui-accent: #4e9189;
+  --ui-accent-strong: #153a37;
+  --ui-accent-soft: #e3f0ee;
+  --ui-warm: #c49a44;
+  --ui-danger: #c56e62;
+  --ui-radius: 20px;
+  --ui-radius-sm: 13px;
+  --ui-shadow: 0 8px 24px rgba(21, 58, 55, .08);
+  --ui-shadow-strong: 0 20px 55px rgba(21, 58, 55, .16);
+  --ui-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html[data-ui-theme="calm"] {
+  color-scheme: light;
+}
+
+html[data-ui-theme="glass"] {
+  --ui-canvas: #f2f5fb;
+  --ui-surface: rgba(255, 255, 255, .76);
+  --ui-surface-muted: rgba(247, 249, 255, .82);
+  --ui-border: rgba(106, 124, 174, .20);
+  --ui-border-strong: rgba(117, 103, 239, .36);
+  --ui-text: #19213b;
+  --ui-text-soft: #697493;
+  --ui-text-muted: #8d98b2;
+  --ui-accent: #7567ef;
+  --ui-accent-strong: #5f52db;
+  --ui-accent-soft: #eeeaff;
+  --ui-warm: #d783b0;
+  --ui-danger: #c9657e;
+  --ui-shadow: 0 10px 30px rgba(69, 67, 133, .12);
+  --ui-shadow-strong: 0 24px 70px rgba(69, 67, 133, .20);
+  --ui-font: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color-scheme: light;
+}
+
+html.dark[data-ui-theme="calm"] {
+  --ui-canvas: #0d2826;
+  --ui-surface: #153a37;
+  --ui-surface-muted: #183f3b;
+  --ui-border: rgba(215, 238, 232, .14);
+  --ui-border-strong: rgba(123, 209, 197, .36);
+  --ui-text: #edf8f3;
+  --ui-text-soft: #afd0c8;
+  --ui-text-muted: #7ea39c;
+  --ui-accent: #7bd1c5;
+  --ui-accent-strong: #8ddbd0;
+  --ui-accent-soft: rgba(123, 209, 197, .14);
+  --ui-warm: #e0b565;
+  --ui-danger: #ed9587;
+  --ui-shadow: 0 10px 30px rgba(0, 0, 0, .18);
+  --ui-shadow-strong: 0 24px 70px rgba(0, 0, 0, .32);
+  color-scheme: dark;
+}
+
+html.dark[data-ui-theme="glass"] {
+  --ui-canvas: #0e1326;
+  --ui-surface: rgba(31, 42, 72, .82);
+  --ui-surface-muted: rgba(24, 33, 58, .72);
+  --ui-border: rgba(185, 195, 255, .18);
+  --ui-border-strong: rgba(157, 144, 255, .48);
+  --ui-text: #f4f8ff;
+  --ui-text-soft: #b4bfdc;
+  --ui-text-muted: #7f8cae;
+  --ui-accent: #9d90ff;
+  --ui-accent-strong: #a398ff;
+  --ui-accent-soft: rgba(139, 124, 255, .16);
+  --ui-warm: #f3a6d7;
+  --ui-danger: #ef8fa8;
+  --ui-shadow: 0 12px 34px rgba(0, 0, 0, .24);
+  --ui-shadow-strong: 0 28px 80px rgba(0, 0, 0, .40);
+  color-scheme: dark;
+}
+
+html[data-ui-theme] body {
+  font-family: var(--ui-font);
+  background: var(--ui-canvas) !important;
+  color: var(--ui-text) !important;
+  transition: background-color .25s ease, color .25s ease;
+}
+
+html[data-ui-theme="glass"] body {
+  background-image:
+    radial-gradient(circle at 12% 0%, rgba(117, 103, 239, .14), transparent 34%),
+    radial-gradient(circle at 94% 24%, rgba(100, 231, 209, .12), transparent 28%);
+  background-attachment: fixed;
+}
+
+html.dark[data-ui-theme="glass"] body {
+  background-image:
+    radial-gradient(circle at 12% 0%, rgba(117, 103, 239, .24), transparent 35%),
+    radial-gradient(circle at 92% 22%, rgba(100, 231, 209, .13), transparent 28%);
+}
+
+/* Common Tailwind surfaces become theme-aware. */
+html[data-ui-theme] .bg-white,
+html[data-ui-theme] .bg-slate-800,
+html[data-ui-theme] .bg-slate-900,
+html[data-ui-theme] .bg-gray-50,
+html[data-ui-theme] .bg-\[\#f5f5fb\] {
+  background-color: var(--ui-surface) !important;
+}
+
+html[data-ui-theme] .bg-gray-50,
+html[data-ui-theme] .bg-\[\#f5f5fb\] {
+  background-color: var(--ui-surface-muted) !important;
+}
+
+html[data-ui-theme] .border-gray-100,
+html[data-ui-theme] .border-gray-200,
+html[data-ui-theme] .border-slate-600,
+html[data-ui-theme] .border-slate-700 {
+  border-color: var(--ui-border) !important;
+}
+
+html[data-ui-theme] .text-gray-900,
+html[data-ui-theme] .text-gray-800,
+html[data-ui-theme] .text-gray-700 {
+  color: var(--ui-text) !important;
+}
+
+html[data-ui-theme] .text-gray-600,
+html[data-ui-theme] .text-gray-500 {
+  color: var(--ui-text-soft) !important;
+}
+
+html[data-ui-theme] .text-gray-400,
+html[data-ui-theme] .text-slate-500,
+html[data-ui-theme] .text-slate-400 {
+  color: var(--ui-text-muted) !important;
+}
+
+html[data-ui-theme] .bg-violet-600,
+html[data-ui-theme] .bg-violet-500 {
+  background-color: var(--ui-accent-strong) !important;
+}
+
+html[data-ui-theme] .text-violet-700,
+html[data-ui-theme] .text-violet-600,
+html[data-ui-theme] .text-violet-500,
+html[data-ui-theme] .text-violet-400 {
+  color: var(--ui-accent-strong) !important;
+}
+
+html[data-ui-theme] .bg-violet-50,
+html[data-ui-theme] .bg-violet-100 {
+  background-color: var(--ui-accent-soft) !important;
+}
+
+html[data-ui-theme] .border-violet-200,
+html[data-ui-theme] .border-violet-400,
+html[data-ui-theme] .border-violet-500 {
+  border-color: var(--ui-border-strong) !important;
+}
+
+html[data-ui-theme] .focus\:border-violet-400:focus,
+html[data-ui-theme] .focus\:border-violet-500:focus,
+html[data-ui-theme] .input:focus,
+html[data-ui-theme] textarea:focus {
+  border-color: var(--ui-accent) !important;
+}
+
+html[data-ui-theme] .idea-card,
+html[data-ui-theme] .bottom-nav,
+html[data-ui-theme] header,
+html[data-ui-theme] [role="dialog"] {
+  border-color: var(--ui-border) !important;
+}
+
+html[data-ui-theme] .idea-card {
+  border-radius: var(--ui-radius-sm);
+  box-shadow: var(--ui-shadow);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+
+html[data-ui-theme] .idea-card:hover {
+  border-color: var(--ui-border-strong) !important;
+  box-shadow: var(--ui-shadow-strong);
+  transform: translateY(-1px);
+}
+
+html[data-ui-theme] .input,
+html[data-ui-theme] textarea,
+html[data-ui-theme] select {
+  background-color: var(--ui-surface-muted) !important;
+  color: var(--ui-text) !important;
+  border-color: var(--ui-border) !important;
+}
+
+html[data-ui-theme] .input::placeholder,
+html[data-ui-theme] textarea::placeholder {
+  color: var(--ui-text-muted) !important;
+}
+
+html[data-ui-theme] .bottom-nav,
+html[data-ui-theme] header {
+  background-color: var(--ui-surface) !important;
+  box-shadow: 0 4px 18px rgba(21, 58, 55, .04);
+}
+
+html[data-ui-theme="glass"] .bg-white,
+html[data-ui-theme="glass"] .bg-gray-50,
+html[data-ui-theme="glass"] .idea-card,
+html[data-ui-theme="glass"] .bottom-nav,
+html[data-ui-theme="glass"] header,
+html[data-ui-theme="glass"] [role="dialog"] {
+  -webkit-backdrop-filter: blur(18px) saturate(135%);
+  backdrop-filter: blur(18px) saturate(135%);
+}
+
+html[data-ui-theme="glass"] .idea-card:hover {
+  box-shadow: 0 18px 45px rgba(117, 103, 239, .18);
+}
+
+html[data-ui-theme] .theme-choice {
+  border-color: var(--ui-border) !important;
+  background-color: var(--ui-surface-muted) !important;
+}
+
+html[data-ui-theme] .theme-choice:hover {
+  border-color: var(--ui-border-strong) !important;
+}
+
+html[data-ui-theme] .theme-choice--active {
+  border-color: var(--ui-accent) !important;
+  background-color: var(--ui-accent-soft) !important;
+  box-shadow: 0 6px 18px rgba(78, 145, 137, .10);
+}
+
+.theme-choice__swatches {
+  display: flex;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 4px;
+  gap: 2px;
+  align-items: flex-end;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, .58);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06);
+}
+
+.theme-choice__swatches i {
+  display: block;
+  width: 9px;
+  height: 27px;
+  border-radius: 5px;
+}
+
+.theme-choice__swatches i:nth-child(2) { height: 32px; }
+.theme-choice__swatches i:nth-child(3) { height: 19px; }
+
+.theme-choice__check {
+  opacity: .28;
+  color: var(--ui-accent-strong);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.theme-choice__check--active { opacity: 1; }
+
+html[data-ui-theme="calm"] .theme-choice__swatches {
+  background: #f4f8f6;
+}
+
+html[data-ui-theme="glass"] .theme-choice__swatches {
+  background: rgba(255, 255, 255, .74);
+  box-shadow: inset 0 0 0 1px rgba(117, 103, 239, .14);
+}
+
+html[data-ui-theme="glass"] .theme-choice--active {
+  box-shadow: 0 8px 24px rgba(117, 103, 239, .14);
+}
+
+html[data-ui-theme] .hover\:bg-gray-50:hover,
+html[data-ui-theme] .hover\:bg-gray-100:hover {
+  background-color: var(--ui-surface-muted) !important;
+}
+
+html[data-ui-theme] .ring-violet-200 {
+  --tw-ring-color: color-mix(in srgb, var(--ui-accent) 22%, transparent) !important;
+}
+
+html[data-ui-theme="glass"] .backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
