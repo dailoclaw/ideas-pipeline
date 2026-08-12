@@ -57,6 +57,15 @@ export default function App() {
 
   useEffect(() => { load() }, [])
 
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (!meta) return
+    const color = theme === 'calm'
+      ? (dark ? '#0d2826' : '#153a37')
+      : (dark ? '#11162b' : '#f2f5fb')
+    meta.setAttribute('content', color)
+  }, [theme, dark])
+
   const triageCount = ideas.filter(i => getStatus(i) === 'idea').length
 
   if (loading) return (
@@ -106,7 +115,7 @@ export default function App() {
             )}
         </div>
 
-        <div className="header-actions">
+        <div className="header-utilities">
           <button
             onClick={() => setTheme(theme === 'glass' ? 'calm' : 'glass')}
             className="header-action theme-quick-toggle"
@@ -117,15 +126,15 @@ export default function App() {
             <span className="theme-quick-label">{theme === 'glass' ? 'Glass' : 'Calm'}</span>
           </button>
           <button onClick={() => setSettingsOpen(true)} className="header-action header-action--icon" title="Customise" aria-label="Customise appearance"><Icon name="settings" size={17} /></button>
-          <button onClick={() => setTriageOpen(true)} className="header-action header-action--triage relative">
+          <button onClick={() => setTriageOpen(true)} className="header-action header-action--triage relative" aria-label={`Triage ideas, ${triageCount} remaining`}>
             <Icon name="target" size={16} />
             <span>Triage</span>
-          {triageCount > 0 && (
+            {triageCount > 0 && (
               <span className="triage-count">{triageCount}</span>
-          )}
+            )}
           </button>
-          <button onClick={() => setAddOpen(true)} className="header-action header-action--primary"><Icon name="plus" size={15} /><span>New</span></button>
         </div>
+        <button onClick={() => setAddOpen(true)} className="header-action header-action--primary"><Icon name="plus" size={17} /><span>New</span></button>
       </header>
 
       {/* ── Main content ── */}

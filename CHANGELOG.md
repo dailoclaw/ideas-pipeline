@@ -1,5 +1,13 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.3.2 (2026-08-12) — iOS mobile usability
+### Changed
+- Rebalanced the mobile header into separate brand, utility, workspace, and primary-action zones
+- Increased header, view, recommendation, navigation, and modal controls to iOS-friendly touch targets
+- Increased mobile form controls to 16px to prevent Safari focus zoom
+- Added notch, status-bar, home-indicator, and dynamic viewport safe-area handling
+- Improved responsive spacing from 320px through 430px phone widths
+
 ## v1.3.1 (2026-08-12) — Theme redesign correction
 ### Changed
 - Reworked the mobile app shell with a branded two-row header and one-tap theme switch

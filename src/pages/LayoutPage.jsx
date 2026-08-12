@@ -128,17 +128,19 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
       {/* Build Next banner */}
       {recommend && (
         <div className="build-next flex items-center gap-2 flex-wrap bg-gradient-to-r from-green-50 to-violet-50 border border-green-200 rounded-xl px-3 py-2 mb-3">
-          <span className="text-[0.625rem] font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">⭐ Build Next</span>
-          <span className="text-xs font-bold text-gray-800 flex-1 min-w-0 truncate">#{recommend.id} {recommend.name}</span>
-          <TimePill time={recommend.time} />
-          <button
-            onClick={() => setStatus(recommend.id, 'building')}
-            className="text-[0.6875rem] font-bold bg-green-600 text-white px-2.5 py-1 rounded-lg whitespace-nowrap"
-          >🔨 Start</button>
-          <button
-            onClick={() => onOpen(recommend.id)}
-            className="text-[0.6875rem] font-semibold text-gray-500 border border-gray-200 px-2.5 py-1 rounded-lg whitespace-nowrap"
-          >Details</button>
+          <span className="build-next__eyebrow text-[0.625rem] font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">⭐ Build Next</span>
+          <span className="build-next__title text-xs font-bold text-gray-800 flex-1 min-w-0 truncate">#{recommend.id} {recommend.name}</span>
+          <span className="build-next__time"><TimePill time={recommend.time} /></span>
+          <div className="build-next__actions">
+            <button
+              onClick={() => setStatus(recommend.id, 'building')}
+              className="text-[0.6875rem] font-bold bg-green-600 text-white px-3 py-1 rounded-lg whitespace-nowrap"
+            >🔨 Start</button>
+            <button
+              onClick={() => onOpen(recommend.id)}
+              className="text-[0.6875rem] font-semibold text-gray-500 border border-gray-200 px-3 py-1 rounded-lg whitespace-nowrap"
+            >Details</button>
+          </div>
         </div>
       )}
 
