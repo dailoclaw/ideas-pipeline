@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.3.3 (2026-08-12) — Compact iOS tab bar
+### Fixed
+- Removed the duplicated iOS safe-area spacing below the bottom navigation
+- Capped the home-indicator allowance so tab buttons stay close to the bottom edge while remaining usable
+
 ## v1.3.2 (2026-08-12) — iOS mobile usability
 ### Changed
 - Rebalanced the mobile header into separate brand, utility, workspace, and primary-action zones

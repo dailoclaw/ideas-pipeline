@@ -26,6 +26,7 @@
 :root {
   --accent: #5254d6;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --nav-bottom-space: clamp(6px, calc(var(--safe-bottom) - 18px), 16px);
 }
 
 * { box-sizing: border-box; }
@@ -42,9 +43,6 @@ body {
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #d0d0de; border-radius: 4px; }
-
-/* Bottom nav safe area */
-.bottom-nav { padding-bottom: calc(8px + var(--safe-bottom)); }
 
 /* Score tooltip */
 .score-tip {
@@ -736,8 +734,8 @@ html[data-ui-theme] .idea-card::before {
 .bottom-nav {
   position: relative;
   z-index: 30;
-  margin: 0 12px 10px;
-  padding: 6px 5px calc(6px + var(--safe-bottom));
+  margin: 0 12px 8px;
+  padding: 6px 5px var(--nav-bottom-space);
   border-radius: 22px;
   box-shadow: var(--ui-shadow-strong) !important;
 }
@@ -1083,11 +1081,7 @@ html.dark[data-ui-theme="calm"] .bottom-nav__item.is-active {
   }
 
   .bottom-nav {
-    margin:
-      0
-      max(8px, env(safe-area-inset-right, 0px))
-      max(8px, env(safe-area-inset-bottom, 0px))
-      max(8px, env(safe-area-inset-left, 0px));
+    margin: 0 max(8px, env(safe-area-inset-right, 0px)) 6px max(8px, env(safe-area-inset-left, 0px));
     border-radius: 20px;
   }
 
