@@ -1,5 +1,13 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.4.0 (2026-08-12) — Native mobile shell
+### Changed
+- Rebuilt the mobile header to match the original Calm Command and Luminous Glass concepts
+- Simplified the top row to the app identity, one primary add action, and one overflow control
+- Moved workspace, triage, theme switching, and appearance settings into an iOS-style action sheet
+- Reworked the bottom navigation into a borderless, edge-to-edge iOS tab bar with simple tinted active states
+- Added a new faceted IdeaFlow app mark, SVG favicon, and iOS home-screen icon
+
 ## v1.3.3 (2026-08-12) — Compact iOS tab bar
 ### Fixed
 - Removed the duplicated iOS safe-area spacing below the bottom navigation
