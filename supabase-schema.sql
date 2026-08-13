@@ -38,11 +38,25 @@ CREATE TABLE IF NOT EXISTS status_history (
   created_at  timestamptz DEFAULT now()
 );
 
+-- ── Activity & decision timeline ────────────────────────────────────────────
+-- Stores the richer audit trail shown in the idea detail Activity tab. Payload
+-- contains event-specific before/after values without duplicating idea content.
+CREATE TABLE IF NOT EXISTS idea_activity (
+  id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  idea_id      integer NOT NULL REFERENCES ideas(id) ON DELETE CASCADE,
+  event_type   text NOT NULL,
+  payload      jsonb NOT NULL DEFAULT '{}'::jsonb,
+  actor        text NOT NULL DEFAULT 'You',
+  occurred_at  timestamptz NOT NULL DEFAULT now()
+);
+
 -- ── Indexes ───────────────────────────────────────────────────────────────────
 CREATE INDEX IF NOT EXISTS idx_ideas_status   ON ideas(status);
 CREATE INDEX IF NOT EXISTS idx_history_idea   ON status_history(idea_id);
+CREATE INDEX IF NOT EXISTS idx_activity_idea  ON idea_activity(idea_id, occurred_at DESC);
 
 -- ── Row Level Security (disable for personal tool — single user, no auth) ────
 ALTER TABLE ideas           DISABLE ROW LEVEL SECURITY;
 ALTER TABLE status_overrides DISABLE ROW LEVEL SECURITY;
 ALTER TABLE status_history   DISABLE ROW LEVEL SECURITY;
+ALTER TABLE idea_activity    DISABLE ROW LEVEL SECURITY;

@@ -3,6 +3,7 @@ import { useStore } from '../lib/store'
 import { TimePill, PlatPill, StatusBadge, ScoreBadge } from './Pills'
 import { GROUPS } from '../data/groups'
 import { scoreIdea } from '../lib/scoring'
+import ActivityTimeline from './ActivityTimeline'
 
 const ALL_STATUSES = [
   { value: 'idea',        label: '💡 Idea' },
@@ -14,9 +15,10 @@ const ALL_STATUSES = [
 ]
 
 export default function IdeaModal({ ideaId, onClose, onEdit }) {
-  const { ideas, statusHistory, getStatus, setStatus, deleteIdea, updateNotes, getGroup, setGroupAssignment, setScoreAdjust, setPriority } = useStore()
+  const { ideas, statusHistory, activityLog, getStatus, setStatus, deleteIdea, updateNotes, getGroup, setGroupAssignment, setScoreAdjust, setPriority } = useStore()
   const idea = ideas.find(i => i.id === ideaId)
   const ref = useRef()
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
     const handler = e => { if (e.key === 'Escape') onClose() }
@@ -74,8 +76,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
 
   const status = getStatus(idea)
   const history = statusHistory[idea.id] || []
-  const statusLabels = { idea:'💡 Idea', building:'🔨 Building', ready:'✅ Ready', done:'✅ Done', shelved:'🗄 Shelved' }
-  const dotColors = { idea:'bg-gray-400', building:'bg-blue-500', ready:'bg-green-500', done:'bg-violet-500', shelved:'bg-amber-500' }
+  const activity = activityLog[idea.id] || []
 
   return (
     <div
@@ -101,8 +102,29 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1 -mt-1">✕</button>
         </div>
 
+        <div className="idea-detail-tabs" role="tablist" aria-label="Idea detail sections">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'overview'}
+            className={activeTab === 'overview' ? 'is-active' : ''}
+            onClick={() => setActiveTab('overview')}
+          >Overview</button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'activity'}
+            className={activeTab === 'activity' ? 'is-active' : ''}
+            onClick={() => setActiveTab('activity')}
+          >
+            Activity
+            {(activity.length + history.length) > 0 && <span>{activity.length + history.length}</span>}
+          </button>
+        </div>
+
         {/* Body */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {activeTab === 'overview' ? (
+        <div className="idea-detail-overview flex-1 overflow-y-auto p-4 space-y-4" role="tabpanel">
           {/* Priority flag */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Priority</span>
@@ -225,34 +247,22 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
             />
           </div>
 
-          {/* Status timeline */}
-          <div className="border-t border-gray-100 pt-3">
-            <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400 mb-2">Status history</div>
-            {history.length === 0 && !idea.isNew && (
-              <div className="flex items-center gap-2 text-xs text-gray-400">
-                <div className="w-2 h-2 rounded-full bg-gray-200" />
-                <span>Source: IDEAS.md</span>
-              </div>
-            )}
-            {history.length === 0 && idea.isNew && idea.addedAt && (
-              <div className="flex items-center gap-2 text-xs">
-                <div className="w-2 h-2 rounded-full bg-gray-400" />
-                <span className="font-semibold text-gray-700 w-16">💡 Idea</span>
-                <span className="text-gray-400">{idea.addedAt}</span>
-              </div>
-            )}
-            {history.map((h, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs py-0.5">
-                <div className={`w-2 h-2 rounded-full ${dotColors[h.status] || 'bg-gray-400'}`} />
-                <span className="font-semibold text-gray-700 w-20">{statusLabels[h.status] || h.status}</span>
-                <span className="text-gray-400">{h.date}</span>
-              </div>
-            ))}
+          <div className="activity-preview">
+            <div>
+              <span>Decision record</span>
+              <strong>{activity.length + history.length > 0 ? 'See how this idea evolved' : 'Ready for its first decision'}</strong>
+            </div>
+            <button type="button" onClick={() => setActiveTab('activity')}>View activity <span aria-hidden="true">→</span></button>
           </div>
         </div>
+        ) : (
+          <div className="idea-detail-activity flex-1 overflow-y-auto" role="tabpanel">
+            <ActivityTimeline idea={idea} activity={activity} statusHistory={history} />
+          </div>
+        )}
 
         {/* Footer actions for user-added ideas */}
-        {idea.isNew && (
+        {idea.isNew && activeTab === 'overview' && (
           <div className="flex gap-2 p-4 border-t border-gray-100 flex-shrink-0">
             <button
               onClick={() => onEdit(idea.id)}

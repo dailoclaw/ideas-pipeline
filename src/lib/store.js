@@ -4,11 +4,33 @@ import { SEED_IDEAS } from '../data/seedIdeas'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const today = () => new Date().toISOString().slice(0, 10)
+const ACTIVITY_STORAGE_KEY = 'ideas-webapp-pending-activity'
+
+const readLocalActivity = () => {
+  try { return JSON.parse(localStorage.getItem(ACTIVITY_STORAGE_KEY) || '[]') }
+  catch { return [] }
+}
+
+const writeLocalActivity = events => {
+  try { localStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(events.slice(-100))) }
+  catch { /* localStorage may be unavailable in private browsing */ }
+}
+
+const normaliseActivity = row => ({
+  id: row.id,
+  ideaId: row.idea_id,
+  type: row.event_type,
+  payload: row.payload || {},
+  occurredAt: row.occurred_at,
+  actor: row.actor || 'You',
+})
 
 export const useStore = create((set, get) => ({
   ideas: [],
   statusOverrides: {},   // { [id]: 'done' | 'shelved' | null }
   statusHistory: {},     // { [id]: [{status, date}] }
+  activityLog: {},       // { [id]: [{type, payload, occurredAt, actor}] }
+  activityPersistenceAvailable: null,
   groupAssignments: {},  // { [id]: groupKey }
   loading: true,
   error: null,
@@ -57,6 +79,25 @@ export const useStore = create((set, get) => ({
         })
       }
 
+      // Fetch richer decision/activity history. The app remains usable while
+      // older deployments are waiting for the idea_activity migration.
+      const { data: activityRows, error: activityError } = await supabase
+        .from('idea_activity')
+        .select('id, idea_id, event_type, payload, occurred_at, actor')
+        .order('occurred_at', { ascending: false })
+      const activityMap = {}
+      const combinedActivity = [
+        ...(activityRows || []).map(normaliseActivity),
+        ...readLocalActivity(),
+      ]
+      combinedActivity.forEach(event => {
+        if (!activityMap[event.ideaId]) activityMap[event.ideaId] = []
+        if (!activityMap[event.ideaId].some(existing => existing.id === event.id)) {
+          activityMap[event.ideaId].push(event)
+        }
+      })
+      Object.values(activityMap).forEach(events => events.sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt)))
+
       // Fetch group assignments
       const { data: groupRows } = await supabase
         .from('idea_group_assignments')
@@ -85,7 +126,15 @@ export const useStore = create((set, get) => ({
         isPriority: r.is_priority || false,
       }))
 
-      set({ ideas, statusOverrides: overrideMap, statusHistory: historyMap, groupAssignments: groupMap, loading: false })
+      set({
+        ideas,
+        statusOverrides: overrideMap,
+        statusHistory: historyMap,
+        activityLog: activityMap,
+        activityPersistenceAvailable: !activityError,
+        groupAssignments: groupMap,
+        loading: false,
+      })
     } catch (err) {
       console.error('Load error:', err)
       set({ error: err.message, loading: false })
@@ -146,17 +195,24 @@ export const useStore = create((set, get) => ({
       idea_id: data.id, status: 'idea', changed_at: today()
     })
 
+    await get().logActivity(data.id, 'created', { name: data.name })
+
     await get().load()
     return data.id
   },
 
   // ── Edit idea ──────────────────────────────────────────────────────────────
   async editIdea(id, fields) {
+    const before = get().ideas.find(i => i.id === id)
     const { error } = await supabase
       .from('ideas')
       .update({ ...fields, updated_at: new Date().toISOString() })
       .eq('id', id)
     if (error) throw error
+    const changedFields = before
+      ? Object.keys(fields).filter(key => JSON.stringify(before[key]) !== JSON.stringify(fields[key]))
+      : []
+    await get().logActivity(id, 'idea_updated', { changedFields })
     await get().load()
   },
 
@@ -174,6 +230,7 @@ export const useStore = create((set, get) => ({
     const { ideas } = get()
     const idea = ideas.find(i => i.id === id)
     if (!idea) return
+    const previousStatus = get().getStatus(idea)
 
     // Log history
     await supabase.from('status_history').insert({
@@ -203,10 +260,12 @@ export const useStore = create((set, get) => ({
         i.id === id ? { ...i, status: idea.isNew ? status : i.status } : i
       )
     }))
+    await get().logActivity(id, 'status_changed', { from: previousStatus, to: status })
   },
 
   // ── Update notes (any idea — seed or user-added) ───────────────────────────
   async updateNotes(id, notes) {
+    const before = get().ideas.find(i => i.id === id)?.notes || ''
     const { error } = await supabase
       .from('ideas')
       .update({ notes, updated_at: new Date().toISOString() })
@@ -215,6 +274,12 @@ export const useStore = create((set, get) => ({
     set(s => ({
       ideas: s.ideas.map(i => i.id === id ? { ...i, notes } : i)
     }))
+    if (before !== notes) {
+      await get().logActivity(id, 'notes_updated', {
+        fromLength: before.length,
+        toLength: notes.length,
+      })
+    }
   },
 
   // ── Batch set status ──────────────────────────────────────────────────────
@@ -240,12 +305,16 @@ export const useStore = create((set, get) => ({
   // ── Score adjustment + priority ──────────────────────────────────────────────────────
   async setScoreAdjust(id, scoreAdjust) {
     const adj = Math.max(-99, Math.min(99, parseInt(scoreAdjust) || 0))
+    const previous = get().ideas.find(i => i.id === id)?.scoreAdjust || 0
     await supabase.from('ideas').update({ score_adjust: adj, updated_at: new Date().toISOString() }).eq('id', id)
     set(s => ({ ideas: s.ideas.map(i => i.id === id ? { ...i, scoreAdjust: adj } : i) }))
+    if (previous !== adj) await get().logActivity(id, 'score_adjusted', { from: previous, to: adj })
   },
   async setPriority(id, isPriority) {
+    const previous = Boolean(get().ideas.find(i => i.id === id)?.isPriority)
     await supabase.from('ideas').update({ is_priority: isPriority, updated_at: new Date().toISOString() }).eq('id', id)
     set(s => ({ ideas: s.ideas.map(i => i.id === id ? { ...i, isPriority } : i) }))
+    if (previous !== isPriority) await get().logActivity(id, 'priority_changed', { from: previous, to: isPriority })
   },
 
   // ── Group assignment ──────────────────────────────────────────────────────
@@ -253,6 +322,7 @@ export const useStore = create((set, get) => ({
     return get().groupAssignments[ideaId] || ''
   },
   async setGroupAssignment(ideaId, groupKey) {
+    const previous = get().groupAssignments[ideaId] || ''
     if (groupKey) {
       await supabase.from('idea_group_assignments').upsert(
         { idea_id: ideaId, group_key: groupKey, updated_at: new Date().toISOString() },
@@ -266,6 +336,60 @@ export const useStore = create((set, get) => ({
       if (groupKey) { ga[ideaId] = groupKey } else { delete ga[ideaId] }
       return { groupAssignments: ga }
     })
+    if (previous !== groupKey) await get().logActivity(ideaId, 'group_changed', { from: previous, to: groupKey })
+  },
+
+  // ── Activity & decision timeline ──────────────────────────────────────────
+  async logActivity(ideaId, type, payload = {}) {
+    const localEvent = {
+      id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      ideaId,
+      type,
+      payload,
+      occurredAt: new Date().toISOString(),
+      actor: 'You',
+    }
+
+    const pending = [...readLocalActivity(), localEvent]
+    writeLocalActivity(pending)
+    set(s => ({
+      activityLog: {
+        ...s.activityLog,
+        [ideaId]: [localEvent, ...(s.activityLog[ideaId] || [])],
+      },
+    }))
+
+    if (get().activityPersistenceAvailable === false) return localEvent
+
+    const { data, error } = await supabase
+      .from('idea_activity')
+      .insert({
+        idea_id: ideaId,
+        event_type: type,
+        payload,
+        occurred_at: localEvent.occurredAt,
+        actor: 'You',
+      })
+      .select('id, idea_id, event_type, payload, occurred_at, actor')
+      .single()
+
+    // Keep the local event as an offline-safe fallback when the new table is
+    // unavailable or the device is temporarily disconnected.
+    if (error || !data) {
+      set({ activityPersistenceAvailable: false })
+      return localEvent
+    }
+
+    const savedEvent = normaliseActivity(data)
+    set({ activityPersistenceAvailable: true })
+    writeLocalActivity(readLocalActivity().filter(event => event.id !== localEvent.id))
+    set(s => ({
+      activityLog: {
+        ...s.activityLog,
+        [ideaId]: (s.activityLog[ideaId] || []).map(event => event.id === localEvent.id ? savedEvent : event),
+      },
+    }))
+    return savedEvent
   },
 
   // ── Kanban sort (localStorage) ─────────────────────────────────────────────

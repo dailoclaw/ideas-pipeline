@@ -7,7 +7,7 @@ import { TimePill, PlatPill } from '../components/Pills'
 const WEEKS = 8
 
 export default function SprintPage({ onOpenIdea, groupFilter = '' }) {
-  const { ideas, getStatus, getSprintWeeks, getGroup } = useStore()
+  const { ideas, getStatus, getSprintWeeks, getGroup, logActivity } = useStore()
   const [plan, setPlan]       = useState({})   // { [ideaId]: weekNum }
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState(null)
@@ -33,6 +33,7 @@ export default function SprintPage({ onOpenIdea, groupFilter = '' }) {
 
   const assignToWeek = async (ideaId, week) => {
     const next = { ...plan }
+    const previousWeek = plan[ideaId] || null
     if (week === null) {
       delete next[ideaId]
       await supabase.from('sprint_assignments').delete().eq('idea_id', ideaId)
@@ -42,6 +43,7 @@ export default function SprintPage({ onOpenIdea, groupFilter = '' }) {
     }
     setPlan(next)
     setSelected(null)
+    if (previousWeek !== week) await logActivity(ideaId, 'sprint_scheduled', { from: previousWeek, to: week })
   }
 
   // Build week grid

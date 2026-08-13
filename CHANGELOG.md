@@ -1,5 +1,14 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.5.0 (2026-08-13) — Activity & Decision Timeline
+### Added
+- Mobile-first Activity tab inside every idea detail view
+- Chronological audit trail for status, priority, score, group, notes, edits, and sprint scheduling
+- “Decisions only” filtering and expandable before/after explanations
+- Cross-device activity persistence through the new `idea_activity` Supabase table
+- Device-local fallback while the database migration is pending or the app is offline
+- Legacy status-history merging so existing decisions remain visible
+
 ## v1.4.0 (2026-08-12) — Native mobile shell
 ### Changed
 - Rebuilt the mobile header to match the original Calm Command and Luminous Glass concepts
