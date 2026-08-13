@@ -76,7 +76,7 @@ export default function App() {
       const shell = document.querySelector('.app-shell')
       if (shell) shell.scrollTop = 0
     })
-  }, [settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
+  }, [tab, settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
 
   const triageCount = ideas.filter(i => getStatus(i) === 'idea').length
 
