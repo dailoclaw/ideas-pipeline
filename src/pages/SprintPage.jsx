@@ -3,6 +3,7 @@ import { useStore } from '../lib/store'
 import { supabase } from '../lib/supabase'
 import { scoreIdea } from '../lib/scoring'
 import { TimePill, PlatPill } from '../components/Pills'
+import Icon from '../components/Icon'
 
 const WEEKS = 8
 
@@ -91,7 +92,7 @@ export default function SprintPage({ onOpenIdea, groupFilter = '' }) {
                           <span className="text-xs text-gray-400">{getSprintWeeks(idea.id, idea)} wks</span>
                         </div>
                       </div>
-                      <button onClick={() => assignToWeek(idea.id, null)} className="text-gray-400 hover:text-red-500 flex-shrink-0 px-1 text-sm" title="Remove">✕</button>
+                      <button onClick={() => assignToWeek(idea.id, null)} className="text-gray-400 hover:text-red-500 flex-shrink-0 px-1 text-sm" title="Remove" aria-label={`Remove ${idea.name} from sprint`}><Icon name="close" size={17} /></button>
                     </div>
                   ))}
                 </div>
@@ -122,7 +123,7 @@ export default function SprintPage({ onOpenIdea, groupFilter = '' }) {
                       <PlatPill plat={idea.plat} />
                     </div>
                   </div>
-                  <span className="text-gray-400 dark:text-slate-500 text-xs flex-shrink-0 mt-0.5">{selected === idea.id ? '▲' : '▼'}</span>
+                  <Icon name={selected === idea.id ? 'chevronDown' : 'chevronRight'} size={16} className="text-gray-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
                 </div>
               </div>
 

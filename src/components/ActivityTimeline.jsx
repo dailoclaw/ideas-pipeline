@@ -141,6 +141,7 @@ function TimelineIcon({ name }) {
     calendar: <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4M16 3v4M3 10h18" /></>,
     note: <><path d="M5 3h10l4 4v14H5z" /><path d="M15 3v5h5M8 13h8M8 17h6" /></>,
     edit: <><path d="m4 20 4.2-1 10.7-10.7-3.2-3.2L5 15.8 4 20Z" /><path d="m13.8 7 3.2 3.2" /></>,
+    chevron: <path d="m9 6 6 6-6 6" />,
   }
   return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name] || paths.note}</svg>
 }
@@ -228,7 +229,7 @@ export default function ActivityTimeline({ idea, activity = [], statusHistory = 
                   <span className="activity-event__meta">
                     {isDecision && <b>Decision</b>}
                     <span>by {event.actor || 'You'}</span>
-                    {hasDetails && <i>{expanded ? 'Hide detail' : 'Explain change'} <span aria-hidden="true">›</span></i>}
+                    {hasDetails && <i>{expanded ? 'Hide detail' : 'Explain change'} <TimelineIcon name="chevron" /></i>}
                   </span>
                 </button>
                 {expanded && (

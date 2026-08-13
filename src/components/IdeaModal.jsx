@@ -1,17 +1,18 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { useStore } from '../lib/store'
-import { TimePill, PlatPill, StatusBadge, ScoreBadge } from './Pills'
+import { TimePill, PlatPill, StatusBadge, ScoreBadge, STATUS_ICONS } from './Pills'
 import { GROUPS } from '../data/groups'
 import { scoreIdea } from '../lib/scoring'
 import ActivityTimeline from './ActivityTimeline'
+import Icon from './Icon'
 
 const ALL_STATUSES = [
-  { value: 'idea',        label: '💡 Idea' },
-  { value: 'researching', label: '🔍 Researching' },
-  { value: 'ready',       label: '✅ Ready' },
-  { value: 'building',    label: '🔨 Building' },
-  { value: 'done',        label: '✓ Done' },
-  { value: 'shelved',     label: '🗄 Shelved' },
+  { value: 'idea',        label: 'Idea' },
+  { value: 'researching', label: 'Researching' },
+  { value: 'ready',       label: 'Ready' },
+  { value: 'building',    label: 'Building' },
+  { value: 'done',        label: 'Done' },
+  { value: 'shelved',     label: 'Shelved' },
 ]
 
 export default function IdeaModal({ ideaId, onClose, onEdit }) {
@@ -77,6 +78,8 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
   const status = getStatus(idea)
   const history = statusHistory[idea.id] || []
   const activity = activityLog[idea.id] || []
+  const groupKey = getGroup(idea.id)
+  const groupIcon = GROUPS.find(group => group.key === groupKey)?.icon || 'groups'
 
   return (
     <div
@@ -99,7 +102,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               <ScoreBadge idea={idea} />
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1 -mt-1">✕</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1 -mt-1" aria-label="Close idea details"><Icon name="close" size={20} /></button>
         </div>
 
         <div className="idea-detail-tabs" role="tablist" aria-label="Idea detail sections">
@@ -135,7 +138,8 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
                   ? 'bg-amber-50 border-amber-300 text-amber-700'
                   : 'border-gray-200 text-gray-400 hover:border-amber-200 hover:text-amber-500'}`}
             >
-              {idea.isPriority ? '⭐ Priority — floats to top' : '☆ Set as priority'}
+              <Icon name={idea.isPriority ? 'starFilled' : 'star'} size={14} />
+              {idea.isPriority ? 'Priority — floats to top' : 'Set as priority'}
             </button>
           </div>
 
@@ -176,27 +180,31 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           {/* Group assignment — works for all ideas */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Group</span>
-            <select
-              value={getGroup(idea.id)}
-              disabled={groupSaving}
-              onChange={async e => {
-                setGroupSaving(true)
-                try { await setGroupAssignment(idea.id, e.target.value) }
-                finally { setGroupSaving(false) }
-              }}
-              className="flex-1 text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 bg-white text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
-            >
-              <option value="">No group</option>
-              {GROUPS.map(g => (
-                <option key={g.key} value={g.key}>{g.icon} {g.label}</option>
-              ))}
-            </select>
+            <div className="select-icon-field flex-1">
+              <Icon name={groupIcon} size={16} />
+              <select
+                value={groupKey}
+                disabled={groupSaving}
+                onChange={async e => {
+                  setGroupSaving(true)
+                  try { await setGroupAssignment(idea.id, e.target.value) }
+                  finally { setGroupSaving(false) }
+                }}
+                className="w-full text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 bg-white text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
+              >
+                <option value="">No group</option>
+                {GROUPS.map(g => (
+                  <option key={g.key} value={g.key}>{g.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
           {/* Universal status selector — works for all ideas, all statuses */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Status</span>
-            <div className="relative flex-1">
+            <div className="select-icon-field relative flex-1">
+              <Icon name={STATUS_ICONS[status] || 'circleCheck'} size={16} />
               <select
                 value={status}
                 disabled={statusSaving}
@@ -208,7 +216,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
                 ))}
               </select>
               <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
-                {statusSaving ? '…' : '▾'}
+                <Icon name={statusSaving ? 'loader' : 'chevronDown'} size={14} className={statusSaving ? 'animate-spin' : ''} />
               </span>
             </div>
           </div>
@@ -236,7 +244,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
             <div className="flex items-center justify-between mb-1">
               <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400">Notes</div>
               {saveState === 'saving' && <span className="text-[0.625rem] text-gray-400">Saving…</span>}
-              {saveState === 'saved' && <span className="text-[0.625rem] text-green-500 font-semibold">✓ Saved</span>}
+              {saveState === 'saved' && <span className="inline-flex items-center gap-1 text-[0.625rem] text-green-500 font-semibold"><Icon name="check" size={11} /> Saved</span>}
             </div>
             <textarea
               className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 placeholder-gray-300"
@@ -266,16 +274,17 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           <div className="flex gap-2 p-4 border-t border-gray-100 flex-shrink-0">
             <button
               onClick={() => onEdit(idea.id)}
-              className="flex-1 text-sm font-bold py-2 rounded-xl border border-gray-200 text-gray-600"
-            >✏️ Edit</button>
+              className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-bold py-2 rounded-xl border border-gray-200 text-gray-600"
+            ><Icon name="edit" size={15} /> Edit</button>
             <button
               onClick={async () => {
                 if (!confirm(`Delete "${idea.name}"?`)) return
                 await deleteIdea(idea.id)
                 onClose()
               }}
-              className="text-sm font-bold py-2 px-3 rounded-xl border border-red-100 text-red-500"
-            >🗑</button>
+              className="inline-flex items-center justify-center text-sm font-bold py-2 px-3 rounded-xl border border-red-100 text-red-500"
+              aria-label="Delete idea"
+            ><Icon name="trash" size={16} /></button>
           </div>
         )}
       </div>

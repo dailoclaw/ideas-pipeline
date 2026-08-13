@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea } from '../lib/scoring'
 import { TimePill, PlatPill, ScoreBadge } from './Pills'
+import Icon from './Icon'
 
 export default function TriageModal({ onClose }) {
   const { ideas, getStatus, setStatus } = useStore()
@@ -50,14 +51,14 @@ export default function TriageModal({ onClose }) {
               <span className="text-xs text-gray-400">{remaining.length} left</span>
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1">✕</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1" aria-label="Close triage"><Icon name="close" size={20} /></button>
         </div>
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5">
           {!current ? (
             <div className="text-center py-12">
-              <div className="text-4xl mb-3">🎉</div>
+              <Icon name="sparkles" size={38} className="mx-auto mb-3 text-violet-500" />
               <div className="text-lg font-bold text-gray-800 mb-1">All triaged!</div>
               <div className="text-sm text-gray-500">No ideas left to review.</div>
             </div>
@@ -104,22 +105,22 @@ export default function TriageModal({ onClose }) {
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => act('building')}
-                className="py-3 rounded-xl bg-blue-600 text-white text-sm font-bold"
-              >🔨 Start Building</button>
+                className="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold"
+              ><Icon name="hammer" size={16} /> Start Building</button>
               <button
                 onClick={() => act('ready')}
-                className="py-3 rounded-xl bg-green-600 text-white text-sm font-bold"
-              >✅ Move to Ready</button>
+                className="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl bg-green-600 text-white text-sm font-bold"
+              ><Icon name="circleCheck" size={16} /> Move to Ready</button>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => act('shelve')}
-                className="py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500"
-              >🗄 Shelve</button>
+                className="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500"
+              ><Icon name="archive" size={16} /> Shelve</button>
               <button
                 onClick={() => act('skip')}
-                className="py-3 rounded-xl border border-dashed border-gray-200 text-sm text-gray-400"
-              >⏭ Skip for now</button>
+                className="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl border border-dashed border-gray-200 text-sm text-gray-400"
+              ><Icon name="skipForward" size={16} /> Skip for now</button>
             </div>
           </div>
         )}

@@ -725,7 +725,7 @@ export const SEED_IDEAS = [
     pitch:'A small “All changes saved” / “Saving…” / “Unsaved changes” indicator in the corner of every standalone HTML tool — with autosave to localStorage every 30 seconds and session restore on reload.',
     target:'HR manager who has lost a pay review or qual register session by accidentally closing a tab.',
     pain:'Standalone HTML tools lose all work on tab close or browser crash. There’s no indication of save state. Users work with anxiety about losing data, especially on long sessions.',
-    mvp:['Autosave to localStorage every 30 seconds — serialises current tool state','Status indicator bottom-right: “✓ Saved 2 min ago” / “Saving…” / “● Unsaved changes” (amber)','On page load: detects saved state → “Restore previous session?” toast with Accept / Dismiss','Manual Save button in header for intentional saves','Clear session option: “Start fresh” discards saved state'],
+    mvp:['Autosave to localStorage every 30 seconds — serialises current tool state','Status indicator bottom-right: “Saved 2 min ago” / “Saving…” / “Unsaved changes” (amber)','On page load: detects saved state → “Restore previous session?” toast with Accept / Dismiss','Manual Save button in header for intentional saves','Clear session option: “Start fresh” discards saved state'],
     win:'Eliminates the single biggest anxiety with standalone tools. Applies to pay_modeller, qual_radar, headcount_org.',
     notes:'Captured 2026-05-19.' },
 

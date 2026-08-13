@@ -31,6 +31,66 @@
 
 * { box-sizing: border-box; }
 
+.ui-icon {
+  display: inline-block;
+  flex: 0 0 auto;
+  vertical-align: -0.15em;
+}
+
+.icon-pill .ui-icon { stroke-width: 2; }
+
+.group-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  border: 1px solid var(--ui-border);
+  border-radius: 11px;
+  color: var(--ui-accent-strong);
+  background: var(--ui-accent-soft);
+}
+
+.score-formula-grid > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.summary-search {
+  position: relative;
+  display: block;
+}
+
+.summary-search > .ui-icon {
+  position: absolute;
+  z-index: 1;
+  left: 11px;
+  top: 50%;
+  color: var(--ui-text-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.select-icon-field {
+  position: relative;
+}
+
+.select-icon-field > .ui-icon {
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  top: 50%;
+  color: var(--ui-text-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.select-icon-field > select,
+.select-icon-field > .input {
+  padding-left: 36px !important;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -540,6 +600,21 @@ html[data-ui-theme="glass"] .app-shell::after {
   flex: 1 1 320px;
 }
 
+.header-filter__control {
+  position: relative;
+  width: min(100%, 280px);
+}
+
+.header-filter__icon {
+  position: absolute;
+  z-index: 2;
+  left: 11px;
+  top: 50%;
+  color: var(--ui-text-muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
 .header-filter__label {
   flex: 0 0 auto;
   font-size: 10px;
@@ -548,9 +623,9 @@ html[data-ui-theme="glass"] .app-shell::after {
 }
 
 .header-filter__select {
-  width: min(100%, 280px);
+  width: 100%;
   min-height: 38px;
-  padding: 0 34px 0 12px;
+  padding: 0 34px 0 38px;
   border-radius: 12px !important;
   font-size: 11px;
   appearance: auto;
@@ -1046,12 +1121,23 @@ html[data-ui-theme] .idea-card::before {
   text-transform: uppercase;
 }
 .activity-event__meta i {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
   margin-left: auto;
   color: var(--ui-accent-strong);
   font-style: normal;
   font-weight: 750;
 }
-.activity-event__meta i span { font-size: 14px; }
+.activity-event__meta i svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 .activity-event__detail {
   grid-column: 2;

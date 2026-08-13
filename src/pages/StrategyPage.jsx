@@ -1,6 +1,7 @@
 import { useStore } from '../lib/store'
 import { scoreIdea, gradeFromScore, getBuildNext } from '../lib/scoring'
 import { TimePill, StatusBadge } from '../components/Pills'
+import Icon from '../components/Icon'
 
 const GRADE_STYLE = {
   A: 'text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/20 dark:border-green-800',
@@ -28,15 +29,15 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
       {/* Build Next */}
       {recommend && (
         <div className="bg-gradient-to-r from-green-50 to-violet-50 dark:from-green-900/20 dark:to-violet-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-4">
-          <div className="text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2">⭐ Recommended Next Build</div>
+          <div className="inline-flex items-center gap-1.5 text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2"><Icon name="starFilled" size={13} /> Recommended Next Build</div>
           <div className="font-bold text-gray-900 dark:text-slate-100 leading-snug mb-1">#{recommend.id} {recommend.name}</div>
           <div className="text-sm text-gray-500 dark:text-slate-400 mb-3 leading-relaxed">{recommend.pitch}</div>
           <div className="flex flex-wrap items-center gap-2">
             <TimePill time={recommend.time} />
             <button
               onClick={() => setStatus(recommend.id, 'building')}
-              className="text-xs font-bold bg-green-600 text-white px-3 py-1.5 rounded-lg"
-            >🔨 Start Building</button>
+              className="inline-flex items-center gap-1.5 text-xs font-bold bg-green-600 text-white px-3 py-1.5 rounded-lg"
+            ><Icon name="hammer" size={14} /> Start Building</button>
             <button
               onClick={() => onOpenIdea(recommend.id)}
               className="text-xs font-semibold text-gray-500 border border-gray-200 dark:border-slate-600 px-3 py-1.5 rounded-lg"
@@ -94,11 +95,11 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
       {/* Formula legend */}
       <div className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
         <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-2">Score formula (0–100)</div>
-        <div className="grid grid-cols-2 gap-y-1 text-xs text-gray-500 dark:text-slate-400">
-          <span>⚡ Quick build: up to 40</span>
-          <span>🏢 Platform fit: up to 25</span>
-          <span>📋 MVP depth: up to 20</span>
-          <span>💡 Novelty: up to 15</span>
+        <div className="score-formula-grid grid grid-cols-2 gap-y-1 text-xs text-gray-500 dark:text-slate-400">
+          <span><Icon name="bolt" size={13} /> Quick build: up to 40</span>
+          <span><Icon name="building" size={13} /> Platform fit: up to 25</span>
+          <span><Icon name="clipboard" size={13} /> MVP depth: up to 20</span>
+          <span><Icon name="lightbulb" size={13} /> Novelty: up to 15</span>
         </div>
       </div>
     </div>

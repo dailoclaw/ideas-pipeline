@@ -13,6 +13,7 @@ import SprintPage      from './pages/SprintPage'
 import IdeaModal       from './components/IdeaModal'
 import AddIdeaModal    from './components/AddIdeaModal'
 import TriageModal     from './components/TriageModal'
+import Icon            from './components/Icon'
 
 const TABS = [
   { id: 'layout',   label: 'Layout',   icon: 'layout' },
@@ -21,25 +22,6 @@ const TABS = [
   { id: 'groups',   label: 'Groups',   icon: 'groups' },
   { id: 'summary',  label: 'Summary',  icon: 'chart' },
 ]
-
-const ICON_PATHS = {
-  layout: <><rect x="3" y="4" width="7" height="16" rx="2"/><rect x="14" y="4" width="7" height="7" rx="2"/><rect x="14" y="15" width="7" height="5" rx="2"/></>,
-  target: <><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M18 6l3-3M17 3h4v4"/></>,
-  bolt: <path d="M13 2L4.5 13h6L9.5 22 19.5 9h-6L13 2z"/>,
-  groups: <><rect x="3" y="4" width="8" height="7" rx="2"/><rect x="13" y="4" width="8" height="7" rx="2"/><rect x="3" y="13" width="8" height="7" rx="2"/><rect x="13" y="13" width="8" height="7" rx="2"/></>,
-  chart: <><path d="M4 20V10"/><path d="M10 20V4"/><path d="M16 20v-7"/><path d="M22 20H2"/></>,
-  settings: <><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.88l.06.06-2.83 2.83-.06-.06a1.7 1.7 0 00-1.88-.34 1.7 1.7 0 00-1.03 1.56V21h-4v-.08A1.7 1.7 0 008.96 19.4a1.7 1.7 0 00-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 004.6 15a1.7 1.7 0 00-1.56-1.03H3v-4h.08A1.7 1.7 0 004.6 8.96a1.7 1.7 0 00-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 008.96 4.6 1.7 1.7 0 0010 3.08V3h4v.08a1.7 1.7 0 001.03 1.56 1.7 1.7 0 001.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0019.4 9c.23.62.82 1.03 1.48 1.03H21v4h-.08A1.7 1.7 0 0019.4 15z"/></>,
-  more: <><circle cx="5" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1" fill="currentColor" stroke="none"/></>,
-  plus: <><path d="M12 5v14M5 12h14"/></>,
-}
-
-function Icon({ name, size = 18 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {ICON_PATHS[name]}
-    </svg>
-  )
-}
 
 function AppMark() {
   return (
@@ -100,14 +82,14 @@ export default function App() {
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen text-gray-400">
-      <div className="text-center"><div className="text-3xl mb-3 animate-pulse">💡</div><div className="text-sm font-medium">Loading…</div></div>
+      <div className="text-center"><Icon name="lightbulb" size={34} className="mx-auto mb-3 animate-pulse" /><div className="text-sm font-medium">Loading…</div></div>
     </div>
   )
 
   if (error) return (
     <div className="flex items-center justify-center h-screen p-6">
       <div className="text-center max-w-sm">
-        <div className="text-3xl mb-3">⚠️</div>
+        <Icon name="alert" size={34} className="mx-auto mb-3 text-amber-500" />
         <div className="text-base font-bold text-gray-800 mb-2">Connection error</div>
         <div className="text-sm text-gray-500 mb-4">{error}</div>
         <button onClick={load} className="px-4 py-2 bg-violet-600 text-white text-sm font-bold rounded-xl">Retry</button>
@@ -129,19 +111,22 @@ export default function App() {
 
         <div className="header-filter min-w-0">
             <span className="header-filter__label text-gray-400 dark:text-slate-500 font-semibold">Workspace</span>
-            <select
-              value={groupFilter}
-              onChange={e => setGroupFilter(e.target.value)}
-              aria-label="Filter ideas by workspace"
-              className={`header-filter__select rounded-lg border font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200
-                ${groupFilter ? 'border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' : 'border-gray-200 bg-white text-gray-600'}`}
-            >
-              <option value="">All ideas</option>
-              <option value="__none__">∅ No group yet</option>
-              {GROUPS.map(g => <option key={g.key} value={g.key}>{g.icon} {g.label}</option>)}
-            </select>
+            <div className="header-filter__control">
+              <Icon name={GROUPS.find(group => group.key === groupFilter)?.icon || 'groups'} size={15} className="header-filter__icon" />
+              <select
+                value={groupFilter}
+                onChange={e => setGroupFilter(e.target.value)}
+                aria-label="Filter ideas by workspace"
+                className={`header-filter__select rounded-lg border font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200
+                  ${groupFilter ? 'border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' : 'border-gray-200 bg-white text-gray-600'}`}
+              >
+                <option value="">All ideas</option>
+                <option value="__none__">No group yet</option>
+                {GROUPS.map(g => <option key={g.key} value={g.key}>{g.label}</option>)}
+              </select>
+            </div>
             {groupFilter && (
-              <button onClick={() => setGroupFilter('')} className="header-filter__clear text-gray-400 hover:text-gray-600 dark:hover:text-slate-300" aria-label="Clear workspace filter">×</button>
+              <button onClick={() => setGroupFilter('')} className="header-filter__clear inline-grid place-items-center text-gray-400 hover:text-gray-600 dark:hover:text-slate-300" aria-label="Clear workspace filter"><Icon name="close" size={15} /></button>
             )}
         </div>
 
@@ -177,15 +162,18 @@ export default function App() {
                 <strong>App controls</strong>
                 <span>{theme === 'glass' ? 'Luminous Glass' : 'Calm Command'}</span>
               </div>
-              <button onClick={() => setMobileToolsOpen(false)} aria-label="Close app controls">✕</button>
+              <button onClick={() => setMobileToolsOpen(false)} aria-label="Close app controls"><Icon name="close" size={18} /></button>
             </div>
             <label className="mobile-tools-field">
               <span>Workspace</span>
-              <select value={groupFilter} onChange={e => { setGroupFilter(e.target.value); setMobileToolsOpen(false) }}>
-                <option value="">All ideas</option>
-                <option value="__none__">∅ No group yet</option>
-                {GROUPS.map(g => <option key={g.key} value={g.key}>{g.icon} {g.label}</option>)}
-              </select>
+              <div className="select-icon-field">
+                <Icon name={GROUPS.find(group => group.key === groupFilter)?.icon || 'groups'} size={17} />
+                <select value={groupFilter} onChange={e => { setGroupFilter(e.target.value); setMobileToolsOpen(false) }}>
+                  <option value="">All ideas</option>
+                  <option value="__none__">No group yet</option>
+                  {GROUPS.map(g => <option key={g.key} value={g.key}>{g.label}</option>)}
+                </select>
+              </div>
             </label>
             <div className="mobile-tools-actions">
               <button onClick={() => { setMobileToolsOpen(false); setTriageOpen(true) }}>

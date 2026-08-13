@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea, gradeFromScore } from '../lib/scoring'
 import { TimePill, PlatPill, StatusBadge } from '../components/Pills'
+import Icon from '../components/Icon'
 
 const STATUSES = ['building', 'ready', 'idea', 'done', 'shelved']
 
@@ -41,7 +42,7 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
     const sections = ['building','ready','idea','done'].map(s => {
       const rows = groupIdeas.filter(i => getStatus(i) === s)
       if (!rows.length) return ''
-      const labels = { building:'🔨 Building', ready:'✅ Ready to Build', idea:'💡 Ideas', done:'✅ Done' }
+      const labels = { building:'Building', ready:'Ready to Build', idea:'Ideas', done:'Done' }
       const body = rows.map(i => {
         const mvp = (i.mvp||[]).map(m=>`  - ${m}`).join('\n')
         return `### #${i.id} ${i.name}\n**Status:** ${s} | **Build:** ${i.time} | **Platform:** ${i.plat}\n\n**Pitch:** ${i.pitch}\n\n**Why it wins:** ${i.win}\n\n**MVP:**\n${mvp}\n`
@@ -59,27 +60,38 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
     <div className="flex flex-col h-full overflow-hidden">
       {/* Stats bar */}
       <div className="flex gap-2 px-4 py-3 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 overflow-x-auto flex-shrink-0">
-        {[['all', 'All', '#5254d6'], ['building','🔨','#2563eb'], ['ready','✅','#059669'], ['idea','💡','#9090b8'], ['done','✓','#5254d6'], ['shelved','🗄','#d97706']].map(([s, label, color]) => (
+        {[
+          { status: 'all', label: 'All', icon: 'layout', color: '#5254d6' },
+          { status: 'building', label: 'Building', icon: 'hammer', color: '#2563eb' },
+          { status: 'ready', label: 'Ready', icon: 'circleCheck', color: '#059669' },
+          { status: 'idea', label: 'Ideas', icon: 'lightbulb', color: '#9090b8' },
+          { status: 'done', label: 'Done', icon: 'check', color: '#5254d6' },
+          { status: 'shelved', label: 'Shelved', icon: 'archive', color: '#d97706' },
+        ].map(({ status: s, label, icon, color }) => (
           <button
             key={s}
             onClick={() => setFilterStatus(s)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all
+            className={`inline-flex items-center gap-1.5 flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all
               ${filterStatus === s ? 'text-white' : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'}`}
             style={filterStatus === s ? { background: color, borderColor: color } : {}}
           >
-            {label} <span className="opacity-75">{counts[s] ?? 0}</span>
+            <Icon name={icon} size={13} /> {label} <span className="opacity-75">{counts[s] ?? 0}</span>
           </button>
         ))}
       </div>
 
       {/* Search row */}
       <div className="px-4 py-2 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 space-y-2">
-        <input
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          placeholder="Search ideas…"
-          className="w-full text-sm border border-gray-200 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-100 rounded-lg px-3 py-1.5 outline-none focus:border-violet-400 bg-gray-50"
-        />
+        <label className="summary-search">
+          <Icon name="search" size={16} />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search ideas…"
+            aria-label="Search ideas"
+            className="w-full text-sm border border-gray-200 dark:border-slate-700 dark:bg-slate-700 dark:text-slate-100 rounded-lg pl-9 pr-3 py-1.5 outline-none focus:border-violet-400 bg-gray-50"
+          />
+        </label>
         <div className="flex items-center gap-2">
           <select
             value={sort}
@@ -90,8 +102,8 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
             <option value="name">Sort: Name A–Z</option>
             <option value="id">Sort: ID</option>
           </select>
-          <button onClick={exportMd} className="text-xs font-bold border border-gray-200 dark:border-slate-600 dark:text-slate-300 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 whitespace-nowrap flex-shrink-0">
-            ⬇ Export MD
+          <button onClick={exportMd} className="inline-flex items-center gap-1.5 text-xs font-bold border border-gray-200 dark:border-slate-600 dark:text-slate-300 rounded-lg px-3 py-1.5 text-gray-600 hover:bg-gray-50 dark:hover:bg-slate-700 whitespace-nowrap flex-shrink-0">
+            <Icon name="download" size={14} /> Export MD
           </button>
         </div>
       </div>

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea, sortIdeas, getBuildNext, isStale, daysOld } from '../lib/scoring'
 import { TimePill, PlatPill, ScoreBadge } from '../components/Pills'
+import Icon from '../components/Icon'
 
 const VIEWS = ['kanban', 'matrix', 'features']
 const VIEW_LABELS = { kanban: 'Kanban', matrix: 'Matrix', features: 'Feature Cards' }
@@ -81,7 +82,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
       >
         <div className="flex items-start justify-between gap-1 mb-1">
           <div className="text-xs font-semibold text-gray-800 leading-snug flex-1">
-            {i.isPriority && <span className="mr-1">⭐</span>}#{i.id} {i.name}
+            {i.isPriority && <Icon name="starFilled" size={12} className="inline mr-1 text-amber-500" />}#{i.id} {i.name}
           </div>
           <input
             type="checkbox"
@@ -94,7 +95,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
         <div className="text-[0.6875rem] text-gray-400 leading-snug mb-1.5">{i.pitch.slice(0, 60)}…</div>
         <div className="flex items-center gap-1 flex-wrap">
           <ScoreBadge idea={i} />
-          {stale && <span className="text-[0.625rem] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full">🟠 {daysOld(i)}d</span>}
+          {stale && <span className="icon-pill inline-flex items-center gap-1 text-[0.625rem] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full"><Icon name="clock" size={11} /> {daysOld(i)}d</span>}
         </div>
       </div>
     )
@@ -113,10 +114,10 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
     </select>
   )
 
-  const Col = ({ ideas, label, color, col }) => (
+  const Col = ({ ideas, label, icon, color, col }) => (
     <div className="kanban-column min-w-0">
       <div className="kanban-column__header flex items-center justify-between mb-2 pb-1.5 border-b border-gray-100">
-        <span className="text-[0.6875rem] font-bold uppercase tracking-wider" style={{ color }}>{label} ({ideas.length})</span>
+        <span className="inline-flex items-center gap-1.5 text-[0.6875rem] font-bold uppercase tracking-wider" style={{ color }}><Icon name={icon} size={13} /> {label} ({ideas.length})</span>
         {col && <SortSelect col={col} />}
       </div>
       <div className="kb-cards">{ideas.map(card)}</div>
@@ -128,14 +129,14 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
       {/* Build Next banner */}
       {recommend && (
         <div className="build-next flex items-center gap-2 flex-wrap bg-gradient-to-r from-green-50 to-violet-50 border border-green-200 rounded-xl px-3 py-2 mb-3">
-          <span className="build-next__eyebrow text-[0.625rem] font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">⭐ Build Next</span>
+          <span className="build-next__eyebrow inline-flex items-center gap-1 text-[0.625rem] font-bold text-green-700 uppercase tracking-wider whitespace-nowrap"><Icon name="starFilled" size={12} /> Build Next</span>
           <span className="build-next__title text-xs font-bold text-gray-800 flex-1 min-w-0 truncate">#{recommend.id} {recommend.name}</span>
           <span className="build-next__time"><TimePill time={recommend.time} /></span>
           <div className="build-next__actions">
             <button
               onClick={() => setStatus(recommend.id, 'building')}
-              className="text-[0.6875rem] font-bold bg-green-600 text-white px-3 py-1 rounded-lg whitespace-nowrap"
-            >🔨 Start</button>
+              className="inline-flex items-center justify-center gap-1 text-[0.6875rem] font-bold bg-green-600 text-white px-3 py-1 rounded-lg whitespace-nowrap"
+            ><Icon name="hammer" size={13} /> Start</button>
             <button
               onClick={() => onOpen(recommend.id)}
               className="text-[0.6875rem] font-semibold text-gray-500 border border-gray-200 px-3 py-1 rounded-lg whitespace-nowrap"
@@ -146,10 +147,10 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Col ideas={quick}   label="⚡ Quick — 1 wk"      color="#059669" col="quick" />
-        <Col ideas={medium}  label="⏱ Medium — 1–2 wks"   color="#2563eb" col="medium" />
-        <Col ideas={project} label="🏗 Project — 2–4 wks"  color="#d97706" col="project" />
-        {done.length > 0 && <Col ideas={done} label="✅ Done" color="#5254d6" col={null} />}
+        <Col ideas={quick}   label="Quick — 1 wk"       icon="bolt"  color="#059669" col="quick" />
+        <Col ideas={medium}  label="Medium — 1–2 wks"   icon="clock" color="#2563eb" col="medium" />
+        <Col ideas={project} label="Project — 2–4 wks"  icon="blocks" color="#d97706" col="project" />
+        {done.length > 0 && <Col ideas={done} label="Done" icon="circleCheck" color="#5254d6" col={null} />}
       </div>
     </div>
   )
@@ -186,8 +187,8 @@ function MatrixView({ ideas, getStatus, onOpen }) {
     <div className="space-y-1.5">
       <div className="flex justify-between text-[0.625rem] text-gray-400 px-1"><span>← High effort</span><span>Low effort →</span></div>
       <div className="grid grid-cols-2 gap-2">
-        <Quad ideas={q2} label="⬆ High impact · High effort — Build next quarter" color="#d97706" bg="bg-amber-50/50" border="border-amber-200" />
-        <Quad ideas={q1} label="★ High impact · Low effort — Build now"          color="#059669" bg="bg-green-50/50"  border="border-green-200" />
+        <Quad ideas={q2} label="High impact · High effort — Build next quarter"   color="#d97706" bg="bg-amber-50/50" border="border-amber-200" />
+        <Quad ideas={q1} label="High impact · Low effort — Build now"            color="#059669" bg="bg-green-50/50"  border="border-green-200" />
         <Quad ideas={q4} label="Low impact · High effort — Reconsider"            color="#9090b8" bg="bg-gray-50/50"   border="border-gray-200" />
         <Quad ideas={q3} label="Low impact · Low effort — Fill gaps"              color="#5254d6" bg="bg-violet-50/50" border="border-violet-200" />
       </div>
@@ -227,11 +228,11 @@ function BatchBar({ count, onAction, onClear }) {
   return (
     <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-2xl z-40 text-xs font-bold whitespace-nowrap">
       <span className="text-gray-300 mr-1">{count} selected</span>
-      <button onClick={() => onAction('building')} className="bg-blue-600 px-2.5 py-1.5 rounded-lg">🔨 Building</button>
-      <button onClick={() => onAction('ready')}    className="bg-green-600 px-2.5 py-1.5 rounded-lg">✅ Ready</button>
-      <button onClick={() => onAction('done')}     className="bg-violet-600 px-2.5 py-1.5 rounded-lg">✓ Done</button>
-      <button onClick={() => onAction('shelved')}  className="border border-white/20 px-2.5 py-1.5 rounded-lg text-amber-300">🗄</button>
-      <button onClick={onClear} className="text-gray-400 ml-1 px-1">✕</button>
+      <button onClick={() => onAction('building')} className="inline-flex items-center gap-1 bg-blue-600 px-2.5 py-1.5 rounded-lg"><Icon name="hammer" size={13} /> Building</button>
+      <button onClick={() => onAction('ready')}    className="inline-flex items-center gap-1 bg-green-600 px-2.5 py-1.5 rounded-lg"><Icon name="circleCheck" size={13} /> Ready</button>
+      <button onClick={() => onAction('done')}     className="inline-flex items-center gap-1 bg-violet-600 px-2.5 py-1.5 rounded-lg"><Icon name="check" size={13} /> Done</button>
+      <button onClick={() => onAction('shelved')}  className="inline-flex items-center border border-white/20 px-2.5 py-1.5 rounded-lg text-amber-300" aria-label="Shelve selected ideas"><Icon name="archive" size={14} /></button>
+      <button onClick={onClear} className="text-gray-400 ml-1 px-1" aria-label="Clear selection"><Icon name="close" size={15} /></button>
     </div>
   )
 }

@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useStore } from '../lib/store'
+import Icon from './Icon'
+import { TIME_ICONS } from './Pills'
 
 const EMPTY = { name:'', pitch:'', target:'', pain:'', mvp:[''], win:'', time:'1-2w', plat:'html', notes:'' }
 
@@ -54,7 +56,7 @@ export default function AddIdeaModal({ editId, onClose }) {
       <div className="app-dialog bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] flex flex-col shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
           <h2 className="text-base font-bold text-gray-900">{existing ? 'Edit idea' : 'Add new idea'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1">✕</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close idea form"><Icon name="close" size={20} /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -66,11 +68,14 @@ export default function AddIdeaModal({ editId, onClose }) {
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Build time">
-              <select className="input" value={form.time} onChange={e => set('time', e.target.value)}>
-                <option value="1w">⚡ 1 week</option>
-                <option value="1-2w">⏱ 1–2 weeks</option>
-                <option value="2-4w">🏗 2–4 weeks</option>
-              </select>
+              <div className="select-icon-field">
+                <Icon name={TIME_ICONS[form.time]} size={16} />
+                <select className="input" value={form.time} onChange={e => set('time', e.target.value)}>
+                  <option value="1w">1 week</option>
+                  <option value="1-2w">1–2 weeks</option>
+                  <option value="2-4w">2–4 weeks</option>
+                </select>
+              </div>
             </Field>
             <Field label="Platform">
               <select className="input" value={form.plat} onChange={e => set('plat', e.target.value)}>
@@ -97,11 +102,11 @@ export default function AddIdeaModal({ editId, onClose }) {
                   placeholder={`Step ${i + 1}`}
                 />
                 {form.mvp.length > 1 && (
-                  <button onClick={() => removeMvp(i)} className="text-red-400 px-2">✕</button>
+                  <button onClick={() => removeMvp(i)} className="text-red-400 px-2" aria-label={`Remove step ${i + 1}`}><Icon name="close" size={18} /></button>
                 )}
               </div>
             ))}
-            <button onClick={addMvp} className="text-xs text-violet-600 font-semibold mt-1">+ Add step</button>
+            <button onClick={addMvp} className="inline-flex items-center gap-1 text-xs text-violet-600 font-semibold mt-1"><Icon name="plus" size={14} /> Add step</button>
           </div>
           <Field label="Why it wins">
             <textarea className="input h-16 resize-none" value={form.win} onChange={e => set('win', e.target.value)} placeholder="One clear differentiator" />

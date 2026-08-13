@@ -3,6 +3,7 @@ import { useStore } from '../lib/store'
 import { scoreIdea } from '../lib/scoring'
 import { TimePill, StatusBadge } from '../components/Pills'
 import { GROUPS } from '../data/groups'
+import Icon from '../components/Icon'
 
 const STATUS_ORDER = { building: 0, ready: 1, idea: 2, done: 3, shelved: 4 }
 
@@ -31,7 +32,7 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
               onClick={() => toggle(group.key)}
             >
               <div className="flex items-center gap-2">
-                <span className="text-base">{group.icon}</span>
+                <span className="group-icon" aria-hidden="true"><Icon name={group.icon} size={18} /></span>
                 <div>
                   <div className="font-bold text-gray-900 dark:text-slate-100 text-sm">{group.label}</div>
                   <div className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{group.desc}</div>
@@ -43,7 +44,7 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
                   : <span className="text-xs font-bold text-violet-600 bg-violet-50 dark:bg-violet-900/30 dark:text-violet-400 px-2 py-0.5 rounded-full">{active} active</span>
                 }
                 {done > 0 && <span className="text-xs text-gray-400 bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded-full">{done} done</span>}
-                <span className="text-gray-400 text-xs">{isOpen ? '▼' : '▶'}</span>
+                <Icon name={isOpen ? 'chevronDown' : 'chevronRight'} size={15} className="text-gray-400" />
               </div>
             </button>
 

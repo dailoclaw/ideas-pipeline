@@ -1,4 +1,6 @@
 import { useEffect } from 'react'
+import Icon from './Icon'
+import { TimePill } from './Pills'
 
 const SIZE_OPTIONS = [
   { key: 'default', label: 'Default', desc: 'Standard',        aaSize: 16 },
@@ -28,7 +30,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
           <h2 className="text-base font-bold text-gray-900 dark:text-slate-100">Customise</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1">✕</button>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close appearance settings"><Icon name="close" size={20} /></button>
         </div>
 
         <div className="flex-1 p-5 space-y-7">
@@ -55,7 +57,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
                       <span className="block font-bold text-gray-800 dark:text-slate-200">{opt.label}</span>
                       <span className="block text-xs text-gray-400 dark:text-slate-500 mt-0.5">{opt.desc}</span>
                     </span>
-                    <span className={`theme-choice__check ml-auto ${active ? 'theme-choice__check--active' : ''}`} aria-hidden="true">✓</span>
+                    <span className={`theme-choice__check ml-auto ${active ? 'theme-choice__check--active' : ''}`} aria-hidden="true"><Icon name="check" size={17} /></span>
                   </button>
                 )
               })}
@@ -67,8 +69,8 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
             <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">Appearance</div>
             <div className="flex gap-3">
               {[
-                { key: 'light', icon: '☀️', label: 'Light' },
-                { key: 'dark',  icon: '🌙', label: 'Dark'  },
+                { key: 'light', icon: 'sun', label: 'Light' },
+                { key: 'dark',  icon: 'moon', label: 'Dark'  },
               ].map(opt => {
                 const active = (opt.key === 'dark') === dark
                 return (
@@ -81,7 +83,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
                         : 'border-gray-200 dark:border-slate-700 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600'
                       }`}
                   >
-                    <span className="text-2xl">{opt.icon}</span>
+                    <Icon name={opt.icon} size={24} />
                     {opt.label}
                   </button>
                 )
@@ -128,7 +130,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
               <div className="font-bold text-gray-900 dark:text-slate-100 mb-1">#42 Sample idea title</div>
               <div className="text-sm text-gray-500 dark:text-slate-400 leading-relaxed">This is what your idea cards will look like at the current text size.</div>
               <div className="flex gap-1.5 mt-2">
-                <span className="text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">⚡ 1 wk</span>
+                <TimePill time="1w" />
                 <span className="text-xs font-bold bg-violet-100 text-violet-700 px-2 py-0.5 rounded-full">HTML</span>
               </div>
             </div>
