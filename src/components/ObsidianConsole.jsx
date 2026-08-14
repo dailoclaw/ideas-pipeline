@@ -10,16 +10,18 @@ import SummaryPage from '../pages/SummaryPage'
 import Icon from './Icon'
 
 const NAV_ITEMS = [
+  { id: 'pulse', label: 'Pulse', icon: 'chart' },
   { id: 'command', label: 'Command', icon: 'activity' },
   { id: 'rank', label: 'Rank', icon: 'award' },
   { id: 'activity', label: 'Activity', icon: 'list' },
   { id: 'plan', label: 'Plan', icon: 'calendar' },
   { id: 'ideas', label: 'Ideas', icon: 'lightbulb' },
   { id: 'spaces', label: 'Spaces', icon: 'groups' },
-  { id: 'pulse', label: 'Pulse', icon: 'chart' },
 ]
 
-const MOBILE_NAV = NAV_ITEMS.slice(0, 4)
+const navItems = ids => ids.map(id => NAV_ITEMS.find(item => item.id === id))
+const MOBILE_NAV = navItems(['pulse', 'command', 'activity', 'plan'])
+const MORE_NAV = navItems(['rank', 'ideas', 'spaces'])
 
 const STATUS_LABELS = {
   idea: 'Idea',
@@ -284,7 +286,7 @@ export default function ObsidianConsole({
 
       <nav className="obsidian-bottom-nav" aria-label="Obsidian mobile navigation">
         {MOBILE_NAV.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)} aria-current={active === item.id ? 'page' : undefined}><Icon name={item.icon} size={18} /><span>{item.label}</span></button>)}
-        <button className={['ideas', 'spaces', 'pulse'].includes(active) ? 'is-active' : ''} onClick={() => setMoreOpen(true)}><Icon name="more" size={19} /><span>More</span></button>
+        <button className={MORE_NAV.some(item => item.id === active) ? 'is-active' : ''} onClick={() => setMoreOpen(true)}><Icon name="more" size={19} /><span>More</span></button>
       </nav>
 
       {moreOpen && <div className="obsidian-menu-overlay" onClick={event => { if (event.target === event.currentTarget) setMoreOpen(false) }}>
@@ -292,7 +294,7 @@ export default function ObsidianConsole({
           <div className="obsidian-menu-handle" />
           <header><div><strong>Console menu</strong><span>{groupFilter ? GROUPS.find(group => group.key === groupFilter)?.label || 'Filtered workspace' : 'All workspaces'}</span></div><button onClick={() => setMoreOpen(false)} aria-label="Close console menu"><Icon name="close" size={19} /></button></header>
           <label><span>Workspace</span><select value={groupFilter} onChange={event => setGroupFilter(event.target.value)}><option value="">All ideas</option><option value="__none__">No group yet</option>{GROUPS.map(group => <option key={group.key} value={group.key}>{group.label}</option>)}</select></label>
-          <div className="obsidian-menu-grid">{NAV_ITEMS.slice(4).map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)}><Icon name={item.icon} size={20} /><span>{item.label}</span></button>)}</div>
+          <div className="obsidian-menu-grid">{MORE_NAV.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)}><Icon name={item.icon} size={20} /><span>{item.label}</span></button>)}</div>
           <div className="obsidian-menu-list">
             <button onClick={() => { setMoreOpen(false); onTriage() }}><Icon name="target" size={19} /><span><strong>Triage ideas</strong><small>{triageCount} awaiting review</small></span><Icon name="chevronRight" size={16} /></button>
             <button onClick={() => { setMoreOpen(false); onSettings() }}><Icon name="settings" size={19} /><span><strong>Appearance and text</strong><small>Adjust display preferences</small></span><Icon name="chevronRight" size={16} /></button>

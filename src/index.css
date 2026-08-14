@@ -2165,7 +2165,8 @@ html[data-ui-theme="glass"] .workspace-pulse-card {
   line-height: 1.5;
 }
 
-html[data-app-layout="obsidian"] {
+html[data-app-layout="obsidian"],
+html.dark[data-app-layout="obsidian"] {
   --ui-surface: #11151a;
   --ui-surface-muted: #15191e;
   --ui-text: #f2f5f7;
@@ -2177,6 +2178,7 @@ html[data-app-layout="obsidian"] {
   --ui-accent-strong: #43cbdc;
   --ui-accent-soft: rgba(90, 217, 232, .10);
   --ui-shadow: none;
+  color-scheme: dark;
   --ui-shadow-strong: 0 24px 70px rgba(0, 0, 0, .45);
   color-scheme: dark;
 }
@@ -2389,12 +2391,48 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
 .obsidian-main .view-switcher__button { border-radius: 6px !important; }
 .obsidian-main .view-switcher__button.is-active { color: #071013 !important; background: #5ad9e8 !important; box-shadow: none !important; }
 .obsidian-main .layout-canvas { padding: 14px 28px 28px !important; }
-.obsidian-main .portfolio-pulse { background: transparent; }
-.obsidian-main .portfolio-pulse__header { padding-top: 30px; }
+.obsidian-main .portfolio-pulse {
+  color: #f2f5f7;
+  background: transparent;
+}
+.obsidian-main .portfolio-pulse__header {
+  padding-top: 30px;
+  color: #f2f5f7;
+  background: transparent !important;
+}
+.obsidian-main .portfolio-pulse__header > div > span,
+.obsidian-main .pulse-kicker,
+.obsidian-main .pulse-section__heading > div > span,
+.obsidian-main .pulse-compare-intro > span,
+.obsidian-main .pulse-drill__hero > div > span { color: #5ad9e8; }
+.obsidian-main .portfolio-pulse__header h1 { color: #f2f5f7; }
+.obsidian-main .portfolio-pulse__header p { color: #75818a; }
+.obsidian-main .pulse-icon-button {
+  border-color: #293139;
+  border-radius: 8px;
+  color: #c1c9cf;
+  background: #11151a;
+  box-shadow: none;
+}
 .obsidian-main .pulse-view-switcher,
 .obsidian-main .pulse-section,
 .obsidian-main .pulse-panel,
+.obsidian-main .pulse-list-panel,
+.obsidian-main .workspace-pulse-card,
+.obsidian-main .pulse-drill__hero,
 .obsidian-main .pulse-hero { border-color: #293139; border-radius: 8px; background: #11151a; box-shadow: none; }
+.obsidian-main .pulse-view-switcher button.is-active {
+  color: #071013;
+  background: #5ad9e8;
+  box-shadow: none;
+}
+.obsidian-main .pulse-status-grid > button,
+.obsidian-main .pulse-search input {
+  border-color: #293139;
+  color: #f2f5f7;
+  background: #15191e;
+  box-shadow: none;
+}
 
 .obsidian-page {
   width: min(1180px, 100%);

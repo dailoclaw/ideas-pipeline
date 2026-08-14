@@ -48,7 +48,7 @@ function AppMark() {
 
 export default function App() {
   const [tab, setTab]         = useState('layout')
-  const [consoleTab, setConsoleTab] = useState('command')
+  const [consoleTab, setConsoleTab] = useState('pulse')
   const [groupFilter, setGroupFilter] = useState('')
   const [openId, setOpenId]   = useState(null)
   const [editId, setEditId]   = useState(null)
