@@ -8,7 +8,7 @@ const SIZE_OPTIONS = [
   { key: 'xl',      label: 'XL',      desc: 'Maximum comfort', aaSize: 24 },
 ]
 
-export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme, setTheme, fontSize, setFontSizeKey }) {
+export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme, setTheme, fontSize, setFontSizeKey, appLayout, setAppLayout }) {
   useEffect(() => {
     const handler = e => { if (e.key === 'Escape') onClose() }
     document.addEventListener('keydown', handler)
@@ -35,9 +35,30 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
 
         <div className="flex-1 p-5 space-y-7">
 
+          {/* App layout */}
+          <section>
+            <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">App layout</div>
+            <div className="space-y-2">
+              {[
+                { key: 'original', label: 'Original', desc: 'Current IdeaFlow workspace', icon: 'layout' },
+                { key: 'obsidian', label: 'Obsidian Console', desc: 'Focused dark operations console', icon: 'activity' },
+              ].map(opt => {
+                const active = appLayout === opt.key
+                return (
+                  <button key={opt.key} onClick={() => setAppLayout(opt.key)} className={`layout-choice w-full flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 transition-all text-left ${active ? 'layout-choice--active' : ''}`}>
+                    <span className="layout-choice__icon"><Icon name={opt.icon} size={20} /></span>
+                    <span className="min-w-0"><span className="block font-bold text-gray-800 dark:text-slate-200">{opt.label}</span><span className="block text-xs text-gray-400 dark:text-slate-500 mt-0.5">{opt.desc}</span></span>
+                    <span className={`theme-choice__check ml-auto ${active ? 'theme-choice__check--active' : ''}`} aria-hidden="true"><Icon name="check" size={17} /></span>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+
           {/* Visual system */}
           <section>
             <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">Visual system</div>
+            {appLayout === 'obsidian' && <p className="settings-context-note">Obsidian Console uses its own dark-first visual system. These themes apply when you return to the original layout.</p>}
             <div className="space-y-2">
               {[
                 { key: 'calm', label: 'Calm Command', desc: 'Spacious and reassuring', swatches: ['#153a37', '#4e9189', '#c49a44'] },

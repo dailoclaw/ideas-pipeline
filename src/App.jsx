@@ -3,6 +3,7 @@ import { useStore } from './lib/store'
 import { useDarkMode } from './hooks/useDarkMode'
 import { useUiTheme } from './hooks/useUiTheme'
 import { useSettings } from './hooks/useSettings'
+import { useAppLayout } from './hooks/useAppLayout'
 import { GROUPS } from './data/groups'
 import SettingsDrawer  from './components/SettingsDrawer'
 import LayoutPage      from './pages/LayoutPage'
@@ -13,6 +14,7 @@ import SprintPage      from './pages/SprintPage'
 import IdeaModal       from './components/IdeaModal'
 import AddIdeaModal    from './components/AddIdeaModal'
 import TriageModal     from './components/TriageModal'
+import ObsidianConsole from './components/ObsidianConsole'
 import Icon            from './components/Icon'
 
 const TABS = [
@@ -46,6 +48,7 @@ function AppMark() {
 
 export default function App() {
   const [tab, setTab]         = useState('layout')
+  const [consoleTab, setConsoleTab] = useState('command')
   const [groupFilter, setGroupFilter] = useState('')
   const [openId, setOpenId]   = useState(null)
   const [editId, setEditId]   = useState(null)
@@ -56,6 +59,7 @@ export default function App() {
   const [dark, toggleDark]    = useDarkMode()
   const { theme, setTheme }    = useUiTheme()
   const { fontSize, setFontSizeKey }  = useSettings()
+  const { appLayout, setAppLayout } = useAppLayout()
 
   const { load, loading, error, ideas, getStatus } = useStore()
 
@@ -64,19 +68,21 @@ export default function App() {
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]')
     if (!meta) return
-    const color = theme === 'calm'
-      ? (dark ? '#0d2826' : '#153a37')
-      : (dark ? '#11162b' : '#f2f5fb')
+    const color = appLayout === 'obsidian'
+      ? '#090b0e'
+      : theme === 'calm'
+        ? (dark ? '#0d2826' : '#153a37')
+        : (dark ? '#11162b' : '#f2f5fb')
     meta.setAttribute('content', color)
-  }, [theme, dark])
+  }, [theme, dark, appLayout])
 
   useEffect(() => {
     if (settingsOpen || addOpen || editId || triageOpen || mobileToolsOpen) return
     requestAnimationFrame(() => {
-      const shell = document.querySelector('.app-shell')
+      const shell = document.querySelector(appLayout === 'obsidian' ? '.obsidian-main' : '.app-shell')
       if (shell) shell.scrollTop = 0
     })
-  }, [tab, settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
+  }, [tab, consoleTab, appLayout, settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
 
   const triageCount = ideas.filter(i => getStatus(i) === 'idea').length
 
@@ -99,6 +105,21 @@ export default function App() {
 
   return (
     <div className="app-shell flex flex-col h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
+
+      {appLayout === 'obsidian' ? (
+        <ObsidianConsole
+          active={consoleTab}
+          setActive={setConsoleTab}
+          groupFilter={groupFilter}
+          setGroupFilter={setGroupFilter}
+          onOpenIdea={setOpenId}
+          onAdd={() => setAddOpen(true)}
+          onSettings={() => setSettingsOpen(true)}
+          onTriage={() => setTriageOpen(true)}
+          onOriginal={() => setAppLayout('original')}
+          triageCount={triageCount}
+        />
+      ) : <>
 
       <header className="app-header bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
         <div className="brand-lockup">
@@ -131,6 +152,15 @@ export default function App() {
         </div>
 
         <div className="header-utilities">
+          <button
+            onClick={() => setAppLayout('obsidian')}
+            className="header-action layout-quick-toggle"
+            title="Switch to Obsidian Console"
+            aria-label="Switch to Obsidian Console layout"
+          >
+            <Icon name="activity" size={16} />
+            <span>Console</span>
+          </button>
           <button
             onClick={() => setTheme(theme === 'glass' ? 'calm' : 'glass')}
             className="header-action theme-quick-toggle"
@@ -176,6 +206,10 @@ export default function App() {
               </div>
             </label>
             <div className="mobile-tools-actions">
+              <button onClick={() => { setMobileToolsOpen(false); setAppLayout('obsidian') }}>
+                <span className="mobile-tools-action-icon"><Icon name="activity" size={20} /></span>
+                <span><strong>Use Obsidian Console</strong><small>Switch to the operational layout</small></span>
+              </button>
               <button onClick={() => { setMobileToolsOpen(false); setTriageOpen(true) }}>
                 <span className="mobile-tools-action-icon"><Icon name="target" size={20} /></span>
                 <span><strong>Triage ideas</strong><small>{triageCount} remaining</small></span>
@@ -217,6 +251,8 @@ export default function App() {
         ))}
       </nav>
 
+      </>}
+
       {/* ── Modals ── */}
       {openId && <IdeaModal ideaId={openId} onClose={() => setOpenId(null)} onEdit={id => { setOpenId(null); setEditId(id) }} />}
       {(addOpen || editId) && <AddIdeaModal editId={editId || null} onClose={() => { setAddOpen(false); setEditId(null) }} />}
@@ -231,6 +267,8 @@ export default function App() {
           setTheme={setTheme}
           fontSize={fontSize}
           setFontSizeKey={setFontSizeKey}
+          appLayout={appLayout}
+          setAppLayout={setAppLayout}
         />
       )}
     </div>
