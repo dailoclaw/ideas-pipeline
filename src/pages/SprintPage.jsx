@@ -7,7 +7,7 @@ import Icon from '../components/Icon'
 
 const WEEKS = 8
 
-export default function SprintPage({ onOpenIdea, groupFilter = '' }) {
+export default function SprintPage({ groupFilter = '' }) {
   const { ideas, getStatus, getSprintWeeks, getGroup, logActivity } = useStore()
   const [plan, setPlan]       = useState({})   // { [ideaId]: weekNum }
   const [loading, setLoading] = useState(true)

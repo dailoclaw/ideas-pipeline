@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'ideas-app-layout-v1'
 
-export const APP_LAYOUTS = {
+const APP_LAYOUTS = {
   original: {
     key: 'original',
     label: 'Original',

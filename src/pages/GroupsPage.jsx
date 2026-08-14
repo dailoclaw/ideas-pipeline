@@ -7,7 +7,7 @@ import Icon from '../components/Icon'
 
 const STATUS_ORDER = { building: 0, ready: 1, idea: 2, done: 3, shelved: 4 }
 
-export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
+export default function GroupsPage({ onOpenIdea }) {
   const { ideas, getStatus, getGroup } = useStore()
   const [collapsed, setCollapsed] = useState({})
   const toggle = key => setCollapsed(s => ({ ...s, [key]: !s[key] }))

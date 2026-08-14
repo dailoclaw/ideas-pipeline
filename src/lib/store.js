@@ -296,12 +296,6 @@ export const useStore = create((set, get) => ({
       return ({ '1w': 2, '1-2w': 3, '2-4w': 5 }[idea?.time] || 2)
     } catch { return 2 }
   },
-  setSprintWeeks(id, weeks) {
-    const map = JSON.parse(localStorage.getItem('ideas-webapp-sprint-weeks') || '{}')
-    map[id] = weeks
-    localStorage.setItem('ideas-webapp-sprint-weeks', JSON.stringify(map))
-  },
-
   // ── Score adjustment + priority ──────────────────────────────────────────────────────
   async setScoreAdjust(id, scoreAdjust) {
     const adj = Math.max(-99, Math.min(99, parseInt(scoreAdjust) || 0))
@@ -398,7 +392,7 @@ export const useStore = create((set, get) => ({
     catch { return {} }
   },
   setKanbanSort(col, sort) {
-    const s = this.getKanbanSort()
+    const s = get().getKanbanSort()
     s[col] = sort
     localStorage.setItem('ideas-webapp-kanban-sort', JSON.stringify(s))
     // Trigger re-render by touching state

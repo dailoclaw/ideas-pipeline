@@ -53,7 +53,4 @@ export function sortIdeas(ideas, sort, getStatus) {
   return ideas
 }
 
-export const TIME_LABELS = { '1w': '1 week', '1-2w': '1–2 wks', '2-4w': '2–4 wks' }
-export const TIME_COLORS = { '1w': '#059669', '1-2w': '#2563eb', '2-4w': '#d97706' }
 export const STATUS_LABELS = { idea: 'Idea', researching: 'Researching', ready: 'Ready', building: 'Building', done: 'Done', shelved: 'Shelved' }
-export const PLAT_LABELS = { html: 'HTML', hub: 'Hub', pay: 'Pay' }

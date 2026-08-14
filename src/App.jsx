@@ -231,8 +231,8 @@ export default function App() {
       <main className="app-main flex-1 overflow-hidden">
         {tab === 'layout'   && <LayoutPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
         {tab === 'strategy' && <StrategyPage onOpenIdea={setOpenId} groupFilter={groupFilter} />}
-        {tab === 'sprint'   && <SprintPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
-        {tab === 'groups'   && <GroupsPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
+        {tab === 'sprint'   && <SprintPage groupFilter={groupFilter} />}
+        {tab === 'groups'   && <GroupsPage onOpenIdea={setOpenId} />}
         {tab === 'summary'  && <SummaryPage  onOpenIdea={setOpenId} groupFilter={groupFilter} />}
       </main>
 

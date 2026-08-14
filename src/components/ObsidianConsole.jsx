@@ -252,9 +252,9 @@ export default function ObsidianConsole({
     command: <CommandPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} onNavigate={navigate} />,
     rank: <StrategyPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
     activity: <ActivityPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
-    plan: <SprintPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
+    plan: <SprintPage groupFilter={groupFilter} />,
     ideas: <LayoutPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
-    spaces: <GroupsPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
+    spaces: <GroupsPage onOpenIdea={onOpenIdea} />,
     pulse: <SummaryPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
   }[active]
 
