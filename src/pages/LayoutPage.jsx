@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea, sortIdeas, getBuildNext, isStale, daysOld } from '../lib/scoring'
 import { TimePill, PlatPill, ScoreBadge } from '../components/Pills'
@@ -11,6 +11,12 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   const [view, setView] = useState('kanban')
   const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, getGroup } = useStore()
   const [selected, setSelected] = useState(new Set())
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const scroller = canvasRef.current?.closest('.obsidian-main') || canvasRef.current
+    if (scroller) scroller.scrollTop = 0
+  }, [view])
 
   const filteredIdeas = groupFilter === '__none__'
     ? ideas.filter(i => !getGroup(i.id))
@@ -39,7 +45,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
       </div>
 
       {/* View */}
-      <div className="layout-canvas flex-1 overflow-auto p-3 sm:p-4">
+      <div ref={canvasRef} className="layout-canvas flex-1 overflow-auto p-3 sm:p-4">
         {view === 'kanban'   && <KanbanView ideas={filteredIdeas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={selected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} />}
         {view === 'matrix'  && <MatrixView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
         {view === 'features' && <FeaturesView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
@@ -226,13 +232,13 @@ function FeaturesView({ ideas, getStatus, onOpen }) {
 // ── Batch action bar ─────────────────────────────────────────────────────────
 function BatchBar({ count, onAction, onClear }) {
   return (
-    <div className="fixed bottom-20 sm:bottom-6 left-1/2 -translate-x-1/2 bg-gray-900 text-white rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-2xl z-40 text-xs font-bold whitespace-nowrap">
-      <span className="text-gray-300 mr-1">{count} selected</span>
-      <button onClick={() => onAction('building')} className="inline-flex items-center gap-1 bg-blue-600 px-2.5 py-1.5 rounded-lg"><Icon name="hammer" size={13} /> Building</button>
-      <button onClick={() => onAction('ready')}    className="inline-flex items-center gap-1 bg-green-600 px-2.5 py-1.5 rounded-lg"><Icon name="circleCheck" size={13} /> Ready</button>
-      <button onClick={() => onAction('done')}     className="inline-flex items-center gap-1 bg-violet-600 px-2.5 py-1.5 rounded-lg"><Icon name="check" size={13} /> Done</button>
-      <button onClick={() => onAction('shelved')}  className="inline-flex items-center border border-white/20 px-2.5 py-1.5 rounded-lg text-amber-300" aria-label="Shelve selected ideas"><Icon name="archive" size={14} /></button>
-      <button onClick={onClear} className="text-gray-400 ml-1 px-1" aria-label="Clear selection"><Icon name="close" size={15} /></button>
+    <div className="batch-bar fixed left-1/2 -translate-x-1/2 bg-gray-900 text-white rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-2xl z-40 text-xs font-bold whitespace-nowrap">
+      <span className="batch-bar__count text-gray-300 mr-1">{count} selected</span>
+      <button onClick={() => onAction('building')} className="batch-bar__action inline-flex items-center justify-center gap-1 bg-blue-600 px-2.5 py-1.5 rounded-lg"><Icon name="hammer" size={13} /> Building</button>
+      <button onClick={() => onAction('ready')}    className="batch-bar__action inline-flex items-center justify-center gap-1 bg-green-600 px-2.5 py-1.5 rounded-lg"><Icon name="circleCheck" size={13} /> Ready</button>
+      <button onClick={() => onAction('done')}     className="batch-bar__action inline-flex items-center justify-center gap-1 bg-violet-600 px-2.5 py-1.5 rounded-lg"><Icon name="check" size={13} /> Done</button>
+      <button onClick={() => onAction('shelved')}  className="batch-bar__action inline-flex items-center justify-center border border-white/20 px-2.5 py-1.5 rounded-lg text-amber-300" aria-label="Shelve selected ideas"><Icon name="archive" size={14} /></button>
+      <button onClick={onClear} className="batch-bar__clear inline-grid place-items-center text-gray-400 ml-1 px-1" aria-label="Clear selection"><Icon name="close" size={15} /></button>
     </div>
   )
 }

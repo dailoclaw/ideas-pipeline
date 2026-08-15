@@ -490,6 +490,13 @@ html, body, #root { height: 100%; }
   overflow: hidden;
   height: 100dvh;
   background: transparent !important;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+html[data-ui-theme="glass"] .app-shell {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
 }
 
 .app-shell::before,
@@ -820,6 +827,14 @@ html[data-ui-theme] .idea-card::before {
   color: white;
   background: var(--ui-accent-strong);
   box-shadow: 0 5px 14px color-mix(in srgb, var(--ui-accent) 28%, transparent);
+}
+
+.batch-bar {
+  bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+}
+
+.batch-bar button {
+  min-height: 36px;
 }
 
 .app-dialog,
@@ -1349,6 +1364,18 @@ html.dark[data-ui-theme="calm"] .bottom-nav__item.is-active {
     font-size: 12px !important;
   }
 
+  .view-switcher__button,
+  .pulse-view-switcher button {
+    min-height: 44px;
+  }
+
+  .strategy-page button,
+  .sprint-week-grid button,
+  .sprint-assign-cancel,
+  .idea-priority-toggle {
+    min-height: 44px;
+  }
+
   .kanban-column__header select {
     min-width: 84px;
     min-height: 44px;
@@ -1649,8 +1676,8 @@ html[data-ui-theme="glass"] .workspace-pulse-card {
 .pulse-compare-intro { padding: 8px 4px 4px; }
 .pulse-compare-intro h2 { margin: 4px 0; font-size: 26px; letter-spacing: -.04em; }
 .pulse-compare-intro p { margin: 0; color: var(--ui-text-muted); font-size: 12px; }
-.workspace-pulse-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.workspace-pulse-card { --workspace-color: hsl(calc(252deg - var(--workspace-index) * 13deg) 72% 68%); padding: 18px; border: 1px solid var(--ui-border); border-radius: 20px; background: color-mix(in srgb, var(--ui-surface) 92%, transparent); box-shadow: var(--ui-shadow); }
+.workspace-pulse-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.workspace-pulse-card { --workspace-color: hsl(calc(252deg - var(--workspace-index) * 13deg) 72% 68%); min-width: 0; padding: 18px; border: 1px solid var(--ui-border); border-radius: 20px; background: color-mix(in srgb, var(--ui-surface) 92%, transparent); box-shadow: var(--ui-shadow); }
 .workspace-pulse-card__head { display: flex; align-items: center; gap: 11px; }
 .workspace-pulse-card__head > span { display: grid; place-items: center; width: 40px; height: 40px; flex: 0 0 40px; border: 1px solid color-mix(in srgb, var(--workspace-color) 45%, var(--ui-border)); border-radius: 13px; color: var(--workspace-color); background: color-mix(in srgb, var(--workspace-color) 12%, transparent); }
 .workspace-pulse-card__head div { min-width: 0; }
@@ -1726,7 +1753,11 @@ html[data-ui-theme="glass"] .workspace-pulse-card {
   display: none;
 }
 
-@media (max-width: 639px) {
+@media (max-width: 900px) {
+  .batch-bar button {
+    min-height: 44px;
+  }
+
   .app-header {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto auto;
@@ -1952,6 +1983,9 @@ html[data-ui-theme="glass"] .workspace-pulse-card {
   .mobile-tools-sheet {
     width: 100%;
     max-width: 520px;
+    max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    overscroll-behavior: contain;
     padding: 8px 16px 16px;
     color: var(--ui-text);
     border: 1px solid var(--ui-border);
@@ -2087,6 +2121,71 @@ html[data-ui-theme="glass"] .workspace-pulse-card {
 @media (max-width: 365px) {
   .brand-copy strong { max-width: 150px; }
   .brand-mark { width: 36px; height: 36px; }
+
+  .group-section__toggle {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 8px;
+  }
+
+  .group-section__copy {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .group-section__copy > div {
+    min-width: 0;
+  }
+
+  .group-section__copy > div > div {
+    overflow-wrap: anywhere;
+  }
+
+  .group-section__metrics {
+    width: auto;
+    margin-left: 42px !important;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 639px) {
+  .batch-bar {
+    left: 10px !important;
+    right: 10px;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px));
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: auto;
+    padding: 8px;
+    gap: 6px !important;
+    white-space: normal;
+    transform: none !important;
+  }
+
+  .batch-bar__count {
+    grid-column: 1 / 4;
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0 !important;
+    padding-left: 8px;
+  }
+
+  .batch-bar__action {
+    grid-row: 2;
+    min-width: 0;
+    min-height: 44px !important;
+    padding: 0 4px !important;
+    font-size: 10px;
+  }
+
+  .batch-bar__clear {
+    grid-column: 4;
+    grid-row: 1;
+    width: 44px;
+    min-height: 44px !important;
+    margin: 0 0 0 auto !important;
+  }
 }
 
 @media (max-width: 639px) {
@@ -2561,7 +2660,7 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
 .obsidian-next-decision b { padding: 8px 10px; border: 1px solid #f7b84b; border-radius: 5px; color: #f7b84b; font-size: 9px; }
 
 .obsidian-menu-overlay { position: fixed; inset: 0; z-index: 80; display: flex; align-items: flex-end; justify-content: center; padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); background: rgba(0,0,0,.64); }
-.obsidian-menu { width: min(520px, 100%); padding: 7px 14px 15px; border: 1px solid #344049; border-radius: 16px; background: #11151a; box-shadow: 0 24px 80px #000a; }
+.obsidian-menu { width: min(520px, 100%); max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overflow-y: auto; overscroll-behavior: contain; padding: 7px 14px 15px; border: 1px solid #344049; border-radius: 16px; background: #11151a; box-shadow: 0 24px 80px #000a; }
 .obsidian-menu-handle { width: 36px; height: 4px; margin: 0 auto 4px; border-radius: 4px; background: #3b4851; }
 .obsidian-menu header { display: flex; align-items: center; justify-content: space-between; min-height: 53px; border-bottom: 1px solid #293139; background: transparent !important; box-shadow: none !important; }
 .obsidian-menu header > div { display: flex; flex-direction: column; }

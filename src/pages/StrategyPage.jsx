@@ -24,7 +24,7 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
   const recommend = getBuildNext(groupIdeas, getStatus)
 
   return (
-    <div className="h-full overflow-auto p-3 space-y-4">
+    <div className="strategy-page h-full overflow-auto p-3 space-y-4">
 
       {/* Build Next */}
       {recommend && (

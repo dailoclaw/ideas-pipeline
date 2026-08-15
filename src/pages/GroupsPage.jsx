@@ -13,7 +13,7 @@ export default function GroupsPage({ onOpenIdea }) {
   const toggle = key => setCollapsed(s => ({ ...s, [key]: !s[key] }))
 
   return (
-    <div className="h-full overflow-auto p-3 space-y-3">
+    <div className="groups-page h-full overflow-auto p-3 space-y-3">
       {GROUPS.map(group => {
         const groupIdeas = ideas
           .filter(i => getGroup(i.id) === group.key)
@@ -26,19 +26,19 @@ export default function GroupsPage({ onOpenIdea }) {
         const isOpen = !collapsed[group.key]
 
         return (
-          <div key={group.key} className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden">
+          <div key={group.key} className="group-section bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden">
             <button
-              className="w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+              className="group-section__toggle w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
               onClick={() => toggle(group.key)}
             >
-              <div className="flex items-center gap-2">
+              <div className="group-section__copy flex items-center gap-2">
                 <span className="group-icon" aria-hidden="true"><Icon name={group.icon} size={18} /></span>
                 <div>
                   <div className="font-bold text-gray-900 dark:text-slate-100 text-sm">{group.label}</div>
                   <div className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{group.desc}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+              <div className="group-section__metrics flex items-center gap-2 flex-shrink-0 ml-2">
                 {groupIdeas.length === 0
                   ? <span className="text-xs text-gray-300 italic">No ideas assigned</span>
                   : <span className="text-xs font-bold text-violet-600 bg-violet-50 dark:bg-violet-900/30 dark:text-violet-400 px-2 py-0.5 rounded-full">{active} active</span>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea, gradeFromScore, isStale, STATUS_LABELS } from '../lib/scoring'
 import { GROUPS, GROUP_MAP } from '../data/groups'
@@ -90,6 +90,12 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
   const [view, setView] = useState('pulse')
   const [drillStatus, setDrillStatus] = useState('')
   const [search, setSearch] = useState('')
+  const pageRef = useRef(null)
+
+  useEffect(() => {
+    const scroller = pageRef.current?.closest('.obsidian-main') || pageRef.current
+    if (scroller) scroller.scrollTop = 0
+  }, [view, drillStatus])
 
   const scopedIdeas = useMemo(() => {
     if (groupFilter === '__none__') return ideas.filter(idea => !getGroup(idea.id))
@@ -174,7 +180,7 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
   }
 
   return (
-    <div className="portfolio-pulse">
+    <div ref={pageRef} className="portfolio-pulse">
       <header className="portfolio-pulse__header">
         <div>
           <span>Portfolio intelligence</span>

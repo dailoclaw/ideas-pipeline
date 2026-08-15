@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { gradeFromScore, isStale, scoreIdea } from '../lib/scoring'
 import { GROUPS } from '../data/groups'
@@ -8,6 +8,7 @@ import SprintPage from '../pages/SprintPage'
 import GroupsPage from '../pages/GroupsPage'
 import SummaryPage from '../pages/SummaryPage'
 import Icon from './Icon'
+import { useDialogFocus } from '../hooks/useDialogFocus'
 
 const NAV_ITEMS = [
   { id: 'pulse', label: 'Pulse', icon: 'chart' },
@@ -243,6 +244,8 @@ export default function ObsidianConsole({
   triageCount,
 }) {
   const [moreOpen, setMoreOpen] = useState(false)
+  const menuRef = useRef(null)
+  useDialogFocus(menuRef, () => setMoreOpen(false), moreOpen)
   const activeMeta = NAV_ITEMS.find(item => item.id === active) || NAV_ITEMS[0]
 
   const navigate = id => {
@@ -290,7 +293,7 @@ export default function ObsidianConsole({
       </nav>
 
       {moreOpen && <div className="obsidian-menu-overlay" onClick={event => { if (event.target === event.currentTarget) setMoreOpen(false) }}>
-        <div className="obsidian-menu" role="dialog" aria-modal="true" aria-label="Obsidian Console menu">
+        <div ref={menuRef} className="obsidian-menu" role="dialog" aria-modal="true" aria-label="Obsidian Console menu" tabIndex={-1}>
           <div className="obsidian-menu-handle" />
           <header><div><strong>Console menu</strong><span>{groupFilter ? GROUPS.find(group => group.key === groupFilter)?.label || 'Filtered workspace' : 'All workspaces'}</span></div><button onClick={() => setMoreOpen(false)} aria-label="Close console menu"><Icon name="close" size={19} /></button></header>
           <label><span>Workspace</span><select value={groupFilter} onChange={event => setGroupFilter(event.target.value)}><option value="">All ideas</option><option value="__none__">No group yet</option>{GROUPS.map(group => <option key={group.key} value={group.key}>{group.label}</option>)}</select></label>

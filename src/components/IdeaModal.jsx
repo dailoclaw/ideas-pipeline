@@ -5,6 +5,7 @@ import { GROUPS } from '../data/groups'
 import { scoreIdea } from '../lib/scoring'
 import ActivityTimeline from './ActivityTimeline'
 import Icon from './Icon'
+import { useDialogFocus } from '../hooks/useDialogFocus'
 
 const ALL_STATUSES = [
   { value: 'idea',        label: 'Idea' },
@@ -20,12 +21,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
   const idea = ideas.find(i => i.id === ideaId)
   const ref = useRef()
   const [activeTab, setActiveTab] = useState('overview')
-
-  useEffect(() => {
-    const handler = e => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
+  useDialogFocus(ref, onClose)
 
   const [localNotes, setLocalNotes] = useState('')
   const [groupSaving, setGroupSaving] = useState(false)
@@ -88,13 +84,17 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
     >
       <div
         ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="idea-dialog-title"
+        tabIndex={-1}
         className="app-dialog bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl"
       >
         {/* Header */}
         <div className="flex items-start justify-between p-4 border-b border-gray-100 flex-shrink-0">
           <div className="flex-1 min-w-0 pr-4">
             <div className="text-xs text-gray-400 font-medium mb-0.5">Idea #{idea.id}</div>
-            <div className="text-lg font-bold text-gray-900 leading-tight">{idea.name}</div>
+            <div id="idea-dialog-title" className="text-lg font-bold text-gray-900 leading-tight">{idea.name}</div>
             <div className="flex items-center gap-1.5 flex-wrap mt-2">
               <StatusBadge status={status} />
               <TimePill time={idea.time} />
@@ -133,7 +133,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
             <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Priority</span>
             <button
               onClick={async () => { await setPriority(idea.id, !idea.isPriority) }}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
+              className={`idea-priority-toggle flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
                 ${idea.isPriority
                   ? 'bg-amber-50 border-amber-300 text-amber-700'
                   : 'border-gray-200 text-gray-400 hover:border-amber-200 hover:text-amber-500'}`}

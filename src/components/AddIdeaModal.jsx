@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import { useStore } from '../lib/store'
+import { useDialogFocus } from '../hooks/useDialogFocus'
 import Icon from './Icon'
 import { TIME_ICONS } from './Pills'
 
@@ -15,12 +16,8 @@ export default function AddIdeaModal({ editId, onClose }) {
   } : EMPTY)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-
-  useEffect(() => {
-    const handler = e => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
+  const dialogRef = useRef(null)
+  useDialogFocus(dialogRef, onClose)
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
   const setMvp = (i, val) => setForm(f => {
@@ -53,9 +50,9 @@ export default function AddIdeaModal({ editId, onClose }) {
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center"
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
-      <div className="app-dialog bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] flex flex-col shadow-2xl">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="add-idea-title" tabIndex={-1} className="app-dialog bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] flex flex-col shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
-          <h2 className="text-base font-bold text-gray-900">{existing ? 'Edit idea' : 'Add new idea'}</h2>
+          <h2 id="add-idea-title" className="text-base font-bold text-gray-900">{existing ? 'Edit idea' : 'Add new idea'}</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close idea form"><Icon name="close" size={20} /></button>
         </div>
 

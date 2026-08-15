@@ -1,6 +1,7 @@
-import { useEffect } from 'react'
+import { useRef } from 'react'
 import Icon from './Icon'
 import { TimePill } from './Pills'
+import { useDialogFocus } from '../hooks/useDialogFocus'
 
 const SIZE_OPTIONS = [
   { key: 'default', label: 'Default', desc: 'Standard',        aaSize: 16 },
@@ -9,11 +10,8 @@ const SIZE_OPTIONS = [
 ]
 
 export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme, setTheme, fontSize, setFontSizeKey, appLayout, setAppLayout }) {
-  useEffect(() => {
-    const handler = e => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
+  const drawerRef = useRef(null)
+  useDialogFocus(drawerRef, onClose, open)
 
   if (!open) return null
 
@@ -26,10 +24,10 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Drawer */}
-      <div className="settings-drawer relative w-full sm:w-80 bg-white dark:bg-slate-800 h-full shadow-2xl flex flex-col z-10 overflow-y-auto">
+      <div ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title" tabIndex={-1} className="settings-drawer relative w-full sm:w-80 bg-white dark:bg-slate-800 h-full shadow-2xl flex flex-col z-10 overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
-          <h2 className="text-base font-bold text-gray-900 dark:text-slate-100">Customise</h2>
+          <h2 id="settings-dialog-title" className="text-base font-bold text-gray-900 dark:text-slate-100">Customise</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close appearance settings"><Icon name="close" size={20} /></button>
         </div>
 

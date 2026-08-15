@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
+import { useDialogFocus } from '../hooks/useDialogFocus'
 import { scoreIdea } from '../lib/scoring'
 import { TimePill, PlatPill, ScoreBadge } from './Pills'
 import Icon from './Icon'
@@ -8,6 +9,8 @@ export default function TriageModal({ onClose }) {
   const { ideas, getStatus, setStatus } = useStore()
   const [skipped, setSkipped] = useState(new Set())
   const [idx, setIdx] = useState(0)
+  const dialogRef = useRef(null)
+  useDialogFocus(dialogRef, onClose)
 
   // Queue: all 'idea' status, sorted by score desc
   const queue = ideas
@@ -17,12 +20,6 @@ export default function TriageModal({ onClose }) {
   const remaining = queue.filter(i => !skipped.has(i.id))
   const current = remaining[0] || null
   const done = queue.length - remaining.length
-
-  useEffect(() => {
-    const handler = e => { if (e.key === 'Escape') onClose() }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [onClose])
 
   const act = useCallback(async action => {
     if (!current) return
@@ -38,12 +35,12 @@ export default function TriageModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-      <div className="app-dialog bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="triage-dialog-title" tabIndex={-1} className="app-dialog bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl">
 
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <span className="text-base font-bold text-gray-900">Triage</span>
+            <span id="triage-dialog-title" className="text-base font-bold text-gray-900">Triage</span>
             <div className="flex items-center gap-2">
               <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                 <div className="h-full bg-violet-500 rounded-full transition-all" style={{ width: `${pct}%` }} />

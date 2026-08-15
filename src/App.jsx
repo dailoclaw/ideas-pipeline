@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from './lib/store'
 import { useDarkMode } from './hooks/useDarkMode'
 import { useUiTheme } from './hooks/useUiTheme'
@@ -16,6 +16,7 @@ import AddIdeaModal    from './components/AddIdeaModal'
 import TriageModal     from './components/TriageModal'
 import ObsidianConsole from './components/ObsidianConsole'
 import Icon            from './components/Icon'
+import { useDialogFocus } from './hooks/useDialogFocus'
 
 const TABS = [
   { id: 'layout',   label: 'Layout',   icon: 'layout' },
@@ -56,12 +57,14 @@ export default function App() {
   const [triageOpen, setTriageOpen]   = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [mobileToolsOpen, setMobileToolsOpen] = useState(false)
+  const mobileToolsRef = useRef(null)
   const [dark, toggleDark]    = useDarkMode()
   const { theme, setTheme }    = useUiTheme()
   const { fontSize, setFontSizeKey }  = useSettings()
   const { appLayout, setAppLayout } = useAppLayout()
 
   const { load, loading, error, ideas, getStatus } = useStore()
+  useDialogFocus(mobileToolsRef, () => setMobileToolsOpen(false), mobileToolsOpen)
 
   useEffect(() => { load() }, [])
 
@@ -185,7 +188,7 @@ export default function App() {
 
       {mobileToolsOpen && (
         <div className="mobile-tools-overlay" onClick={e => { if (e.target === e.currentTarget) setMobileToolsOpen(false) }}>
-          <div className="mobile-tools-sheet" role="dialog" aria-modal="true" aria-label="Workspace and app controls">
+          <div ref={mobileToolsRef} className="mobile-tools-sheet" role="dialog" aria-modal="true" aria-label="Workspace and app controls" tabIndex={-1}>
             <div className="mobile-tools-handle" aria-hidden="true" />
             <div className="mobile-tools-heading">
               <div>

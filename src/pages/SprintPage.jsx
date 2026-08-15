@@ -57,7 +57,7 @@ export default function SprintPage({ groupFilter = '' }) {
   )
 
   return (
-    <div className="h-full overflow-auto p-3 space-y-4">
+    <div className="sprint-page h-full overflow-auto p-3 space-y-4">
 
       {/* Stats */}
       <div className="flex gap-3 flex-wrap">
@@ -130,7 +130,7 @@ export default function SprintPage({ groupFilter = '' }) {
               {selected === idea.id && (
                 <div className="mt-1 p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl">
                   <div className="text-xs font-semibold text-gray-500 dark:text-slate-400 mb-2">Assign to week:</div>
-                  <div className="grid grid-cols-4 gap-1.5">
+                  <div className="sprint-week-grid grid grid-cols-4 gap-1.5">
                     {Array.from({ length: WEEKS }, (_, i) => i + 1).map(w => (
                       <button
                         key={w}
@@ -139,7 +139,7 @@ export default function SprintPage({ groupFilter = '' }) {
                       >Wk {w}</button>
                     ))}
                   </div>
-                  <button onClick={() => setSelected(null)} className="mt-2 w-full text-xs text-gray-400 py-1.5 border border-gray-100 dark:border-slate-700 rounded-lg">Cancel</button>
+                  <button onClick={() => setSelected(null)} className="sprint-assign-cancel mt-2 w-full text-xs text-gray-400 py-1.5 border border-gray-100 dark:border-slate-700 rounded-lg">Cancel</button>
                 </div>
               )}
             </div>
