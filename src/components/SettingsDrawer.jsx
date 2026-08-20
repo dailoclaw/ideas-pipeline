@@ -39,7 +39,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
             <div className="space-y-2">
               {[
                 { key: 'original', label: 'Original', desc: 'Current IdeaFlow workspace', icon: 'layout' },
-                { key: 'obsidian', label: 'Obsidian Console', desc: 'Blueprint light operations console', icon: 'activity' },
+                { key: 'obsidian', label: 'Obsidian Console', desc: 'Focused light and dark operations console', icon: 'activity' },
               ].map(opt => {
                 const active = appLayout === opt.key
                 return (
@@ -56,7 +56,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
           {/* Visual system */}
           <section>
             <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">Visual system</div>
-            {appLayout === 'obsidian' && <p className="settings-context-note">Obsidian Console uses the Blueprint light system. Visual-system and light/dark choices apply when you return to the original layout.</p>}
+            {appLayout === 'obsidian' && <p className="settings-context-note">Obsidian Console uses Blueprint in light mode and its original Obsidian system in dark mode. The visual-system choices below apply to the original layout.</p>}
             <div className="space-y-2">
               {[
                 { key: 'calm', label: 'Calm Command', desc: 'Spacious and reassuring', swatches: ['#153a37', '#4e9189', '#c49a44'] },

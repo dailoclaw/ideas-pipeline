@@ -2235,7 +2235,7 @@ html[data-ui-theme="glass"] .workspace-pulse-card {
   }
 }
 
-/* ── Obsidian Console: alternate dark-first app layout ─────────────────── */
+/* ── Obsidian Console: alternate operations layout ────────────────────── */
 .layout-choice {
   border-color: var(--ui-border) !important;
   background: var(--ui-surface-muted) !important;
@@ -2393,6 +2393,8 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
 .obsidian-brand > span { display: flex; flex-direction: column; }
 .obsidian-brand strong { font-size: 14px; letter-spacing: -.02em; }
 .obsidian-brand small { margin-top: 2px; color: #75818a; font-size: 8px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }
+.obsidian-theme-toggle { display: grid; place-items: center; width: 34px; height: 34px; margin-left: auto; flex: 0 0 34px; border: 1px solid #293139; border-radius: 6px; color: #c1c9cf; background: #15191e; }
+.obsidian-theme-toggle:hover { color: #f2f5f7; border-color: #3b4851; }
 
 .obsidian-sidebar nav {
   display: grid;
@@ -2690,7 +2692,7 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
 @media (max-width: 639px) {
   .obsidian-shell { display: flex; flex-direction: column; height: 100dvh; }
   .obsidian-sidebar { display: none; }
-  html[data-app-layout="obsidian"] .obsidian-mobile-header { z-index: 30; display: grid; grid-template-columns: minmax(0,1fr) 44px 44px; align-items: center; gap: 6px; min-height: calc(62px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 10px 0; border-bottom: 1px solid #232b32 !important; background-color: #090b0e !important; background-image: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  html[data-app-layout="obsidian"] .obsidian-mobile-header { z-index: 30; display: grid; grid-template-columns: minmax(0,1fr) 44px 44px 44px; align-items: center; gap: 6px; min-height: calc(62px + env(safe-area-inset-top, 0px)); padding: env(safe-area-inset-top, 0px) 10px 0; border-bottom: 1px solid #232b32 !important; background-color: #090b0e !important; background-image: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
   .obsidian-mobile-header > div { display: flex; align-items: center; gap: 9px; min-width: 0; }
   .obsidian-mobile-header .obsidian-mark { width: 31px; height: 31px; }
   .obsidian-mobile-header > div > span { display: flex; flex-direction: column; min-width: 0; }
@@ -2707,8 +2709,8 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
   .obsidian-page-heading { align-items: flex-start; margin-bottom: 14px; }
   .obsidian-page-heading h1 { font-size: 29px; }
   .obsidian-page-heading p { font-size: 10px; }
-  .obsidian-page-heading > button { min-width: 44px; width: 44px; padding: 0; font-size: 0; }
-  .obsidian-page-heading > button .ui-icon { margin: 0; }
+  .obsidian-page-heading > button { justify-content: center; gap: 0; min-width: 44px; width: 44px; padding: 0; font-size: 0; line-height: 0; }
+  .obsidian-page-heading > button .ui-icon { display: block; margin: 0; }
   .obsidian-health-panel { grid-template-columns: 82px minmax(0,1fr); gap: 14px; padding: 15px; }
   .obsidian-ring { width: 78px; height: 78px; }
   .obsidian-ring::before { width: 61px; height: 61px; }
@@ -2751,8 +2753,7 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
 }
 
 /* ── Obsidian Console · Blueprint light system ─────────────────────────── */
-html[data-app-layout="obsidian"],
-html.dark[data-app-layout="obsidian"] {
+html[data-app-layout="obsidian"]:not(.dark) {
   --ui-canvas: #eef3fa;
   --ui-surface: #fbfdff;
   --ui-surface-muted: #e8eef7;
@@ -2769,53 +2770,55 @@ html.dark[data-app-layout="obsidian"] {
   color-scheme: light;
 }
 
-html[data-app-layout="obsidian"] body,
-html[data-app-layout="obsidian"] #root,
-html[data-app-layout="obsidian"] .app-shell {
+html[data-app-layout="obsidian"]:not(.dark) body,
+html[data-app-layout="obsidian"]:not(.dark) #root,
+html[data-app-layout="obsidian"]:not(.dark) .app-shell {
   color: #14233a;
   background: #eef3fa !important;
 }
 
-html[data-app-layout="obsidian"] .obsidian-shell {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-shell {
   color: #14233a;
   background: #eef3fa;
 }
 
-html[data-app-layout="obsidian"] .obsidian-sidebar {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar {
   border-color: #c9d5e3;
   background: #e3ebf5;
 }
 
-html[data-app-layout="obsidian"] .obsidian-brand { border-color: #c9d5e3; }
-html[data-app-layout="obsidian"] .obsidian-mark { fill: rgba(36, 95, 202, .07); stroke: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-mark circle { fill: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-brand small { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-brand { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-mark { fill: rgba(36, 95, 202, .07); stroke: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-mark circle { fill: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-brand small { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-theme-toggle { color: #40536d; border-color: #c9d5e3; border-radius: 3px; background: #fbfdff; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-theme-toggle:hover { color: #245fca; border-color: #adbed2; }
 
-html[data-app-layout="obsidian"] .obsidian-sidebar nav button { color: #607089; border-radius: 3px; }
-html[data-app-layout="obsidian"] .obsidian-sidebar nav button:hover { color: #14233a; background: #edf2f9; }
-html[data-app-layout="obsidian"] .obsidian-sidebar nav button.is-active {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar nav button { color: #607089; border-radius: 3px; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar nav button:hover { color: #14233a; background: #edf2f9; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar nav button.is-active {
   color: #fff;
   border-color: #245fca;
   background: #245fca;
 }
-html[data-app-layout="obsidian"] .obsidian-sidebar nav button.is-active::before { background: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-sidebar nav button i { background: #c93f50; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar nav button.is-active::before { background: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar nav button i { background: #c93f50; }
 
-html[data-app-layout="obsidian"] .obsidian-scope { border-color: #c9d5e3; }
-html[data-app-layout="obsidian"] .obsidian-scope > span { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-scope select {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-scope { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-scope > span { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-scope select {
   color: #14233a;
   border-color: #c9d5e3;
   border-radius: 3px;
   background: #fbfdff;
 }
 
-html[data-app-layout="obsidian"] .obsidian-sidebar-actions button { color: #607089; border-radius: 3px; }
-html[data-app-layout="obsidian"] .obsidian-sidebar-actions button:hover { color: #14233a; background: #edf2f9; }
-html[data-app-layout="obsidian"] .obsidian-sidebar-actions button:first-child { color: #fff; background: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-sidebar-actions button span { color: #fff; background: #a96606; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar-actions button { color: #607089; border-radius: 3px; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar-actions button:hover { color: #14233a; background: #edf2f9; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar-actions button:first-child { color: #fff; background: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-sidebar-actions button span { color: #fff; background: #a96606; }
 
-html[data-app-layout="obsidian"] .obsidian-main {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main {
   background:
     linear-gradient(rgba(36, 83, 138, .035) 1px, transparent 1px),
     linear-gradient(90deg, rgba(36, 83, 138, .035) 1px, transparent 1px),
@@ -2823,19 +2826,19 @@ html[data-app-layout="obsidian"] .obsidian-main {
   background-size: 28px 28px;
 }
 
-html[data-app-layout="obsidian"] .obsidian-page-heading > div > span { color: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-page-heading h1 { color: #14233a; letter-spacing: -.035em; }
-html[data-app-layout="obsidian"] .obsidian-page-heading p { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-page-heading > button {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-page-heading > div > span { color: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-page-heading h1 { color: #14233a; letter-spacing: -.035em; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-page-heading p { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-page-heading > button {
   color: #245fca;
   border-color: #adbed2;
   border-radius: 3px;
   background: #fbfdff;
 }
 
-html[data-app-layout="obsidian"] .obsidian-health-panel,
-html[data-app-layout="obsidian"] .obsidian-stage-panel,
-html[data-app-layout="obsidian"] .obsidian-ranked-panel {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-health-panel,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-stage-panel,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-ranked-panel {
   border-color: #c9d5e3;
   border-left: 3px solid #245fca;
   border-radius: 3px;
@@ -2843,56 +2846,56 @@ html[data-app-layout="obsidian"] .obsidian-ranked-panel {
   box-shadow: none;
 }
 
-html[data-app-layout="obsidian"] .obsidian-ring { background: conic-gradient(#245fca var(--progress), #e8eef7 0); }
-html[data-app-layout="obsidian"] .obsidian-ring::before { background: #fbfdff; }
-html[data-app-layout="obsidian"] .obsidian-ring small,
-html[data-app-layout="obsidian"] .obsidian-health-copy > span,
-html[data-app-layout="obsidian"] .obsidian-health-copy p,
-html[data-app-layout="obsidian"] .obsidian-section-heading > div > span,
-html[data-app-layout="obsidian"] .obsidian-section-heading > small { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-health-metrics { border-color: #c9d5e3; }
-html[data-app-layout="obsidian"] .obsidian-health-metrics div { border-color: #c9d5e3; }
-html[data-app-layout="obsidian"] .obsidian-health-metrics span { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-ring { background: conic-gradient(#245fca var(--progress), #e8eef7 0); }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-ring::before { background: #fbfdff; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-ring small,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-health-copy > span,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-health-copy p,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-section-heading > div > span,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-section-heading > small { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-health-metrics { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-health-metrics div { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-health-metrics span { color: #607089; }
 
-html[data-app-layout="obsidian"] .obsidian-decision-card {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-decision-card {
   border-color: #c93f50;
   border-left-width: 3px;
   border-radius: 3px;
   background: linear-gradient(90deg, rgba(201,63,80,.055), transparent 58%), #fbfdff;
 }
-html[data-app-layout="obsidian"] .obsidian-decision-signal,
-html[data-app-layout="obsidian"] .obsidian-decision-card > div:nth-child(2) > span,
-html[data-app-layout="obsidian"] .obsidian-decision-card b { color: #c93f50; border-color: #c93f50; }
-html[data-app-layout="obsidian"] .obsidian-decision-card p { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-decision-card i { background: #7e8ba0; }
-html[data-app-layout="obsidian"] .obsidian-decision-card > button { color: #14233a; border-radius: 3px; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-decision-signal,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-decision-card > div:nth-child(2) > span,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-decision-card b { color: #c93f50; border-color: #c93f50; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-decision-card p { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-decision-card i { background: #7e8ba0; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-decision-card > button { color: #14233a; border-radius: 3px; }
 
-html[data-app-layout="obsidian"] .obsidian-section-heading > button { color: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-stages > div:not(:last-child)::after { background: #adbed2; }
-html[data-app-layout="obsidian"] .obsidian-stages i { color: #607089; border-color: #adbed2; background: #fbfdff; }
-html[data-app-layout="obsidian"] .obsidian-stages .is-active i { color: #fff; border-color: #245fca; background: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-stages span,
-html[data-app-layout="obsidian"] .obsidian-stages strong { background: #fbfdff; }
-html[data-app-layout="obsidian"] .obsidian-stages span { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-stages .is-active span { color: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-section-heading > button { color: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-stages > div:not(:last-child)::after { background: #adbed2; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-stages i { color: #607089; border-color: #adbed2; background: #fbfdff; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-stages .is-active i { color: #fff; border-color: #245fca; background: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-stages span,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-stages strong { background: #fbfdff; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-stages span { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-stages .is-active span { color: #245fca; }
 
-html[data-app-layout="obsidian"] .obsidian-action-list,
-html[data-app-layout="obsidian"] .obsidian-action-list > div { border-color: #c9d5e3; }
-html[data-app-layout="obsidian"] .obsidian-rank-number,
-html[data-app-layout="obsidian"] .obsidian-action-copy small { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-grade { color: #337554; border-color: #337554; border-radius: 2px; }
-html[data-app-layout="obsidian"] .obsidian-grade.grade-b { color: #245fca; border-color: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-grade.grade-c { color: #a96606; border-color: #a96606; }
-html[data-app-layout="obsidian"] .obsidian-grade.grade-d { color: #607089; border-color: #7e8ba0; }
-html[data-app-layout="obsidian"] .obsidian-action-score { color: #14233a; }
-html[data-app-layout="obsidian"] .obsidian-action-main > .ui-icon { color: #7e8ba0; }
-html[data-app-layout="obsidian"] .obsidian-advance { color: #245fca; border-color: #adbed2; border-radius: 2px; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-action-list,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-action-list > div { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-rank-number,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-action-copy small { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-grade { color: #337554; border-color: #337554; border-radius: 2px; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-grade.grade-b { color: #245fca; border-color: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-grade.grade-c { color: #a96606; border-color: #a96606; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-grade.grade-d { color: #607089; border-color: #7e8ba0; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-action-score { color: #14233a; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-action-main > .ui-icon { color: #7e8ba0; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-advance { color: #245fca; border-color: #adbed2; border-radius: 2px; }
 
-html[data-app-layout="obsidian"] .bg-white,
-html[data-app-layout="obsidian"] .bg-gray-50,
-html[data-app-layout="obsidian"] .dark\:bg-slate-800,
-html[data-app-layout="obsidian"] .dark\:bg-slate-900,
-html[data-app-layout="obsidian"] [role="dialog"] {
+html[data-app-layout="obsidian"]:not(.dark) .bg-white,
+html[data-app-layout="obsidian"]:not(.dark) .bg-gray-50,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:bg-slate-800,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:bg-slate-900,
+html[data-app-layout="obsidian"]:not(.dark) [role="dialog"] {
   color: #14233a;
   border-color: #c9d5e3 !important;
   background-color: #fbfdff !important;
@@ -2902,79 +2905,79 @@ html[data-app-layout="obsidian"] [role="dialog"] {
   backdrop-filter: none;
 }
 
-html[data-app-layout="obsidian"] .text-gray-900,
-html[data-app-layout="obsidian"] .text-gray-800,
-html[data-app-layout="obsidian"] .text-gray-700,
-html[data-app-layout="obsidian"] .dark\:text-slate-100,
-html[data-app-layout="obsidian"] .dark\:text-slate-200,
-html[data-app-layout="obsidian"] .dark\:text-slate-300 { color: #14233a !important; }
+html[data-app-layout="obsidian"]:not(.dark) .text-gray-900,
+html[data-app-layout="obsidian"]:not(.dark) .text-gray-800,
+html[data-app-layout="obsidian"]:not(.dark) .text-gray-700,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:text-slate-100,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:text-slate-200,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:text-slate-300 { color: #14233a !important; }
 
-html[data-app-layout="obsidian"] .text-gray-600,
-html[data-app-layout="obsidian"] .text-gray-500,
-html[data-app-layout="obsidian"] .text-gray-400,
-html[data-app-layout="obsidian"] .dark\:text-slate-400,
-html[data-app-layout="obsidian"] .dark\:text-slate-500 { color: #607089 !important; }
+html[data-app-layout="obsidian"]:not(.dark) .text-gray-600,
+html[data-app-layout="obsidian"]:not(.dark) .text-gray-500,
+html[data-app-layout="obsidian"]:not(.dark) .text-gray-400,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:text-slate-400,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:text-slate-500 { color: #607089 !important; }
 
-html[data-app-layout="obsidian"] .border-gray-100,
-html[data-app-layout="obsidian"] .border-gray-200,
-html[data-app-layout="obsidian"] .dark\:border-slate-700,
-html[data-app-layout="obsidian"] .divide-gray-50 > :not([hidden]) ~ :not([hidden]) { border-color: #c9d5e3 !important; }
+html[data-app-layout="obsidian"]:not(.dark) .border-gray-100,
+html[data-app-layout="obsidian"]:not(.dark) .border-gray-200,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:border-slate-700,
+html[data-app-layout="obsidian"]:not(.dark) .divide-gray-50 > :not([hidden]) ~ :not([hidden]) { border-color: #c9d5e3 !important; }
 
-html[data-app-layout="obsidian"] .bg-violet-600,
-html[data-app-layout="obsidian"] .bg-violet-500,
-html[data-app-layout="obsidian"] .bg-green-600 { color: #fff !important; background: #245fca !important; }
+html[data-app-layout="obsidian"]:not(.dark) .bg-violet-600,
+html[data-app-layout="obsidian"]:not(.dark) .bg-violet-500,
+html[data-app-layout="obsidian"]:not(.dark) .bg-green-600 { color: #fff !important; background: #245fca !important; }
 
-html[data-app-layout="obsidian"] .text-violet-700,
-html[data-app-layout="obsidian"] .text-violet-600,
-html[data-app-layout="obsidian"] .text-violet-500,
-html[data-app-layout="obsidian"] .text-violet-400,
-html[data-app-layout="obsidian"] .text-green-700,
-html[data-app-layout="obsidian"] .dark\:text-green-400 { color: #245fca !important; }
+html[data-app-layout="obsidian"]:not(.dark) .text-violet-700,
+html[data-app-layout="obsidian"]:not(.dark) .text-violet-600,
+html[data-app-layout="obsidian"]:not(.dark) .text-violet-500,
+html[data-app-layout="obsidian"]:not(.dark) .text-violet-400,
+html[data-app-layout="obsidian"]:not(.dark) .text-green-700,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:text-green-400 { color: #245fca !important; }
 
-html[data-app-layout="obsidian"] .bg-violet-50,
-html[data-app-layout="obsidian"] .bg-violet-100,
-html[data-app-layout="obsidian"] .bg-green-50,
-html[data-app-layout="obsidian"] .dark\:bg-violet-900\/20,
-html[data-app-layout="obsidian"] .dark\:bg-violet-900\/30 { background: rgba(36,95,202,.09) !important; }
+html[data-app-layout="obsidian"]:not(.dark) .bg-violet-50,
+html[data-app-layout="obsidian"]:not(.dark) .bg-violet-100,
+html[data-app-layout="obsidian"]:not(.dark) .bg-green-50,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:bg-violet-900\/20,
+html[data-app-layout="obsidian"]:not(.dark) .dark\:bg-violet-900\/30 { background: rgba(36,95,202,.09) !important; }
 
-html[data-app-layout="obsidian"] input,
-html[data-app-layout="obsidian"] textarea,
-html[data-app-layout="obsidian"] select {
+html[data-app-layout="obsidian"]:not(.dark) input,
+html[data-app-layout="obsidian"]:not(.dark) textarea,
+html[data-app-layout="obsidian"]:not(.dark) select {
   color: #14233a;
   border-color: #c9d5e3;
   background-color: #fbfdff;
 }
 
-html[data-app-layout="obsidian"] input::placeholder,
-html[data-app-layout="obsidian"] textarea::placeholder { color: #7e8ba0; }
+html[data-app-layout="obsidian"]:not(.dark) input::placeholder,
+html[data-app-layout="obsidian"]:not(.dark) textarea::placeholder { color: #7e8ba0; }
 
-html[data-app-layout="obsidian"] .settings-drawer {
+html[data-app-layout="obsidian"]:not(.dark) .settings-drawer {
   color: #14233a !important;
   border-left: 1px solid #c9d5e3 !important;
   background: #fbfdff !important;
   box-shadow: -20px 0 55px rgba(35,57,87,.14) !important;
 }
 
-html[data-app-layout="obsidian"] .layout-choice,
-html[data-app-layout="obsidian"] .theme-choice { border-radius: 4px !important; }
+html[data-app-layout="obsidian"]:not(.dark) .layout-choice,
+html[data-app-layout="obsidian"]:not(.dark) .theme-choice { border-radius: 4px !important; }
 
-html[data-app-layout="obsidian"] .obsidian-main .rounded-xl { border-radius: 3px !important; }
-html[data-app-layout="obsidian"] .obsidian-main .rounded-2xl { border-radius: 4px !important; }
-html[data-app-layout="obsidian"] .obsidian-main .bg-gradient-to-r {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .rounded-xl { border-radius: 3px !important; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .rounded-2xl { border-radius: 4px !important; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .bg-gradient-to-r {
   color: #14233a !important;
   border-color: #adbed2 !important;
   background-color: #fbfdff !important;
   background-image: none !important;
 }
-html[data-app-layout="obsidian"] .obsidian-main .icon-pill {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .icon-pill {
   color: #40536d !important;
   border-color: #adbed2 !important;
   border-radius: 2px !important;
   background: #e8eef7 !important;
 }
-html[data-app-layout="obsidian"] .obsidian-main .idea-card,
-html[data-app-layout="obsidian"] .obsidian-main .kanban-column,
-html[data-app-layout="obsidian"] .obsidian-main .view-switcher::before {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .idea-card,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .kanban-column,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .view-switcher::before {
   color: #14233a !important;
   border-color: #c9d5e3 !important;
   border-left-width: 3px !important;
@@ -2982,32 +2985,32 @@ html[data-app-layout="obsidian"] .obsidian-main .view-switcher::before {
   background: #fbfdff !important;
   box-shadow: none !important;
 }
-html[data-app-layout="obsidian"] .obsidian-main .idea-card::before { background: #245fca !important; }
-html[data-app-layout="obsidian"] .obsidian-main .view-switcher__button { border-radius: 3px !important; color: #607089 !important; }
-html[data-app-layout="obsidian"] .obsidian-main .view-switcher__button.is-active { color: #fff !important; background: #245fca !important; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .idea-card::before { background: #245fca !important; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .view-switcher__button { border-radius: 3px !important; color: #607089 !important; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .view-switcher__button.is-active { color: #fff !important; background: #245fca !important; }
 
-html[data-app-layout="obsidian"] .obsidian-main .portfolio-pulse { color: #14233a; }
-html[data-app-layout="obsidian"] .obsidian-main .portfolio-pulse__header { color: #14233a; }
-html[data-app-layout="obsidian"] .obsidian-main .portfolio-pulse__header > div > span,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-kicker,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-section__heading > div > span,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-compare-intro > span,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-drill__hero > div > span { color: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-main .portfolio-pulse__header h1 { color: #14233a; }
-html[data-app-layout="obsidian"] .obsidian-main .portfolio-pulse__header p { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-main .pulse-icon-button {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .portfolio-pulse { color: #14233a; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .portfolio-pulse__header { color: #14233a; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .portfolio-pulse__header > div > span,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-kicker,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-section__heading > div > span,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-compare-intro > span,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-drill__hero > div > span { color: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .portfolio-pulse__header h1 { color: #14233a; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .portfolio-pulse__header p { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-icon-button {
   color: #40536d;
   border-color: #c9d5e3;
   border-radius: 3px;
   background: #fbfdff;
 }
-html[data-app-layout="obsidian"] .obsidian-main .pulse-view-switcher,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-section,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-panel,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-list-panel,
-html[data-app-layout="obsidian"] .obsidian-main .workspace-pulse-card,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-drill__hero,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-hero {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-view-switcher,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-section,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-panel,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-list-panel,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .workspace-pulse-card,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-drill__hero,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-hero {
   color: #14233a;
   border-color: #c9d5e3;
   border-left-width: 3px;
@@ -3015,80 +3018,80 @@ html[data-app-layout="obsidian"] .obsidian-main .pulse-hero {
   background: #fbfdff;
   box-shadow: none;
 }
-html[data-app-layout="obsidian"] .obsidian-main .pulse-view-switcher button { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-main .pulse-view-switcher button.is-active { color: #fff; background: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-main .pulse-status-grid > button,
-html[data-app-layout="obsidian"] .obsidian-main .pulse-search input {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-view-switcher button { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-view-switcher button.is-active { color: #fff; background: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-status-grid > button,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-main .pulse-search input {
   color: #14233a;
   border-color: #c9d5e3;
   border-radius: 3px;
   background: #f5f8fc;
 }
 
-html[data-app-layout="obsidian"] .obsidian-filter-row button {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-filter-row button {
   color: #607089;
   border-color: #c9d5e3;
   border-radius: 3px;
   background: #fbfdff;
 }
-html[data-app-layout="obsidian"] .obsidian-filter-row button.is-active { color: #fff; border-color: #245fca; background: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-event-list,
-html[data-app-layout="obsidian"] .obsidian-event-list li { border-color: #c9d5e3; }
-html[data-app-layout="obsidian"] .obsidian-event-list time,
-html[data-app-layout="obsidian"] .obsidian-event-list li > button i { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-event-icon { color: #607089; border-color: #adbed2; }
-html[data-app-layout="obsidian"] .obsidian-event-list li.is-decision .obsidian-event-icon { color: #c93f50; border-color: #c93f50; }
-html[data-app-layout="obsidian"] .obsidian-event-list li > button > span { color: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-event-list li.is-decision > button > span { color: #c93f50; }
-html[data-app-layout="obsidian"] .obsidian-event-list li > button small { color: #40536d; }
-html[data-app-layout="obsidian"] .obsidian-event-list li > .ui-icon { color: #7e8ba0; }
-html[data-app-layout="obsidian"] .obsidian-next-decision {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-filter-row button.is-active { color: #fff; border-color: #245fca; background: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list time,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li > button i { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-icon { color: #607089; border-color: #adbed2; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li.is-decision .obsidian-event-icon { color: #c93f50; border-color: #c93f50; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li > button > span { color: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li.is-decision > button > span { color: #c93f50; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li > button small { color: #40536d; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li > .ui-icon { color: #7e8ba0; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-next-decision {
   border-color: #a96606;
   border-radius: 3px;
   background: rgba(169,102,6,.055);
 }
-html[data-app-layout="obsidian"] .obsidian-next-decision > span:first-child { color: #c93f50; border-color: #c93f50; }
-html[data-app-layout="obsidian"] .obsidian-next-decision small { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-next-decision b { color: #a96606; border-color: #a96606; border-radius: 2px; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-next-decision > span:first-child { color: #c93f50; border-color: #c93f50; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-next-decision small { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-next-decision b { color: #a96606; border-color: #a96606; border-radius: 2px; }
 
-html[data-app-layout="obsidian"] .obsidian-menu-overlay { background: rgba(28,42,62,.35); }
-html[data-app-layout="obsidian"] .obsidian-menu {
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-overlay { background: rgba(28,42,62,.35); }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu {
   color: #14233a;
   border-color: #adbed2;
   background: #fbfdff;
   box-shadow: 0 24px 70px rgba(35,57,87,.2);
 }
-html[data-app-layout="obsidian"] .obsidian-menu-handle { background: #adbed2; }
-html[data-app-layout="obsidian"] .obsidian-menu header { border-color: #c9d5e3; }
-html[data-app-layout="obsidian"] .obsidian-menu header span,
-html[data-app-layout="obsidian"] .obsidian-menu > label > span { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-menu header button { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-menu > label select { color: #14233a; border-color: #c9d5e3; background: #f5f8fc; }
-html[data-app-layout="obsidian"] .obsidian-menu-grid button { color: #607089; border-color: #c9d5e3; background: #f5f8fc; }
-html[data-app-layout="obsidian"] .obsidian-menu-grid button.is-active { color: #fff; border-color: #245fca; background: #245fca; }
-html[data-app-layout="obsidian"] .obsidian-menu-list { border-color: #c9d5e3; border-radius: 4px; }
-html[data-app-layout="obsidian"] .obsidian-menu-list button { color: #607089; }
-html[data-app-layout="obsidian"] .obsidian-menu-list button + button { border-color: #c9d5e3; }
-html[data-app-layout="obsidian"] .obsidian-menu-list strong { color: #14233a; }
-html[data-app-layout="obsidian"] .obsidian-menu-list small { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-handle { background: #adbed2; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu header { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu header span,
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu > label > span { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu header button { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu > label select { color: #14233a; border-color: #c9d5e3; background: #f5f8fc; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-grid button { color: #607089; border-color: #c9d5e3; background: #f5f8fc; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-grid button.is-active { color: #fff; border-color: #245fca; background: #245fca; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-list { border-color: #c9d5e3; border-radius: 4px; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-list button { color: #607089; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-list button + button { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-list strong { color: #14233a; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-menu-list small { color: #607089; }
 
 @media (max-width: 639px) {
-  html[data-app-layout="obsidian"] .obsidian-mobile-header {
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-mobile-header {
     border-color: #c9d5e3 !important;
     background-color: #eef3fa !important;
   }
-  html[data-app-layout="obsidian"] .obsidian-mobile-header small { color: #607089; }
-  html[data-app-layout="obsidian"] .obsidian-mobile-header > button {
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-mobile-header small { color: #607089; }
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-mobile-header > button {
     color: #40536d;
     border-color: #c9d5e3;
     border-radius: 3px;
     background: #fbfdff;
   }
-  html[data-app-layout="obsidian"] .obsidian-mobile-header > button:nth-of-type(1) { color: #fff; border-color: #245fca; background: #245fca; }
-  html[data-app-layout="obsidian"] .obsidian-bottom-nav { border-color: #c9d5e3; background: rgba(238,243,250,.98); }
-  html[data-app-layout="obsidian"] .obsidian-bottom-nav button { color: #607089; }
-  html[data-app-layout="obsidian"] .obsidian-bottom-nav button.is-active { color: #245fca; }
-  html[data-app-layout="obsidian"] .obsidian-bottom-nav button.is-active::before { background: #245fca; }
-  html[data-app-layout="obsidian"] .obsidian-health-metrics { border-color: #c9d5e3; }
-  html[data-app-layout="obsidian"] .app-dialog { border-color: #c9d5e3 !important; border-radius: 7px 7px 0 0 !important; }
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-mobile-header > button:nth-of-type(1) { color: #fff; border-color: #245fca; background: #245fca; }
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-bottom-nav { border-color: #c9d5e3; background: rgba(238,243,250,.98); }
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-bottom-nav button { color: #607089; }
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-bottom-nav button.is-active { color: #245fca; }
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-bottom-nav button.is-active::before { background: #245fca; }
+  html[data-app-layout="obsidian"]:not(.dark) .obsidian-health-metrics { border-color: #c9d5e3; }
+  html[data-app-layout="obsidian"]:not(.dark) .app-dialog { border-color: #c9d5e3 !important; border-radius: 7px 7px 0 0 !important; }
 }

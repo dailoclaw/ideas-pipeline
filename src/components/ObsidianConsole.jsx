@@ -243,6 +243,8 @@ export default function ObsidianConsole({
   onExport,
   onOriginal,
   triageCount,
+  dark,
+  toggleDark,
 }) {
   const [moreOpen, setMoreOpen] = useState(false)
   const menuRef = useRef(null)
@@ -267,7 +269,7 @@ export default function ObsidianConsole({
   return (
     <div className="obsidian-shell">
       <aside className="obsidian-sidebar">
-        <div className="obsidian-brand"><ObsidianMark /><span><strong>IdeaFlow</strong><small>Blueprint Console</small></span></div>
+        <div className="obsidian-brand"><ObsidianMark /><span><strong>IdeaFlow</strong><small>Obsidian Console</small></span><button className="obsidian-theme-toggle" onClick={toggleDark} aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`} title={`Switch to ${dark ? 'light' : 'dark'} mode`}><Icon name={dark ? 'sun' : 'moon'} size={16} /></button></div>
         <nav aria-label="Obsidian Console navigation">
           {NAV_ITEMS.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)} aria-current={active === item.id ? 'page' : undefined}><Icon name={item.icon} size={18} /><span>{item.label}</span>{item.id === 'activity' && <i />}</button>)}
         </nav>
@@ -284,6 +286,7 @@ export default function ObsidianConsole({
       <header className="obsidian-mobile-header">
         <div><ObsidianMark /><span><small>IdeaFlow</small><strong>{activeMeta.label}</strong></span></div>
         <button onClick={onAdd} aria-label="New idea"><Icon name="plus" size={20} /></button>
+        <button onClick={toggleDark} aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`}><Icon name={dark ? 'sun' : 'moon'} size={20} /></button>
         <button onClick={() => setMoreOpen(true)} aria-label="Open console menu"><Icon name="more" size={22} /></button>
       </header>
 
@@ -302,6 +305,7 @@ export default function ObsidianConsole({
           <div className="obsidian-menu-grid">{MORE_NAV.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)}><Icon name={item.icon} size={20} /><span>{item.label}</span></button>)}</div>
           <div className="obsidian-menu-list">
             <button onClick={() => { setMoreOpen(false); onTriage() }}><Icon name="target" size={19} /><span><strong>Triage ideas</strong><small>{triageCount} awaiting review</small></span><Icon name="chevronRight" size={16} /></button>
+            <button onClick={() => { setMoreOpen(false); toggleDark() }}><Icon name={dark ? 'sun' : 'moon'} size={19} /><span><strong>Use {dark ? 'light' : 'dark'} mode</strong><small>Switch the Obsidian Console appearance</small></span><Icon name="chevronRight" size={16} /></button>
             <button onClick={() => { setMoreOpen(false); onExport() }}><Icon name="download" size={19} /><span><strong>Export all ideas</strong><small>Download every detail as CSV</small></span><Icon name="chevronRight" size={16} /></button>
             <button onClick={() => { setMoreOpen(false); onSettings() }}><Icon name="settings" size={19} /><span><strong>Appearance and text</strong><small>Adjust display preferences</small></span><Icon name="chevronRight" size={16} /></button>
             <button onClick={() => { setMoreOpen(false); onOriginal() }}><Icon name="layout" size={19} /><span><strong>Switch to original layout</strong><small>Return to the existing IdeaFlow shell</small></span><Icon name="chevronRight" size={16} /></button>
