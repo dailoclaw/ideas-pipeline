@@ -2756,7 +2756,7 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
   .obsidian-event-list time { font-size: 8px; }
   .obsidian-event-list li > button { min-height: 72px; padding: 9px 5px; }
   .obsidian-event-list li > button strong { font-size: 10px; }
-  .obsidian-next-decision { position: sticky; bottom: 8px; z-index: 2; }
+  .obsidian-next-decision { position: static; }
   .obsidian-main > .h-full { padding: 14px 10px 20px !important; }
   .obsidian-main .view-switcher { padding: 7px 10px !important; }
   .obsidian-main .view-switcher::before { inset: 7px 10px; }
