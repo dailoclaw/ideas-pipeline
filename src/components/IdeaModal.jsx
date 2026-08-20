@@ -88,7 +88,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
         aria-modal="true"
         aria-labelledby="idea-dialog-title"
         tabIndex={-1}
-        className="app-dialog bg-white w-full sm:max-w-2xl sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl"
+        className="app-dialog bg-white w-full sm:max-w-2xl lg:max-w-4xl sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl"
       >
         {/* Header */}
         <div className="flex items-start justify-between p-4 border-b border-gray-100 flex-shrink-0">

@@ -36,8 +36,9 @@ export default function SprintPage({ groupFilter = '' }) {
         <StatPill label="Total weeks" value={totalWeeks} color="text-blue-600" />
       </div>
 
+      <div className="sprint-workspace">
       {/* Week grid */}
-      <div>
+      <div className="sprint-workspace__column">
         <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-2 px-1">Sprint Plan</div>
         <div className="space-y-2">
           {Array.from({ length: WEEKS }, (_, i) => i + 1).map(week => {
@@ -73,7 +74,7 @@ export default function SprintPage({ groupFilter = '' }) {
       </div>
 
       {/* Backlog */}
-      <div>
+      <div className="sprint-workspace__column">
         <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-2 px-1">
           Backlog — {unscheduled.length} unscheduled (tap to assign)
         </div>
@@ -115,6 +116,7 @@ export default function SprintPage({ groupFilter = '' }) {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   )

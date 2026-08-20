@@ -113,6 +113,20 @@ body {
 .idea-card { transition: box-shadow 0.15s, border-color 0.15s; }
 .idea-card:hover { box-shadow: 0 2px 12px rgba(82,84,214,.15); }
 
+/* Sprint planning workspace */
+.sprint-workspace {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 16px;
+}
+
+.sprint-workspace__column { min-width: 0; }
+
+@media (max-width: 900px) {
+  .sprint-workspace { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Multi-col cards */
 .kb-card { break-inside: avoid; display: block; margin-bottom: 6px; }
 
