@@ -267,7 +267,7 @@ export default function ObsidianConsole({
   return (
     <div className="obsidian-shell">
       <aside className="obsidian-sidebar">
-        <div className="obsidian-brand"><ObsidianMark /><span><strong>IdeaFlow</strong><small>Obsidian Console</small></span></div>
+        <div className="obsidian-brand"><ObsidianMark /><span><strong>IdeaFlow</strong><small>Blueprint Console</small></span></div>
         <nav aria-label="Obsidian Console navigation">
           {NAV_ITEMS.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)} aria-current={active === item.id ? 'page' : undefined}><Icon name={item.icon} size={18} /><span>{item.label}</span>{item.id === 'activity' && <i />}</button>)}
         </nav>

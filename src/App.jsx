@@ -76,7 +76,7 @@ export default function App() {
     const meta = document.querySelector('meta[name="theme-color"]')
     if (!meta) return
     const color = appLayout === 'obsidian'
-      ? '#090b0e'
+      ? '#eef3fa'
       : theme === 'calm'
         ? (dark ? '#0d2826' : '#153a37')
         : (dark ? '#11162b' : '#f2f5fb')
