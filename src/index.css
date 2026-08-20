@@ -3037,6 +3037,14 @@ html[data-app-layout="obsidian"]:not(.dark) .obsidian-filter-row button {
 html[data-app-layout="obsidian"]:not(.dark) .obsidian-filter-row button.is-active { color: #fff; border-color: #245fca; background: #245fca; }
 html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list,
 html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li { border-color: #c9d5e3; }
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list {
+  overflow: hidden;
+  border: 1px solid #c9d5e3;
+  border-left: 3px solid #245fca;
+  border-radius: 3px;
+  background: #fbfdff;
+}
+html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li { background: #fbfdff; }
 html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list time,
 html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-list li > button i { color: #607089; }
 html[data-app-layout="obsidian"]:not(.dark) .obsidian-event-icon { color: #607089; border-color: #adbed2; }
