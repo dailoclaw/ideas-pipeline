@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useStore } from '../lib/store'
-import { supabase } from '../lib/supabase'
 import { scoreIdea } from '../lib/scoring'
 import { TimePill, PlatPill } from '../components/Pills'
 import Icon from '../components/Icon'
@@ -8,23 +7,8 @@ import Icon from '../components/Icon'
 const WEEKS = 8
 
 export default function SprintPage({ groupFilter = '' }) {
-  const { ideas, getStatus, getSprintWeeks, getGroup, logActivity } = useStore()
-  const [plan, setPlan]       = useState({})   // { [ideaId]: weekNum }
-  const [loading, setLoading] = useState(true)
+  const { ideas, getStatus, getSprintWeeks, getGroup, sprintAssignments: plan, setSprintAssignment } = useStore()
   const [selected, setSelected] = useState(null)
-
-  // Load from Supabase on mount
-  useEffect(() => {
-    ;(async () => {
-      const { data } = await supabase.from('sprint_assignments').select('idea_id, week_num')
-      if (data) {
-        const p = {}
-        data.forEach(r => { p[r.idea_id] = r.week_num })
-        setPlan(p)
-      }
-      setLoading(false)
-    })()
-  }, [])
 
   const groupIdeas  = groupFilter === '__none__' ? ideas.filter(i => !getGroup(i.id)) : groupFilter ? ideas.filter(i => getGroup(i.id) === groupFilter) : ideas
   const active      = groupIdeas.filter(i => !['done','shelved'].includes(getStatus(i))).sort((a,b) => scoreIdea(b) - scoreIdea(a))
@@ -33,28 +17,14 @@ export default function SprintPage({ groupFilter = '' }) {
   const totalWeeks  = scheduled.reduce((sum, i) => sum + (getSprintWeeks(i.id, i) || 1), 0)
 
   const assignToWeek = async (ideaId, week) => {
-    const next = { ...plan }
-    const previousWeek = plan[ideaId] || null
-    if (week === null) {
-      delete next[ideaId]
-      await supabase.from('sprint_assignments').delete().eq('idea_id', ideaId)
-    } else {
-      next[ideaId] = week
-      await supabase.from('sprint_assignments').upsert({ idea_id: ideaId, week_num: week, updated_at: new Date().toISOString() })
-    }
-    setPlan(next)
+    await setSprintAssignment(ideaId, week)
     setSelected(null)
-    if (previousWeek !== week) await logActivity(ideaId, 'sprint_scheduled', { from: previousWeek, to: week })
   }
 
   // Build week grid
   const grid = {}
   for (let w = 1; w <= WEEKS; w++) grid[w] = []
   scheduled.forEach(i => { const w = plan[i.id]; if (w >= 1 && w <= WEEKS) grid[w].push(i) })
-
-  if (loading) return (
-    <div className="flex items-center justify-center h-full text-gray-400 text-sm">Loading sprint plan…</div>
-  )
 
   return (
     <div className="sprint-page h-full overflow-auto p-3 space-y-4">

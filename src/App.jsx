@@ -17,6 +17,7 @@ import TriageModal     from './components/TriageModal'
 import ObsidianConsole from './components/ObsidianConsole'
 import Icon            from './components/Icon'
 import { useDialogFocus } from './hooks/useDialogFocus'
+import { downloadIdeasCsv } from './lib/csvExport'
 
 const TABS = [
   { id: 'layout',   label: 'Layout',   icon: 'layout' },
@@ -63,7 +64,10 @@ export default function App() {
   const { fontSize, setFontSizeKey }  = useSettings()
   const { appLayout, setAppLayout } = useAppLayout()
 
-  const { load, loading, error, ideas, getStatus } = useStore()
+  const {
+    load, loading, error, ideas, getStatus, getGroup, getSprintWeeks,
+    getSprintAssignment, statusHistory, activityLog,
+  } = useStore()
   useDialogFocus(mobileToolsRef, () => setMobileToolsOpen(false), mobileToolsOpen)
 
   useEffect(() => { load() }, [])
@@ -88,6 +92,15 @@ export default function App() {
   }, [tab, consoleTab, appLayout, settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
 
   const triageCount = ideas.filter(i => getStatus(i) === 'idea').length
+  const exportAllIdeas = () => downloadIdeasCsv({
+    ideas,
+    getStatus,
+    getGroup,
+    getSprintWeeks,
+    getSprintAssignment,
+    statusHistory,
+    activityLog,
+  })
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen text-gray-400">
@@ -119,6 +132,7 @@ export default function App() {
           onAdd={() => setAddOpen(true)}
           onSettings={() => setSettingsOpen(true)}
           onTriage={() => setTriageOpen(true)}
+          onExport={exportAllIdeas}
           onOriginal={() => setAppLayout('original')}
           triageCount={triageCount}
         />
@@ -181,6 +195,10 @@ export default function App() {
               <span className="triage-count">{triageCount}</span>
             )}
           </button>
+          <button onClick={exportAllIdeas} className="header-action" title="Export every idea and its full details to CSV">
+            <Icon name="download" size={16} />
+            <span>Export</span>
+          </button>
         </div>
         <button onClick={() => setAddOpen(true)} className="header-action header-action--primary" aria-label="New idea"><Icon name="plus" size={17} /><span>New</span></button>
         <button onClick={() => setMobileToolsOpen(true)} className="header-action mobile-tools-trigger" aria-label="Open workspace and app controls"><Icon name="more" size={22} /></button>
@@ -216,6 +234,10 @@ export default function App() {
               <button onClick={() => { setMobileToolsOpen(false); setTriageOpen(true) }}>
                 <span className="mobile-tools-action-icon"><Icon name="target" size={20} /></span>
                 <span><strong>Triage ideas</strong><small>{triageCount} remaining</small></span>
+              </button>
+              <button onClick={() => { setMobileToolsOpen(false); exportAllIdeas() }}>
+                <span className="mobile-tools-action-icon"><Icon name="download" size={20} /></span>
+                <span><strong>Export all ideas</strong><small>Download every detail as a CSV file</small></span>
               </button>
               <button onClick={() => setTheme(theme === 'glass' ? 'calm' : 'glass')}>
                 <span className="mobile-tools-action-icon"><AppMark /></span>

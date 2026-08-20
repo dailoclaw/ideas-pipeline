@@ -240,6 +240,7 @@ export default function ObsidianConsole({
   onAdd,
   onSettings,
   onTriage,
+  onExport,
   onOriginal,
   triageCount,
 }) {
@@ -274,6 +275,7 @@ export default function ObsidianConsole({
         <div className="obsidian-sidebar-actions">
           <button onClick={onAdd}><Icon name="plus" size={17} /> New idea</button>
           <button onClick={onTriage}><Icon name="target" size={17} /> Triage <span>{triageCount}</span></button>
+          <button onClick={onExport}><Icon name="download" size={17} /> Export CSV</button>
           <button onClick={onSettings}><Icon name="settings" size={17} /> Settings</button>
           <button onClick={onOriginal}><Icon name="layout" size={17} /> Original layout</button>
         </div>
@@ -300,6 +302,7 @@ export default function ObsidianConsole({
           <div className="obsidian-menu-grid">{MORE_NAV.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)}><Icon name={item.icon} size={20} /><span>{item.label}</span></button>)}</div>
           <div className="obsidian-menu-list">
             <button onClick={() => { setMoreOpen(false); onTriage() }}><Icon name="target" size={19} /><span><strong>Triage ideas</strong><small>{triageCount} awaiting review</small></span><Icon name="chevronRight" size={16} /></button>
+            <button onClick={() => { setMoreOpen(false); onExport() }}><Icon name="download" size={19} /><span><strong>Export all ideas</strong><small>Download every detail as CSV</small></span><Icon name="chevronRight" size={16} /></button>
             <button onClick={() => { setMoreOpen(false); onSettings() }}><Icon name="settings" size={19} /><span><strong>Appearance and text</strong><small>Adjust display preferences</small></span><Icon name="chevronRight" size={16} /></button>
             <button onClick={() => { setMoreOpen(false); onOriginal() }}><Icon name="layout" size={19} /><span><strong>Switch to original layout</strong><small>Return to the existing IdeaFlow shell</small></span><Icon name="chevronRight" size={16} /></button>
           </div>

@@ -32,6 +32,7 @@ export const useStore = create((set, get) => ({
   activityLog: {},       // { [id]: [{type, payload, occurredAt, actor}] }
   activityPersistenceAvailable: null,
   groupAssignments: {},  // { [id]: groupKey }
+  sprintAssignments: {}, // { [id]: weekNum }
   loading: true,
   error: null,
 
@@ -105,6 +106,13 @@ export const useStore = create((set, get) => ({
       const groupMap = {}
       if (groupRows) groupRows.forEach(r => { groupMap[r.idea_id] = r.group_key })
 
+      // Fetch sprint assignments so exports include the current plan.
+      const { data: sprintRows } = await supabase
+        .from('sprint_assignments')
+        .select('idea_id, week_num')
+      const sprintMap = {}
+      if (sprintRows) sprintRows.forEach(r => { sprintMap[r.idea_id] = r.week_num })
+
       // Normalise: Supabase uses snake_case, app uses camelCase
       const ideas = rows.map(r => ({
         id: r.id,
@@ -119,6 +127,8 @@ export const useStore = create((set, get) => ({
         win: r.win || '',
         notes: r.notes || '',
         addedAt: r.added_at,
+        createdAt: r.created_at,
+        updatedAt: r.updated_at,
         isNew: !r.is_seed,
         isV2: r.is_v2 || false,
         originalId: r.original_id,
@@ -133,6 +143,7 @@ export const useStore = create((set, get) => ({
         activityLog: activityMap,
         activityPersistenceAvailable: !activityError,
         groupAssignments: groupMap,
+        sprintAssignments: sprintMap,
         loading: false,
       })
     } catch (err) {
@@ -295,6 +306,30 @@ export const useStore = create((set, get) => ({
       if (map[id] != null) return Math.max(1, parseInt(map[id]) || 1)
       return ({ '1w': 2, '1-2w': 3, '2-4w': 5 }[idea?.time] || 2)
     } catch { return 2 }
+  },
+  getSprintAssignment(id) {
+    return get().sprintAssignments[id] || null
+  },
+  async setSprintAssignment(ideaId, week) {
+    const previousWeek = get().sprintAssignments[ideaId] || null
+    if (week === null) {
+      const { error } = await supabase.from('sprint_assignments').delete().eq('idea_id', ideaId)
+      if (error) throw error
+    } else {
+      const { error } = await supabase.from('sprint_assignments').upsert({
+        idea_id: ideaId,
+        week_num: week,
+        updated_at: new Date().toISOString(),
+      })
+      if (error) throw error
+    }
+    set(s => {
+      const sprintAssignments = { ...s.sprintAssignments }
+      if (week === null) delete sprintAssignments[ideaId]
+      else sprintAssignments[ideaId] = week
+      return { sprintAssignments }
+    })
+    if (previousWeek !== week) await get().logActivity(ideaId, 'sprint_scheduled', { from: previousWeek, to: week })
   },
   // ── Score adjustment + priority ──────────────────────────────────────────────────────
   async setScoreAdjust(id, scoreAdjust) {
