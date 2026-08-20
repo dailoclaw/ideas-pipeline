@@ -22,6 +22,20 @@ const PLATFORM_LABELS = {
   pay: 'Pay Modeller',
 }
 
+export function formatExportDate(value) {
+  if (!value) return ''
+
+  // Preserve database date-only values without introducing a timezone shift.
+  const dateOnly = typeof value === 'string' && value.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (dateOnly) return `${dateOnly[3]}/${dateOnly[2]}/${dateOnly[1]}`
+
+  const date = value instanceof Date ? value : new Date(value)
+  if (Number.isNaN(date.getTime())) return String(value)
+  const day = String(date.getDate()).padStart(2, '0')
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  return `${day}/${month}/${date.getFullYear()}`
+}
+
 const COLUMNS = [
   ['Idea ID', ({ idea }) => idea.id],
   ['Name', ({ idea }) => idea.name],
@@ -46,19 +60,19 @@ const COLUMNS = [
   ['Priority', ({ idea }) => idea.isPriority ? 'Yes' : 'No'],
   ['Sprint duration (weeks)', ({ idea, getSprintWeeks }) => getSprintWeeks(idea.id, idea)],
   ['Scheduled sprint week', ({ idea, getSprintAssignment }) => getSprintAssignment(idea.id) || ''],
-  ['Added date', ({ idea }) => idea.addedAt],
-  ['Created at', ({ idea }) => idea.createdAt],
-  ['Updated at', ({ idea }) => idea.updatedAt],
+  ['Added date', ({ idea }) => formatExportDate(idea.addedAt)],
+  ['Created at', ({ idea }) => formatExportDate(idea.createdAt)],
+  ['Updated at', ({ idea }) => formatExportDate(idea.updatedAt)],
   ['Source', ({ idea }) => idea.isNew ? 'User-created' : 'Seed'],
   ['Version 2', ({ idea }) => idea.isV2 ? 'Yes' : 'No'],
   ['Original idea ID', ({ idea }) => idea.originalId],
   ['Status history', ({ idea, statusHistory }) => (statusHistory[idea.id] || [])
-    .map(item => `${item.date || ''} | ${STATUS_LABELS[item.status] || item.status || ''}`)
+    .map(item => `${formatExportDate(item.date)} | ${STATUS_LABELS[item.status] || item.status || ''}`)
     .join('\n')],
   ['Activity history', ({ idea, activityLog }) => (activityLog[idea.id] || [])
     .map(event => {
       const payload = event.payload && Object.keys(event.payload).length ? ` | ${JSON.stringify(event.payload)}` : ''
-      return `${event.occurredAt || ''} | ${event.type || ''} | ${event.actor || ''}${payload}`
+      return `${formatExportDate(event.occurredAt)} | ${event.type || ''} | ${event.actor || ''}${payload}`
     })
     .join('\n')],
 ]
@@ -92,12 +106,7 @@ export function createIdeasCsv({
   return rows.join('\r\n')
 }
 
-const dateStamp = date => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
+const dateStamp = date => formatExportDate(date).replaceAll('/', '-')
 
 export function downloadIdeasCsv(exportData, date = new Date()) {
   const csv = createIdeasCsv(exportData)
