@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from './lib/store'
 import { useDarkMode } from './hooks/useDarkMode'
-import { useUiTheme } from './hooks/useUiTheme'
+import { useUiTheme, nextUiTheme, UI_THEMES } from './hooks/useUiTheme'
+import { useSpotlight } from './hooks/useSpotlight'
 import { useSettings } from './hooks/useSettings'
 import { useAppLayout } from './hooks/useAppLayout'
 import { GROUPS } from './data/groups'
@@ -69,6 +70,7 @@ export default function App() {
     getSprintAssignment, statusHistory, activityLog,
   } = useStore()
   useDialogFocus(mobileToolsRef, () => setMobileToolsOpen(false), mobileToolsOpen)
+  useSpotlight(theme === 'aurora' && appLayout !== 'obsidian')
 
   useEffect(() => { load() }, [])
 
@@ -79,7 +81,9 @@ export default function App() {
       ? (dark ? '#090b0e' : '#eef3fa')
       : theme === 'calm'
         ? (dark ? '#0d2826' : '#153a37')
-        : (dark ? '#11162b' : '#f2f5fb')
+        : theme === 'aurora'
+          ? (dark ? '#0b1220' : '#f1f6fb')
+          : (dark ? '#11162b' : '#f2f5fb')
     meta.setAttribute('content', color)
   }, [theme, dark, appLayout])
 
@@ -181,13 +185,13 @@ export default function App() {
             <span>Console</span>
           </button>
           <button
-            onClick={() => setTheme(theme === 'glass' ? 'calm' : 'glass')}
+            onClick={() => setTheme(nextUiTheme(theme))}
             className="header-action theme-quick-toggle"
-            title={`Switch to ${theme === 'glass' ? 'Calm Command' : 'Luminous Glass'}`}
-            aria-label={`Switch to ${theme === 'glass' ? 'Calm Command' : 'Luminous Glass'} theme`}
+            title={`Switch to ${UI_THEMES[nextUiTheme(theme)].label}`}
+            aria-label={`Switch to ${UI_THEMES[nextUiTheme(theme)].label} theme`}
           >
             <AppMark />
-            <span className="theme-quick-label">{theme === 'glass' ? 'Glass' : 'Calm'}</span>
+            <span className="theme-quick-label">{UI_THEMES[theme].short}</span>
           </button>
           <button onClick={() => setSettingsOpen(true)} className="header-action header-action--icon" title="Customise" aria-label="Customise appearance"><Icon name="settings" size={17} /></button>
           <button onClick={() => setTriageOpen(true)} className="header-action header-action--triage relative" aria-label={`Triage ideas, ${triageCount} remaining`}>
@@ -213,7 +217,7 @@ export default function App() {
             <div className="mobile-tools-heading">
               <div>
                 <strong>App controls</strong>
-                <span>{theme === 'glass' ? 'Luminous Glass' : 'Calm Command'}</span>
+                <span>{UI_THEMES[theme].label}</span>
               </div>
               <button onClick={() => setMobileToolsOpen(false)} aria-label="Close app controls"><Icon name="close" size={18} /></button>
             </div>
@@ -241,9 +245,9 @@ export default function App() {
                 <span className="mobile-tools-action-icon"><Icon name="download" size={20} /></span>
                 <span><strong>Export all ideas</strong><small>Download every detail as a CSV file</small></span>
               </button>
-              <button onClick={() => setTheme(theme === 'glass' ? 'calm' : 'glass')}>
+              <button onClick={() => setTheme(nextUiTheme(theme))}>
                 <span className="mobile-tools-action-icon"><AppMark /></span>
-                <span><strong>Switch visual system</strong><small>{theme === 'glass' ? 'Use Calm Command' : 'Use Luminous Glass'}</small></span>
+                <span><strong>Switch visual system</strong><small>Use {UI_THEMES[nextUiTheme(theme)].label}</small></span>
               </button>
               <button onClick={() => { setMobileToolsOpen(false); setSettingsOpen(true) }}>
                 <span className="mobile-tools-action-icon"><Icon name="settings" size={20} /></span>

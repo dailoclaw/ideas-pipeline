@@ -1,5 +1,21 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.6.0 (2026-08-22) — Aurora Mist
+### Added
+- Aurora Mist, a third selectable visual system alongside Calm Command and Luminous Glass, with light and dark both derived from one azure→mint ramp
+- Grade donuts replacing the flat score pill, with the ring hue following the A–D band and sweeping in on first paint
+- Five-segment status rails on cards and ranked rows, so pipeline stage reads by position rather than by hue
+- Rank rows where the row itself is the score bar, normalised against the visible score range, with an inline advance action on hover
+- A triage deck: the decided card throws out while the next two peek behind it
+- Progress-ledge primary buttons that fill and draw a checkmark in place of a spinner, with no size change
+- Morphing pill selection on both view switchers, counting figures on portfolio metrics, and a self-drawing momentum sparkline
+- Pointer-tracked spotlight borders, and corner-bracket focus states that reveal each row's keyboard shortcuts
+
+### Changed
+- Idea cards and ranked rows are keyboard-focusable in every theme, with Enter to open, X to select, and Right Arrow to advance
+- The header theme control now cycles all three visual systems instead of toggling two
+- Appearance settings drive the visual-system list from the theme registry rather than a hard-coded array
+
 ## v1.5.0 (2026-08-13) — Activity & Decision Timeline
 ### Added
 - Mobile-first Activity tab inside every idea detail view

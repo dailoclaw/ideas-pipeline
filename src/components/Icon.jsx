@@ -27,6 +27,7 @@ const PATHS = {
   trash: <><path d="M4 7h16M9 7V4h6v3M7 7l1 14h8l1-14M10 11v6M14 11v6"/></>,
   download: <><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></>,
   chevronDown: <path d="m7 10 5 5 5-5"/>,
+  arrowRight: <path d="M4 12h15M13 6l6 6-6 6"/>,
   chevronRight: <path d="m9 6 6 6-6 6"/>,
   chevronLeft: <path d="m15 6-6 6 6 6"/>,
   sun: <><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></>,

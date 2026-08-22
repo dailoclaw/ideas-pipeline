@@ -1,6 +1,7 @@
 import { useStore } from '../lib/store'
 import { scoreIdea, gradeFromScore, getBuildNext } from '../lib/scoring'
-import { TimePill, StatusBadge } from '../components/Pills'
+import { TimePill, StatusBadge, StatusRail } from '../components/Pills'
+import LedgeButton from '../components/LedgeButton'
 import Icon from '../components/Icon'
 
 const GRADE_STYLE = {
@@ -9,6 +10,9 @@ const GRADE_STYLE = {
   C: 'text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/20 dark:border-amber-800',
   D: 'text-gray-500 bg-gray-50 border-gray-200 dark:text-slate-400 dark:bg-slate-900/30 dark:border-slate-700',
 }
+
+const NEXT_STATUS = { idea: 'researching', researching: 'ready', ready: 'building' }
+const NEXT_LABEL = { idea: 'To discovery', researching: 'To ready', ready: 'Start build' }
 
 export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
   const { ideas, getStatus, setStatus, getGroup } = useStore()
@@ -21,6 +25,15 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
     .filter(i => !['done', 'shelved'].includes(getStatus(i)))
     .sort((a, b) => scoreIdea(b) - scoreIdea(a))
 
+  // Raw scores in an active portfolio cluster tightly (90–95 is typical), so a
+  // 0–100 fill shows eight near-identical bars. Normalising against the visible
+  // range is what makes the ledger actually rank anything.
+  const scores = active.map(scoreIdea)
+  const top = Math.max(...scores, 1)
+  const floor = Math.min(...scores, top)
+  const spread = Math.max(1, top - floor)
+  const fillFor = score => Math.round(14 + ((score - floor) / spread) * 86)
+
   const recommend = getBuildNext(groupIdeas, getStatus)
 
   return (
@@ -28,16 +41,19 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
 
       {/* Build Next */}
       {recommend && (
-        <div className="bg-gradient-to-r from-green-50 to-violet-50 dark:from-green-900/20 dark:to-violet-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-4">
+        <div className="strategy-banner bg-gradient-to-r from-green-50 to-violet-50 dark:from-green-900/20 dark:to-violet-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-4">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2"><Icon name="starFilled" size={13} /> Recommended Next Build</div>
           <div className="font-bold text-gray-900 dark:text-slate-100 leading-snug mb-1">#{recommend.id} {recommend.name}</div>
           <div className="text-sm text-gray-500 dark:text-slate-400 mb-3 leading-relaxed">{recommend.pitch}</div>
           <div className="flex flex-wrap items-center gap-2">
             <TimePill time={recommend.time} />
-            <button
-              onClick={() => setStatus(recommend.id, 'building')}
+            <LedgeButton
+              onAct={() => setStatus(recommend.id, 'building')}
+              icon="hammer"
+              runLabel="Starting…"
+              doneLabel="Building"
               className="inline-flex items-center gap-1.5 text-xs font-bold bg-green-600 text-white px-3 py-1.5 rounded-lg"
-            ><Icon name="hammer" size={14} /> Start Building</button>
+            >Start Building</LedgeButton>
             <button
               onClick={() => onOpenIdea(recommend.id)}
               className="text-xs font-semibold text-gray-500 border border-gray-200 dark:border-slate-600 px-3 py-1.5 rounded-lg"
@@ -56,28 +72,49 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
             const score  = scoreIdea(idea)
             const grade  = gradeFromScore(score)
             const status = getStatus(idea)
+            const next   = NEXT_STATUS[status]
+            const open   = () => onOpenIdea(idea.id)
             return (
               <div
                 key={idea.id}
-                className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 cursor-pointer hover:border-violet-300 dark:hover:border-violet-600 transition-colors"
-                onClick={() => onOpenIdea(idea.id)}
+                className="strategy-row bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 cursor-pointer hover:border-violet-300 dark:hover:border-violet-600 transition-colors"
+                style={{ '--v': fillFor(score) }}
+                role="button"
+                tabIndex={0}
+                aria-label={`Open #${idea.id} ${idea.name}`}
+                onClick={open}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open() }
+                  if (e.key === 'ArrowRight' && next) { e.preventDefault(); setStatus(idea.id, next) }
+                }}
               >
+                <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
+                <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
+                <StatusRail status={status} />
+
                 {/* Top row: rank + grade + score bar + pills */}
                 <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-xs text-gray-300 dark:text-slate-600 w-5 text-center flex-shrink-0 font-bold">#{idx + 1}</span>
                   <span className={`text-xs font-bold border rounded-lg px-1.5 py-0.5 flex-shrink-0 ${GRADE_STYLE[grade]}`}>{grade}</span>
                   {/* Score bar */}
-                  <div className="flex items-center gap-1.5 flex-1">
-                    <div className="flex-1 h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                  <div className="strategy-row__bar flex items-center gap-1.5 flex-1">
+                    <div className="strategy-row__track flex-1 h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div className="h-full bg-violet-500 rounded-full" style={{ width: `${score}%` }} />
                     </div>
-                    <span className="text-xs font-bold text-violet-600 dark:text-violet-400 flex-shrink-0">{score}</span>
+                    <span className="strategy-row__score text-xs font-bold text-violet-600 dark:text-violet-400 flex-shrink-0">{score}</span>
                   </div>
                   <div className="flex-shrink-0"><StatusBadge status={status} /></div>
+                  {next && (
+                    <button
+                      className="au-advance"
+                      title={`${NEXT_LABEL[status]} — #${idea.id} ${idea.name}`}
+                      onClick={e => { e.stopPropagation(); setStatus(idea.id, next) }}
+                    >{NEXT_LABEL[status]}<Icon name="arrowRight" size={12} /></button>
+                  )}
                 </div>
 
                 {/* Idea name — always wraps, never truncated */}
-                <div className="pl-7">
+                <div className="strategy-row__body pl-7">
                   <div className="text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug mb-1">
                     #{idea.id} {idea.name}
                   </div>
@@ -85,6 +122,9 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
                     <TimePill time={idea.time} />
                     <span className="text-xs text-gray-400 dark:text-slate-500">{idea.pitch.slice(0, 70)}{idea.pitch.length > 70 ? '…' : ''}</span>
                   </div>
+                  <span className="au-keys" aria-hidden="true">
+                    <kbd>↵</kbd> open{next && <> · <kbd>→</kbd> {NEXT_LABEL[status].toLowerCase()}</>}
+                  </span>
                 </div>
               </div>
             )

@@ -1,4 +1,4 @@
-import { scoreDimensions, scoreIdea } from '../lib/scoring'
+import { scoreDimensions, scoreIdea, gradeFromScore, STATUS_LABELS } from '../lib/scoring'
 import Icon from './Icon'
 
 const TIME_STYLES = {
@@ -15,6 +15,9 @@ const TIME_LABELS = { '1w': '1 wk', '1-2w': '1–2 wks', '2-4w': '2–4 wks' }
 export const TIME_ICONS = { '1w': 'bolt', '1-2w': 'clock', '2-4w': 'blocks' }
 export const STATUS_ICONS = { idea: 'lightbulb', researching: 'search', ready: 'circleCheck', building: 'hammer', done: 'check', shelved: 'archive' }
 const PLAT_LABELS = { html: 'HTML', pay: 'Pay', hub: 'Hub' }
+
+/** The pipeline, in order. Position in this list is what the rail encodes. */
+export const RAIL_STAGES = ['idea', 'researching', 'ready', 'building', 'done']
 
 export function TimePill({ time }) {
   return (
@@ -53,12 +56,45 @@ export function StatusBadge({ status }) {
   )
 }
 
+/**
+ * Status carried by position rather than by hue: a five-segment rail filled to
+ * the current pipeline stage. Readable in greyscale and under colour blindness.
+ * Rendered everywhere, drawn only by themes that ask for it.
+ */
+export function StatusRail({ status }) {
+  const index = RAIL_STAGES.indexOf(status)
+  const shelved = status === 'shelved'
+  const label = shelved
+    ? 'Shelved'
+    : `Stage ${index + 1} of ${RAIL_STAGES.length}: ${STATUS_LABELS[status] || status}`
+
+  return (
+    <span className="au-rail" data-status={status} role="img" aria-label={label}>
+      {RAIL_STAGES.map((stage, n) => (
+        <i
+          key={stage}
+          className={shelved ? 'is-shelved' : n < index ? 'is-filled' : n === index ? 'is-current' : ''}
+        />
+      ))}
+    </span>
+  )
+}
+
 export function ScoreBadge({ idea }) {
   const score = scoreIdea(idea)
+  const grade = gradeFromScore(score)
   const d = scoreDimensions(idea)
   return (
-    <span className="score-badge relative inline-block text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200 cursor-default ml-1 align-middle">
-      S:{score}
+    <span
+      className="score-badge relative inline-block text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200 cursor-default ml-1 align-middle"
+      data-grade={grade}
+    >
+      {/* Drawn only where the theme opts in; the flat pill below is the default. */}
+      <span className="au-donut" style={{ '--dp': Math.min(100, score) }} aria-hidden="true">
+        <i className="au-donut__ring" />
+        <b>{score}</b>
+      </span>
+      <span className="score-badge__flat">S:{score}</span>
       <span className="score-tip">
         <div className="flex justify-between gap-3"><span>Effort</span><span>{d.effort}</span></div>
         <div className="flex justify-between gap-3"><span>Platform</span><span>{d.platform}</span></div>

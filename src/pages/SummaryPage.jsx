@@ -3,6 +3,8 @@ import { useStore } from '../lib/store'
 import { scoreIdea, gradeFromScore, isStale, STATUS_LABELS } from '../lib/scoring'
 import { GROUPS, GROUP_MAP } from '../data/groups'
 import Icon from '../components/Icon'
+import CountUp from '../components/CountUp'
+import { useMorphPill } from '../hooks/useMorphPill'
 
 const STATUS_META = [
   { key: 'building', label: 'Building', color: '#55c786', icon: 'hammer' },
@@ -63,9 +65,10 @@ function MomentumChart({ weeks }) {
 }
 
 function ScoreRing({ value, label = 'Complete' }) {
+  const clamped = Math.max(0, Math.min(100, value))
   return (
-    <div className="pulse-score-ring" style={{ '--pulse-value': `${Math.max(0, Math.min(100, value)) * 3.6}deg` }}>
-      <div><strong>{value}%</strong><span>{label}</span></div>
+    <div className="pulse-score-ring" style={{ '--pulse-value': `${clamped * 3.6}deg`, '--dp': clamped }}>
+      <div><strong><CountUp value={clamped} />%</strong><span>{label}</span></div>
     </div>
   )
 }
@@ -75,7 +78,10 @@ function IdeaRow({ idea, status, groupKey, onOpen }) {
   const group = GROUP_MAP[groupKey]
   return (
     <button className="pulse-idea-row" onClick={() => onOpen(idea.id)}>
-      <span className="pulse-idea-row__score">{score}<small>{gradeFromScore(score)}</small></span>
+      <span className="pulse-idea-row__score" style={{ '--dp': Math.min(100, score) }}>
+        <span className="au-donut__ring" aria-hidden="true" />
+        <b>{score}</b><small>{gradeFromScore(score)}</small>
+      </span>
       <span className="pulse-idea-row__copy">
         <strong>#{idea.id} {idea.name}</strong>
         <small>{group?.label || 'No workspace'} · {STATUS_LABELS[status] || status}</small>
@@ -91,6 +97,8 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
   const [drillStatus, setDrillStatus] = useState('')
   const [search, setSearch] = useState('')
   const pageRef = useRef(null)
+  const switcherRef = useRef(null)
+  useMorphPill(switcherRef, view)
 
   useEffect(() => {
     const scroller = pageRef.current?.closest('.obsidian-main') || pageRef.current
@@ -190,7 +198,7 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
         <button className="pulse-icon-button" onClick={exportMd} aria-label="Export portfolio as Markdown"><Icon name="download" size={18} /></button>
       </header>
 
-      <div className="pulse-view-switcher" role="tablist" aria-label="Portfolio views">
+      <div ref={switcherRef} className="pulse-view-switcher" role="tablist" aria-label="Portfolio views">
         <button role="tab" aria-selected={view === 'pulse'} className={view === 'pulse' ? 'is-active' : ''} onClick={() => { setView('pulse'); setDrillStatus('') }}><Icon name="activity" size={16} /> Pulse</button>
         <button role="tab" aria-selected={view === 'compare'} className={view === 'compare' ? 'is-active' : ''} onClick={() => { setView('compare'); setDrillStatus('') }}><Icon name="groups" size={16} /> Workspaces</button>
         <button role="tab" aria-selected={view === 'ideas'} className={view === 'ideas' ? 'is-active' : ''} onClick={() => { setView('ideas'); setDrillStatus('') }}><Icon name="list" size={16} /> Ideas</button>
@@ -206,9 +214,9 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
                 ? `${recentEvents.length} meaningful change${recentEvents.length === 1 ? '' : 's'} logged in the last 30 days${movementDelta ? ` · ${Math.abs(movementDelta)} ${movementDelta > 0 ? 'more' : 'fewer'} than the prior period` : ''}.`
                 : 'No decisions have been logged in the last 30 days. Review the ready queue to restart momentum.'}</p>
               <div className="pulse-hero__metrics">
-                <div><strong>{scopedIdeas.length}</strong><span>Total ideas</span></div>
-                <div><strong>{averageScore}</strong><span>Avg. score</span></div>
-                <div><strong>{statusCounts.ready}</strong><span>Ready now</span></div>
+                <div><strong><CountUp value={scopedIdeas.length} /></strong><span>Total ideas</span></div>
+                <div><strong><CountUp value={averageScore} /></strong><span>Avg. score</span></div>
+                <div><strong><CountUp value={statusCounts.ready} /></strong><span>Ready now</span></div>
               </div>
             </div>
             <ScoreRing value={completionRate} />
@@ -221,10 +229,10 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
                 const count = statusCounts[status.key] || 0
                 const width = scopedIdeas.length ? Math.max(5, Math.round((count / scopedIdeas.length) * 100)) : 0
                 return (
-                  <button key={status.key} onClick={() => setDrillStatus(status.key)} style={{ '--status-color': status.color }}>
+                  <button key={status.key} onClick={() => setDrillStatus(status.key)} style={{ '--status-color': status.color, '--v': width }}>
                     <span className="pulse-status-icon"><Icon name={status.icon} size={16} /></span>
                     <span className="pulse-status-copy"><strong>{status.label}</strong><i><b style={{ width: `${width}%` }} /></i></span>
-                    <span className="pulse-status-count">{count}</span>
+                    <span className="pulse-status-count"><CountUp value={count} /></span>
                     <Icon name="chevronRight" size={15} />
                   </button>
                 )

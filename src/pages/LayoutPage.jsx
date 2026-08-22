@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea, sortIdeas, getBuildNext, isStale, daysOld } from '../lib/scoring'
-import { TimePill, PlatPill, ScoreBadge } from '../components/Pills'
+import { TimePill, PlatPill, ScoreBadge, StatusRail } from '../components/Pills'
 import Icon from '../components/Icon'
+import { useMorphPill } from '../hooks/useMorphPill'
 
 const VIEWS = ['kanban', 'matrix', 'features']
 const VIEW_LABELS = { kanban: 'Kanban', matrix: 'Matrix', features: 'Feature Cards' }
@@ -12,6 +13,8 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, getGroup } = useStore()
   const [selected, setSelected] = useState(new Set())
   const canvasRef = useRef(null)
+  const switcherRef = useRef(null)
+  useMorphPill(switcherRef, view)
 
   useEffect(() => {
     const scroller = canvasRef.current?.closest('.obsidian-main') || canvasRef.current
@@ -33,7 +36,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   return (
     <div className="layout-page flex flex-col h-full overflow-hidden">
       {/* Toggle bar */}
-      <div className="view-switcher flex gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 flex-wrap">
+      <div ref={switcherRef} className="view-switcher flex gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 flex-wrap">
         {VIEWS.map(v => (
           <button
             key={v}
@@ -79,13 +82,25 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
   const card = i => {
     const stale = isStale(i, getStatus)
     const sel = selected.has(i.id)
+    const status = getStatus(i)
     return (
       <div
         key={i.id}
         className={`kb-card idea-card bg-white border rounded-xl p-2.5 cursor-pointer
           ${sel ? 'border-violet-400 bg-violet-50 shadow-sm shadow-violet-100' : 'border-gray-200 hover:border-violet-300'}`}
+        style={{ '--v': Math.min(100, scoreIdea(i)) }}
+        role="button"
+        tabIndex={0}
+        aria-label={`Open #${i.id} ${i.name}`}
         onClick={() => onOpen(i.id)}
+        onKeyDown={e => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(i.id) }
+          if (e.key === 'x' || e.key === 'X') { e.preventDefault(); toggleSelect(i.id, e) }
+        }}
       >
+        <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
+        <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
+        <StatusRail status={status} />
         <div className="flex items-start justify-between gap-1 mb-1">
           <div className="text-xs font-semibold text-gray-800 leading-snug flex-1">
             {i.isPriority && <Icon name="starFilled" size={12} className="inline mr-1 text-amber-500" />}#{i.id} {i.name}
@@ -103,6 +118,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
           <ScoreBadge idea={i} />
           {stale && <span className="icon-pill inline-flex items-center gap-1 text-[0.625rem] font-bold text-amber-600 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full"><Icon name="clock" size={11} /> {daysOld(i)}d</span>}
         </div>
+        <span className="au-keys" aria-hidden="true"><kbd>↵</kbd> open · <kbd>X</kbd> select</span>
       </div>
     )
   }

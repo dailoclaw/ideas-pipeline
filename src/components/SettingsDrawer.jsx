@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import Icon from './Icon'
 import { TimePill } from './Pills'
 import { useDialogFocus } from '../hooks/useDialogFocus'
+import { UI_THEMES, UI_THEME_ORDER } from '../hooks/useUiTheme'
 
 const SIZE_OPTIONS = [
   { key: 'default', label: 'Default', desc: 'Standard',        aaSize: 16 },
@@ -58,10 +59,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
             <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">Visual system</div>
             {appLayout === 'obsidian' && <p className="settings-context-note">Obsidian Console uses Blueprint in light mode and its original Obsidian system in dark mode. The visual-system choices below apply to the original layout.</p>}
             <div className="space-y-2">
-              {[
-                { key: 'calm', label: 'Calm Command', desc: 'Spacious and reassuring', swatches: ['#153a37', '#4e9189', '#c49a44'] },
-                { key: 'glass', label: 'Luminous Glass', desc: 'Layered and luminous', swatches: ['#11162b', '#8b7cff', '#64e7d1'] },
-              ].map(opt => {
+              {UI_THEME_ORDER.map(key => UI_THEMES[key]).map(opt => {
                 const active = theme === opt.key
                 return (
                   <button
@@ -74,7 +72,7 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
                     </span>
                     <span className="min-w-0">
                       <span className="block font-bold text-gray-800 dark:text-slate-200">{opt.label}</span>
-                      <span className="block text-xs text-gray-400 dark:text-slate-500 mt-0.5">{opt.desc}</span>
+                      <span className="block text-xs text-gray-400 dark:text-slate-500 mt-0.5">{opt.description}</span>
                     </span>
                     <span className={`theme-choice__check ml-auto ${active ? 'theme-choice__check--active' : ''}`} aria-hidden="true"><Icon name="check" size={17} /></span>
                   </button>
