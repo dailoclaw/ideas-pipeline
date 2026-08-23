@@ -5,13 +5,15 @@ const STORAGE_KEY = 'ideas-app-layout-v1'
 const APP_LAYOUTS = {
   original: {
     key: 'original',
-    label: 'Original',
-    description: 'The current IdeaFlow workspace',
+    label: 'Tabbed',
+    description: 'Top header with a bottom tab bar',
   },
+  // Stored value stays 'obsidian' so existing preferences keep working; the
+  // palette that name used to imply is now the separate Obsidian theme.
   obsidian: {
     key: 'obsidian',
-    label: 'Obsidian Console',
-    description: 'A focused, dark operational console',
+    label: 'Console',
+    description: 'Sidebar navigation with a dense workspace',
   },
 }
 

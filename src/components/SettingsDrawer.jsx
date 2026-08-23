@@ -36,11 +36,12 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
 
           {/* App layout */}
           <section>
-            <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">App layout</div>
+            <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-1">Layout</div>
+            <p className="settings-section-note">How the app is arranged.</p>
             <div className="space-y-2">
               {[
-                { key: 'original', label: 'Original', desc: 'Current IdeaFlow workspace', icon: 'layout' },
-                { key: 'obsidian', label: 'Obsidian Console', desc: 'Focused light and dark operations console', icon: 'activity' },
+                { key: 'original', label: 'Tabbed', desc: 'Top header with a bottom tab bar', icon: 'layout' },
+                { key: 'obsidian', label: 'Console', desc: 'Sidebar navigation with a dense workspace', icon: 'activity' },
               ].map(opt => {
                 const active = appLayout === opt.key
                 return (
@@ -56,8 +57,8 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
 
           {/* Visual system */}
           <section>
-            <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-3">Visual system</div>
-            {appLayout === 'obsidian' && <p className="settings-context-note">Obsidian Console uses Blueprint in light mode and its original Obsidian system in dark mode. The visual-system choices below apply to the original layout.</p>}
+            <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-1">Visual system</div>
+            <p className="settings-section-note">How it looks. Every system works on either layout.</p>
             <div className="space-y-2">
               {UI_THEME_ORDER.map(key => UI_THEMES[key]).map(opt => {
                 const active = theme === opt.key

@@ -70,22 +70,21 @@ export default function App() {
     getSprintAssignment, statusHistory, activityLog,
   } = useStore()
   useDialogFocus(mobileToolsRef, () => setMobileToolsOpen(false), mobileToolsOpen)
-  useSpotlight(theme === 'aurora' && appLayout !== 'obsidian')
+  useSpotlight(theme === 'aurora')
 
   useEffect(() => { load() }, [])
 
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]')
     if (!meta) return
-    const color = appLayout === 'obsidian'
-      ? (dark ? '#090b0e' : '#eef3fa')
-      : theme === 'calm'
-        ? (dark ? '#0d2826' : '#153a37')
-        : theme === 'aurora'
-          ? (dark ? '#0b1220' : '#f1f6fb')
-          : (dark ? '#11162b' : '#f2f5fb')
+    const color = {
+      calm:     dark ? '#0d2826' : '#153a37',
+      glass:    dark ? '#11162b' : '#f2f5fb',
+      aurora:   dark ? '#0b1220' : '#f1f6fb',
+      obsidian: dark ? '#090b0e' : '#eef3fa',
+    }[theme]
     meta.setAttribute('content', color)
-  }, [theme, dark, appLayout])
+  }, [theme, dark])
 
   useEffect(() => {
     if (settingsOpen || addOpen || editId || triageOpen || mobileToolsOpen) return

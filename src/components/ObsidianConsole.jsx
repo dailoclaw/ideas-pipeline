@@ -269,8 +269,8 @@ export default function ObsidianConsole({
   return (
     <div className="obsidian-shell">
       <aside className="obsidian-sidebar">
-        <div className="obsidian-brand"><ObsidianMark /><span><strong>IdeaFlow</strong><small>Obsidian Console</small></span><button className="obsidian-theme-toggle" onClick={toggleDark} aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`} title={`Switch to ${dark ? 'light' : 'dark'} mode`}><Icon name={dark ? 'sun' : 'moon'} size={16} /></button></div>
-        <nav aria-label="Obsidian Console navigation">
+        <div className="obsidian-brand"><ObsidianMark /><span><strong>IdeaFlow</strong><small>Console</small></span><button className="obsidian-theme-toggle" onClick={toggleDark} aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`} title={`Switch to ${dark ? 'light' : 'dark'} mode`}><Icon name={dark ? 'sun' : 'moon'} size={16} /></button></div>
+        <nav aria-label="Console navigation">
           {NAV_ITEMS.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)} aria-current={active === item.id ? 'page' : undefined}><Icon name={item.icon} size={18} /><span>{item.label}</span>{item.id === 'activity' && <i />}</button>)}
         </nav>
         <label className="obsidian-scope"><span>Workspace</span><select value={groupFilter} onChange={event => setGroupFilter(event.target.value)} aria-label="Filter console by workspace"><option value="">All ideas</option><option value="__none__">No group yet</option>{GROUPS.map(group => <option key={group.key} value={group.key}>{group.label}</option>)}</select></label>
@@ -279,7 +279,7 @@ export default function ObsidianConsole({
           <button onClick={onTriage}><Icon name="target" size={17} /> Triage <span>{triageCount}</span></button>
           <button onClick={onExport}><Icon name="download" size={17} /> Export CSV</button>
           <button onClick={onSettings}><Icon name="settings" size={17} /> Settings</button>
-          <button onClick={onOriginal}><Icon name="layout" size={17} /> Original layout</button>
+          <button onClick={onOriginal}><Icon name="layout" size={17} /> Tabbed layout</button>
         </div>
       </aside>
 
@@ -292,13 +292,13 @@ export default function ObsidianConsole({
 
       <main className="obsidian-main">{content}</main>
 
-      <nav className="obsidian-bottom-nav" aria-label="Obsidian mobile navigation">
+      <nav className="obsidian-bottom-nav" aria-label="Console mobile navigation">
         {MOBILE_NAV.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)} aria-current={active === item.id ? 'page' : undefined}><Icon name={item.icon} size={18} /><span>{item.label}</span></button>)}
         <button className={MORE_NAV.some(item => item.id === active) ? 'is-active' : ''} onClick={() => setMoreOpen(true)}><Icon name="more" size={19} /><span>More</span></button>
       </nav>
 
       {moreOpen && <div className="obsidian-menu-overlay" onClick={event => { if (event.target === event.currentTarget) setMoreOpen(false) }}>
-        <div ref={menuRef} className="obsidian-menu" role="dialog" aria-modal="true" aria-label="Obsidian Console menu" tabIndex={-1}>
+        <div ref={menuRef} className="obsidian-menu" role="dialog" aria-modal="true" aria-label="Console menu" tabIndex={-1}>
           <div className="obsidian-menu-handle" />
           <header><div><strong>Console menu</strong><span>{groupFilter ? GROUPS.find(group => group.key === groupFilter)?.label || 'Filtered workspace' : 'All workspaces'}</span></div><button onClick={() => setMoreOpen(false)} aria-label="Close console menu"><Icon name="close" size={19} /></button></header>
           <label><span>Workspace</span><select value={groupFilter} onChange={event => setGroupFilter(event.target.value)}><option value="">All ideas</option><option value="__none__">No group yet</option>{GROUPS.map(group => <option key={group.key} value={group.key}>{group.label}</option>)}</select></label>
@@ -308,7 +308,7 @@ export default function ObsidianConsole({
             <button onClick={() => { setMoreOpen(false); toggleDark() }}><Icon name={dark ? 'sun' : 'moon'} size={19} /><span><strong>Use {dark ? 'light' : 'dark'} mode</strong><small>Switch the Obsidian Console appearance</small></span><Icon name="chevronRight" size={16} /></button>
             <button onClick={() => { setMoreOpen(false); onExport() }}><Icon name="download" size={19} /><span><strong>Export all ideas</strong><small>Download every detail as CSV</small></span><Icon name="chevronRight" size={16} /></button>
             <button onClick={() => { setMoreOpen(false); onSettings() }}><Icon name="settings" size={19} /><span><strong>Appearance and text</strong><small>Adjust display preferences</small></span><Icon name="chevronRight" size={16} /></button>
-            <button onClick={() => { setMoreOpen(false); onOriginal() }}><Icon name="layout" size={19} /><span><strong>Switch to original layout</strong><small>Return to the existing IdeaFlow shell</small></span><Icon name="chevronRight" size={16} /></button>
+            <button onClick={() => { setMoreOpen(false); onOriginal() }}><Icon name="layout" size={19} /><span><strong>Switch to tabbed layout</strong><small>Header and bottom tab bar</small></span><Icon name="chevronRight" size={16} /></button>
           </div>
         </div>
       </div>}

@@ -1,5 +1,18 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.7.0 (2026-08-23) — Layout and theme, decoupled
+### Changed
+- Layout and visual system are now independent choices: any of the four themes works on either shell
+- The Console shell no longer carries its own palette — its 830 lines of CSS resolved 388 hard-coded colours, and every one now reads through a design token
+- Obsidian became a selectable visual system rather than a side effect of the Console layout, keeping Blueprint by day and Obsidian at night
+- Aurora Mist works on the Console, replacing the blueprint grid with its own mesh
+- Layouts renamed to describe their structure instead of a colour scheme: "Original" is now "Tabbed", "Obsidian Console" is now "Console"
+- Settings replaces the note explaining which themes applied where with two independent sections, since the caveat no longer exists
+- Surface, text, accent, status and radius tokens extended so a square theme stays square and a round one stays round on the same shell
+
+### Added
+- Theme preferences migrate on upgrade: anyone using the Console keeps the Obsidian palette they had rather than dropping into Glass
+
 ## v1.6.0 (2026-08-22) — Aurora Mist
 ### Added
 - Aurora Mist, a third selectable visual system alongside Calm Command and Luminous Glass, with light and dark both derived from one azure→mint ramp
