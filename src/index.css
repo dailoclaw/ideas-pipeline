@@ -2405,11 +2405,6 @@ html[data-app-layout="obsidian"] .obsidian-page-heading {
   background-image: none !important;
 }
 
-html[data-app-layout="obsidian"] .obsidian-menu header {
-  background-color: transparent !important;
-  background-image: none !important;
-}
-
 .obsidian-shell {
   display: grid;
   grid-template-columns: 224px minmax(0, 1fr);
@@ -2721,27 +2716,23 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
 .obsidian-next-decision strong { margin-top: 2px; font-size: 11px; }
 .obsidian-next-decision b { padding: 8px 10px; border: 1px solid var(--ui-warn); border-radius: var(--ui-radius-xs); color: var(--ui-warn); font-size: 9px; }
 
-.obsidian-menu-overlay { position: fixed; inset: 0; z-index: 80; display: flex; align-items: flex-end; justify-content: center; padding: 10px max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left)); background: rgba(0,0,0,.64); }
-.obsidian-menu { width: min(520px, 100%); max-height: calc(100dvh - 20px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); overflow-y: auto; overscroll-behavior: contain; padding: 7px 14px 15px; border: 1px solid var(--ui-border-strong); border-radius: var(--ui-radius-lg); background: var(--ui-surface); box-shadow: 0 24px 80px #000a; }
-.obsidian-menu-handle { width: 36px; height: 4px; margin: 0 auto 4px; border-radius: var(--ui-radius-xs); background: var(--ui-border-strong); }
-.obsidian-menu header { display: flex; align-items: center; justify-content: space-between; min-height: 53px; border-bottom: 1px solid var(--ui-border); background: transparent !important; box-shadow: none !important; }
-.obsidian-menu header > div { display: flex; flex-direction: column; }
-.obsidian-menu header strong { font-size: 15px; }
-.obsidian-menu header span { margin-top: 2px; color: var(--ui-text-dim); font-size: 9px; }
-.obsidian-menu header button { display: grid; place-items: center; width: 44px; height: 44px; color: var(--ui-text-muted); }
-.obsidian-menu > label { display: block; margin: 12px 0; }
-.obsidian-menu > label > span { display: block; margin-bottom: 6px; color: var(--ui-text-dim); font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-.obsidian-menu > label select { width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid var(--ui-border-strong); border-radius: var(--ui-radius); color: var(--ui-text); background: var(--ui-surface-muted); font-size: 16px; }
-.obsidian-menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-.obsidian-menu-grid button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; min-height: 70px; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); color: var(--ui-text-muted); background: var(--ui-surface-muted); font-size: 9px; font-weight: 750; }
-.obsidian-menu-grid button.is-active { color: var(--ui-accent); border-color: var(--ui-accent-dim); background: color-mix(in srgb, var(--ui-accent) 7%, transparent); }
-.obsidian-menu-list { overflow: hidden; margin-top: 11px; border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); }
-.obsidian-menu-list button { display: grid; grid-template-columns: 30px minmax(0,1fr) 18px; align-items: center; gap: 9px; width: 100%; min-height: 59px; padding: 8px 10px; color: var(--ui-text-muted); text-align: left; }
-.obsidian-menu-list button + button { border-top: 1px solid var(--ui-border); }
-.obsidian-menu-list button > span { min-width: 0; }
-.obsidian-menu-list strong,.obsidian-menu-list small { display: block; }
-.obsidian-menu-list strong { color: var(--ui-text); font-size: 11px; }
-.obsidian-menu-list small { margin-top: 2px; color: var(--ui-text-dim); font-size: 9px; }
+.obsidian-more-page { max-width: 820px; }
+.obsidian-more-panel { margin-top: 15px; padding: 18px; border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); background: var(--ui-surface); }
+.obsidian-more-panel .obsidian-section-heading { margin-bottom: 13px; }
+.obsidian-more-workspace { display: block; }
+.obsidian-more-workspace > span { display: block; margin-bottom: 7px; color: var(--ui-text-dim); font-size: 8px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.obsidian-more-workspace select { width: 100%; min-height: 48px; padding: 0 12px; border: 1px solid var(--ui-border-strong); border-radius: var(--ui-radius); color: var(--ui-text); background: var(--ui-surface-muted); font-size: 16px; }
+.obsidian-more-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.obsidian-more-grid button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 82px; border: 1px solid var(--ui-border); border-radius: var(--ui-radius); color: var(--ui-text-muted); background: var(--ui-surface-muted); font-size: 9px; font-weight: 750; }
+.obsidian-more-grid button:hover,.obsidian-more-grid button.is-active { color: var(--ui-accent); border-color: var(--ui-accent-dim); background: color-mix(in srgb, var(--ui-accent) 7%, transparent); }
+.obsidian-more-list { overflow: hidden; border: 1px solid var(--ui-border); border-radius: var(--ui-radius-lg); }
+.obsidian-more-list button { display: grid; grid-template-columns: 30px minmax(0,1fr) 18px; align-items: center; gap: 10px; width: 100%; min-height: 62px; padding: 9px 11px; color: var(--ui-text-muted); text-align: left; }
+.obsidian-more-list button:hover { background: var(--ui-surface-muted); }
+.obsidian-more-list button + button { border-top: 1px solid var(--ui-border); }
+.obsidian-more-list button > span { min-width: 0; }
+.obsidian-more-list strong,.obsidian-more-list small { display: block; }
+.obsidian-more-list strong { color: var(--ui-text); font-size: 11px; }
+.obsidian-more-list small { margin-top: 2px; color: var(--ui-text-dim); font-size: 9px; }
 
 @media (max-width: 900px) {
   .obsidian-shell { grid-template-columns: 188px minmax(0,1fr); }
@@ -2803,6 +2794,10 @@ html[data-app-layout="obsidian"] .obsidian-menu header {
   .obsidian-event-list li > button { min-height: 72px; padding: 9px 5px; }
   .obsidian-event-list li > button strong { font-size: 10px; }
   .obsidian-next-decision { position: static; }
+  .obsidian-more-page { padding-bottom: 30px; }
+  .obsidian-more-panel { padding: 14px 12px; }
+  .obsidian-more-grid button { min-height: 76px; }
+  .obsidian-more-list button { min-height: 64px; }
   .obsidian-main > .h-full { padding: 14px 10px 20px !important; }
   .obsidian-main .view-switcher { padding: 7px 10px !important; }
   .obsidian-main .view-switcher::before { inset: 7px 10px; }
@@ -2840,7 +2835,7 @@ html[data-app-layout="obsidian"] .obsidian-mobile-header > button { border-radiu
 html[data-app-layout="obsidian"] .obsidian-next-decision b,
 html[data-app-layout="obsidian"] .obsidian-grade,
 html[data-app-layout="obsidian"] .obsidian-advance { border-radius: var(--ui-radius-xs); }
-html[data-app-layout="obsidian"] .obsidian-menu-list { border-radius: var(--ui-radius-lg); }
+html[data-app-layout="obsidian"] .obsidian-more-list { border-radius: var(--ui-radius-lg); }
 html[data-app-layout="obsidian"] .app-dialog { border-radius: var(--ui-radius) var(--ui-radius) 0 0 !important; }
 html[data-app-layout="obsidian"] .theme-choice,
 html[data-app-layout="obsidian"] .layout-choice { border-radius: var(--ui-radius-lg) !important; }
@@ -2854,7 +2849,7 @@ html[data-app-layout="obsidian"] select {
   background-color: var(--ui-surface);
 }
 html[data-app-layout="obsidian"] .obsidian-main .pulse-search input,
-html[data-app-layout="obsidian"] .obsidian-menu > label select { background: var(--ui-surface-muted); }
+html[data-app-layout="obsidian"] .obsidian-more-workspace select { background: var(--ui-surface-muted); }
 html[data-app-layout="obsidian"] input::placeholder,
 html[data-app-layout="obsidian"] textarea::placeholder { color: var(--ui-text-dim); }
 html[data-app-layout="obsidian"] .obsidian-main .pulse-view-switcher button { color: var(--ui-text-muted); }

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useStore } from '../lib/store'
 import { gradeFromScore, isStale, scoreIdea } from '../lib/scoring'
 import { GROUPS } from '../data/groups'
@@ -8,7 +8,6 @@ import SprintPage from '../pages/SprintPage'
 import GroupsPage from '../pages/GroupsPage'
 import SummaryPage from '../pages/SummaryPage'
 import Icon from './Icon'
-import { useDialogFocus } from '../hooks/useDialogFocus'
 
 const NAV_ITEMS = [
   { id: 'pulse', label: 'Pulse', icon: 'chart' },
@@ -23,6 +22,7 @@ const NAV_ITEMS = [
 const navItems = ids => ids.map(id => NAV_ITEMS.find(item => item.id === id))
 const MOBILE_NAV = navItems(['pulse', 'command', 'activity', 'plan'])
 const MORE_NAV = navItems(['rank', 'ideas', 'spaces'])
+const MORE_PAGE = { id: 'more', label: 'More', icon: 'more' }
 
 const STATUS_LABELS = {
   idea: 'Idea',
@@ -231,6 +231,58 @@ function ActivityPage({ groupFilter, onOpenIdea }) {
   )
 }
 
+function MorePage({
+  active,
+  groupFilter,
+  setGroupFilter,
+  onNavigate,
+  onSettings,
+  onTriage,
+  onExport,
+  onOriginal,
+  triageCount,
+  dark,
+  toggleDark,
+}) {
+  return (
+    <div className="obsidian-page obsidian-more-page">
+      <header className="obsidian-page-heading">
+        <div><span>Workspace and app controls</span><h1>More</h1><p>Open another view or adjust how IdeaFlow works.</p></div>
+      </header>
+
+      <section className="obsidian-more-panel">
+        <div className="obsidian-section-heading"><div><span>Current scope</span><h2>Workspace</h2></div></div>
+        <label className="obsidian-more-workspace">
+          <span>Filter ideas by workspace</span>
+          <select value={groupFilter} onChange={event => setGroupFilter(event.target.value)}>
+            <option value="">All ideas</option>
+            <option value="__none__">No group yet</option>
+            {GROUPS.map(group => <option key={group.key} value={group.key}>{group.label}</option>)}
+          </select>
+        </label>
+      </section>
+
+      <section className="obsidian-more-panel">
+        <div className="obsidian-section-heading"><div><span>Explore</span><h2>More views</h2></div></div>
+        <div className="obsidian-more-grid">
+          {MORE_NAV.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => onNavigate(item.id)}><Icon name={item.icon} size={20} /><span>{item.label}</span></button>)}
+        </div>
+      </section>
+
+      <section className="obsidian-more-panel">
+        <div className="obsidian-section-heading"><div><span>Manage</span><h2>App actions</h2></div></div>
+        <div className="obsidian-more-list">
+          <button onClick={onTriage}><Icon name="target" size={19} /><span><strong>Triage ideas</strong><small>{triageCount} awaiting review</small></span><Icon name="chevronRight" size={16} /></button>
+          <button onClick={toggleDark}><Icon name={dark ? 'sun' : 'moon'} size={19} /><span><strong>Use {dark ? 'light' : 'dark'} mode</strong><small>Switch the Console appearance</small></span><Icon name="chevronRight" size={16} /></button>
+          <button onClick={onExport}><Icon name="download" size={19} /><span><strong>Export all ideas</strong><small>Download every detail as CSV</small></span><Icon name="chevronRight" size={16} /></button>
+          <button onClick={onSettings}><Icon name="settings" size={19} /><span><strong>Appearance and text</strong><small>Adjust display preferences</small></span><Icon name="chevronRight" size={16} /></button>
+          <button onClick={onOriginal}><Icon name="layout" size={19} /><span><strong>Switch to tabbed layout</strong><small>Header and bottom tab bar</small></span><Icon name="chevronRight" size={16} /></button>
+        </div>
+      </section>
+    </div>
+  )
+}
+
 export default function ObsidianConsole({
   active,
   setActive,
@@ -246,15 +298,9 @@ export default function ObsidianConsole({
   dark,
   toggleDark,
 }) {
-  const [moreOpen, setMoreOpen] = useState(false)
-  const menuRef = useRef(null)
-  useDialogFocus(menuRef, () => setMoreOpen(false), moreOpen)
-  const activeMeta = NAV_ITEMS.find(item => item.id === active) || NAV_ITEMS[0]
+  const activeMeta = active === MORE_PAGE.id ? MORE_PAGE : NAV_ITEMS.find(item => item.id === active) || NAV_ITEMS[0]
 
-  const navigate = id => {
-    setActive(id)
-    setMoreOpen(false)
-  }
+  const navigate = id => setActive(id)
 
   const content = {
     command: <CommandPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} onNavigate={navigate} />,
@@ -264,7 +310,10 @@ export default function ObsidianConsole({
     ideas: <LayoutPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
     spaces: <GroupsPage onOpenIdea={onOpenIdea} />,
     pulse: <SummaryPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
+    more: <MorePage active={active} groupFilter={groupFilter} setGroupFilter={setGroupFilter} onNavigate={navigate} onSettings={onSettings} onTriage={onTriage} onExport={onExport} onOriginal={onOriginal} triageCount={triageCount} dark={dark} toggleDark={toggleDark} />,
   }[active]
+
+  const moreActive = active === MORE_PAGE.id || MORE_NAV.some(item => item.id === active)
 
   return (
     <div className="obsidian-shell">
@@ -287,31 +336,15 @@ export default function ObsidianConsole({
         <div><ObsidianMark /><span><small>IdeaFlow</small><strong>{activeMeta.label}</strong></span></div>
         <button onClick={onAdd} aria-label="New idea"><Icon name="plus" size={20} /></button>
         <button onClick={toggleDark} aria-label={`Switch to ${dark ? 'light' : 'dark'} mode`}><Icon name={dark ? 'sun' : 'moon'} size={20} /></button>
-        <button onClick={() => setMoreOpen(true)} aria-label="Open console menu"><Icon name="more" size={22} /></button>
+        <button onClick={() => navigate(MORE_PAGE.id)} aria-label="Open More page"><Icon name="more" size={22} /></button>
       </header>
 
       <main className="obsidian-main">{content}</main>
 
       <nav className="obsidian-bottom-nav" aria-label="Console mobile navigation">
         {MOBILE_NAV.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)} aria-current={active === item.id ? 'page' : undefined}><Icon name={item.icon} size={18} /><span>{item.label}</span></button>)}
-        <button className={MORE_NAV.some(item => item.id === active) ? 'is-active' : ''} onClick={() => setMoreOpen(true)}><Icon name="more" size={19} /><span>More</span></button>
+        <button className={moreActive ? 'is-active' : ''} onClick={() => navigate(MORE_PAGE.id)} aria-current={moreActive ? 'page' : undefined}><Icon name="more" size={19} /><span>More</span></button>
       </nav>
-
-      {moreOpen && <div className="obsidian-menu-overlay" onClick={event => { if (event.target === event.currentTarget) setMoreOpen(false) }}>
-        <div ref={menuRef} className="obsidian-menu" role="dialog" aria-modal="true" aria-label="Console menu" tabIndex={-1}>
-          <div className="obsidian-menu-handle" />
-          <header><div><strong>Console menu</strong><span>{groupFilter ? GROUPS.find(group => group.key === groupFilter)?.label || 'Filtered workspace' : 'All workspaces'}</span></div><button onClick={() => setMoreOpen(false)} aria-label="Close console menu"><Icon name="close" size={19} /></button></header>
-          <label><span>Workspace</span><select value={groupFilter} onChange={event => setGroupFilter(event.target.value)}><option value="">All ideas</option><option value="__none__">No group yet</option>{GROUPS.map(group => <option key={group.key} value={group.key}>{group.label}</option>)}</select></label>
-          <div className="obsidian-menu-grid">{MORE_NAV.map(item => <button key={item.id} className={active === item.id ? 'is-active' : ''} onClick={() => navigate(item.id)}><Icon name={item.icon} size={20} /><span>{item.label}</span></button>)}</div>
-          <div className="obsidian-menu-list">
-            <button onClick={() => { setMoreOpen(false); onTriage() }}><Icon name="target" size={19} /><span><strong>Triage ideas</strong><small>{triageCount} awaiting review</small></span><Icon name="chevronRight" size={16} /></button>
-            <button onClick={() => { setMoreOpen(false); toggleDark() }}><Icon name={dark ? 'sun' : 'moon'} size={19} /><span><strong>Use {dark ? 'light' : 'dark'} mode</strong><small>Switch the Obsidian Console appearance</small></span><Icon name="chevronRight" size={16} /></button>
-            <button onClick={() => { setMoreOpen(false); onExport() }}><Icon name="download" size={19} /><span><strong>Export all ideas</strong><small>Download every detail as CSV</small></span><Icon name="chevronRight" size={16} /></button>
-            <button onClick={() => { setMoreOpen(false); onSettings() }}><Icon name="settings" size={19} /><span><strong>Appearance and text</strong><small>Adjust display preferences</small></span><Icon name="chevronRight" size={16} /></button>
-            <button onClick={() => { setMoreOpen(false); onOriginal() }}><Icon name="layout" size={19} /><span><strong>Switch to tabbed layout</strong><small>Header and bottom tab bar</small></span><Icon name="chevronRight" size={16} /></button>
-          </div>
-        </div>
-      </div>}
     </div>
   )
 }

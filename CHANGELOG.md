@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.8.0 (2026-09-03) — Full-page More navigation
+### Changed
+- The Console mobile More tab and header ellipsis now open a dedicated full page instead of a popup sheet
+- Workspace filtering, secondary views and app actions remain available in the new scrollable More page
+
 ## v1.7.2 (2026-09-03) — Cleaner Ideas score rings
 ### Changed
 - Removed the grade label beneath each Ideas page score, leaving only the centred numeric score inside the ring
