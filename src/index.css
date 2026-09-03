@@ -3086,7 +3086,13 @@ html[data-ui-theme="aurora"] .pulse-idea-row__score {
   background: transparent;
 }
 html[data-ui-theme="aurora"] .pulse-idea-row__score b { position: relative; font-size: 12px; font-weight: 850; line-height: 1; }
-html[data-ui-theme="aurora"] .pulse-idea-row__score small { position: relative; }
+html[data-ui-theme="aurora"] .pulse-idea-row__score small {
+  position: absolute;
+  bottom: 4px;
+  left: 50%;
+  margin-top: 0;
+  transform: translateX(-50%);
+}
 
 /* The completion ring sweeps in on the same curve. */
 html[data-ui-theme="aurora"] .pulse-score-ring { animation: au-ring 1.05s cubic-bezier(.22, 1, .36, 1); }

@@ -1,5 +1,9 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.7.1 (2026-09-03) — Ideas score alignment
+### Fixed
+- Vertically centred the strategic score inside each Ideas page score ring while keeping the grade anchored below it
+
 ## v1.7.0 (2026-08-23) — Layout and theme, decoupled
 ### Changed
 - Layout and visual system are now independent choices: any of the four themes works on either shell
