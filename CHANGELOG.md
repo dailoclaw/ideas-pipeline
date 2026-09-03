@@ -1,5 +1,9 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.7.2 (2026-09-03) — Cleaner Ideas score rings
+### Changed
+- Removed the grade label beneath each Ideas page score, leaving only the centred numeric score inside the ring
+
 ## v1.7.1 (2026-09-03) — Ideas score alignment
 ### Fixed
 - Vertically centred the strategic score inside each Ideas page score ring while keeping the grade anchored below it

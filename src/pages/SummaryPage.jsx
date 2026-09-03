@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
-import { scoreIdea, gradeFromScore, isStale, STATUS_LABELS } from '../lib/scoring'
+import { scoreIdea, isStale, STATUS_LABELS } from '../lib/scoring'
 import { GROUPS, GROUP_MAP } from '../data/groups'
 import Icon from '../components/Icon'
 import CountUp from '../components/CountUp'
@@ -80,7 +80,7 @@ function IdeaRow({ idea, status, groupKey, onOpen }) {
     <button className="pulse-idea-row" onClick={() => onOpen(idea.id)}>
       <span className="pulse-idea-row__score" style={{ '--dp': Math.min(100, score) }}>
         <span className="au-donut__ring" aria-hidden="true" />
-        <b>{score}</b><small>{gradeFromScore(score)}</small>
+        <b>{score}</b>
       </span>
       <span className="pulse-idea-row__copy">
         <strong>#{idea.id} {idea.name}</strong>

@@ -1689,7 +1689,6 @@ html[data-ui-theme="glass"] .workspace-pulse-card {
 .pulse-idea-row { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 11px; min-height: 58px; padding: 8px 4px; border-bottom: 1px solid var(--ui-border); color: var(--ui-text-muted); text-align: left; }
 .pulse-idea-row:last-child { border-bottom: 0; }
 .pulse-idea-row__score { display: grid; place-items: center; width: 38px; height: 38px; border: 1px solid var(--ui-border-strong); border-radius: 12px; color: var(--ui-accent-strong); background: var(--ui-accent-soft); font-size: 12px; font-weight: 850; line-height: 1; }
-.pulse-idea-row__score small { margin-top: 2px; font-size: 7px; }
 .pulse-idea-row__copy { min-width: 0; }
 .pulse-idea-row__copy strong,.pulse-idea-row__copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pulse-idea-row__copy strong { color: var(--ui-text); font-size: 11px; }
@@ -3086,13 +3085,6 @@ html[data-ui-theme="aurora"] .pulse-idea-row__score {
   background: transparent;
 }
 html[data-ui-theme="aurora"] .pulse-idea-row__score b { position: relative; font-size: 12px; font-weight: 850; line-height: 1; }
-html[data-ui-theme="aurora"] .pulse-idea-row__score small {
-  position: absolute;
-  bottom: 4px;
-  left: 50%;
-  margin-top: 0;
-  transform: translateX(-50%);
-}
 
 /* The completion ring sweeps in on the same curve. */
 html[data-ui-theme="aurora"] .pulse-score-ring { animation: au-ring 1.05s cubic-bezier(.22, 1, .36, 1); }
