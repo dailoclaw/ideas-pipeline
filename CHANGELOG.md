@@ -1,5 +1,12 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.8.3 (2026-10-10) — Database authorization preparation
+### Added
+- Read-only SQL inventory for six-table RLS, grants, constraints, public RPC permissions and triggers
+- Coordinated authentication, membership, trusted audit and staging acceptance plan; live inspection and rollout remain deferred
+### Changed
+- Tracker v1.0.1 records step 1 published on main and step 2 in progress; application behavior is unchanged
+
 ## v1.8.2 (2026-10-10) — Repair plan review tracker
 ### Added
 - Self-contained HTML tracker preserving the initial 12-step repair plan, verification criteria, evidence links and completion history

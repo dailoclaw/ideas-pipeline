@@ -1,174 +1,444 @@
 {
-  "planVersion": "1.0.0",
+  "planVersion": "1.0.1",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "codex/regression-baseline",
+  "branch": "codex/database-access",
   "readiness": "Not production-ready",
-  "scopeNote": "Step 1 completed locally",
+  "scopeNote": "Step 1 pushed \u00b7 Step 2 in progress",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "The application remains unchanged so far. Database authorization, data integrity and release acceptance remain open.",
-  "baseline": { "tests": 18, "passing": 5, "knownFailures": 13, "unexpectedFailures": 0, "preservedFiles": 134, "moderateAdvisories": 3, "highAdvisories": 10 },
+  "progressNote": "Baseline and tracker are published on main at ab3acb1. Step 2 now has a read-only inspection and coordinated authorization rollout plan; live database access has not been inspected or changed.",
+  "baseline": {
+    "tests": 18,
+    "passing": 5,
+    "knownFailures": 13,
+    "unexpectedFailures": 0,
+    "preservedFiles": 134,
+    "moderateAdvisories": 3,
+    "highAdvisories": 10
+  },
   "steps": [
     {
-      "id": 1, "title": "Establish a regression baseline", "short": "Regression baseline", "priority": "Foundation", "status": "local-complete",
-      "summary": "Local preservation and isolated regression checks are complete. Live database backup and remote staging are deferred by your instruction.",
+      "id": 1,
+      "title": "Establish a regression baseline",
+      "short": "Regression baseline",
+      "priority": "Foundation",
+      "status": "local-complete",
+      "summary": "Local regression baseline is published on main at ab3acb1. Live database backup and remote staging remain deferred by your instruction.",
       "actions": [
-        { "text": "Create a working branch and preserve existing uncommitted files.", "status": "complete", "note": "codex/regression-baseline; checksummed pre-change archive includes the untracked review work." },
-        { "text": "Back up the live database schema and data.", "status": "deferred", "note": "Deferred by user. The source archive includes local SQL files, not live database rows or deployed policies." },
-        { "text": "Configure a remote staging database with representative records.", "status": "deferred", "note": "Deferred by user. Fictional in-memory fixtures provide local isolation for this step." },
-        { "text": "Add regression checks for failed writes, notes loss, concurrent updates, stale summaries and blocked storage.", "status": "complete", "note": "18 checks: 5 pass; 13 reproduce known defects as expected failures. Strict mode reports 13 actual failures." },
-        { "text": "Verify the build, fixture isolation and preservation of existing work.", "status": "complete", "note": "Build passed with unchanged asset hashes. 134 source/review files verified against the archive. No production database writes." }
+        {
+          "text": "Create a working branch and preserve existing uncommitted files.",
+          "status": "complete",
+          "note": "Baseline branch merged and pushed to main at ab3acb1; existing untracked review work was preserved and excluded from the commit."
+        },
+        {
+          "text": "Back up the live database schema and data.",
+          "status": "deferred",
+          "note": "Deferred by user. The source archive includes local SQL files, not live database rows or deployed policies."
+        },
+        {
+          "text": "Configure a remote staging database with representative records.",
+          "status": "deferred",
+          "note": "Deferred by user. Fictional in-memory fixtures provide local isolation for this step."
+        },
+        {
+          "text": "Add regression checks for failed writes, notes loss, concurrent updates, stale summaries and blocked storage.",
+          "status": "complete",
+          "note": "18 checks: 5 pass; 13 reproduce known defects as expected failures. Strict mode reports 13 actual failures."
+        },
+        {
+          "text": "Verify the build, fixture isolation and preservation of existing work.",
+          "status": "complete",
+          "note": "Build passed with unchanged asset hashes. 134 source/review files verified against the archive. No production database writes."
+        }
       ],
-      "verify": ["Production build passes.", "Recorded defects reproduce and unexpected failures remain zero.", "Tests use an in-memory client and block external browser requests.", "Existing work remains recoverable; live data backup is explicitly still deferred."],
+      "verify": [
+        "Production build passes.",
+        "Recorded defects reproduce and unexpected failures remain zero.",
+        "Tests use an in-memory client and block external browser requests.",
+        "Existing work remains recoverable; live data backup is explicitly still deferred."
+      ],
       "evidence": [
-        { "label": "Baseline instructions", "href": "../tests/README.md" },
-        { "label": "Verification summary", "href": "../test-results/baseline-summary.json" },
-        { "label": "Baseline test log", "href": "../test-results/baseline.log" },
-        { "label": "Strict-mode log", "href": "../test-results/strict.log" }
+        {
+          "label": "Baseline instructions",
+          "href": "../tests/README.md"
+        },
+        {
+          "label": "Verification summary",
+          "href": "../test-results/baseline-summary.json"
+        },
+        {
+          "label": "Baseline test log",
+          "href": "../test-results/baseline.log"
+        },
+        {
+          "label": "Strict-mode log",
+          "href": "../test-results/strict.log"
+        }
       ]
     },
     {
-      "id": 2, "title": "Secure database access", "short": "Database access", "priority": "Critical", "status": "pending",
-      "summary": "Establish authenticated authorization before public release. Actual policy changes require a live backup and staging workflow first.",
+      "id": 2,
+      "title": "Secure database access",
+      "short": "Database access",
+      "priority": "Critical",
+      "status": "in-progress",
+      "summary": "Local preparation is complete: source exposure reviewed, read-only metadata inspection prepared, and login/RLS/audit rollout defined. Deployed authorization remains unverified; authentication implementation and policy rollout are still open.",
       "actions": [
-        { "text": "Inspect deployed table grants and RLS settings against the supplied SQL." },
-        { "text": "Add authentication and restrict access to the permitted account or workspace members." },
-        { "text": "Enable RLS on all six application tables, including child-record ownership or membership policies." },
-        { "text": "Generate audit actor and timestamps server-side; restrict direct audit modification." },
-        { "text": "Roll out authentication and policies together so the legitimate user retains access." }
+        {
+          "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
+          "status": "in-progress",
+          "note": "Six-table source inventory confirmed. database/security/inspect-access.sql prepared; not executed against PostgreSQL or live data. Backup/staging remain deferred."
+        },
+        {
+          "text": "Add authentication and restrict access to the permitted account or workspace members.",
+          "status": "pending",
+          "note": "Access model and login preference requested. No session gate exists yet; permitted identity must be configured administratively."
+        },
+        {
+          "text": "Enable RLS on all six application tables, including child-record ownership or membership policies.",
+          "status": "pending",
+          "note": "All six source tables disable RLS. Versioned migration and legacy-script hardening follow deployed-schema inspection and access-model confirmation."
+        },
+        {
+          "text": "Generate audit actor and timestamps server-side; restrict direct audit modification.",
+          "status": "pending",
+          "note": "Server-derived audit design and acceptance cases recorded; current client-written history remains untrusted."
+        },
+        {
+          "text": "Roll out authentication and policies together so the legitimate user retains access.",
+          "status": "deferred",
+          "note": "Live rollout requires the user-deferred backup and restored staging workflow plus passing authorization tests."
+        }
       ],
-      "verify": ["Anonymous and unrelated authenticated accounts cannot read or modify protected records.", "The authorized user can complete intended workflows.", "Forged audit actors and event edits are rejected."],
-      "issues": "C1 · authorization and audit trust"
+      "verify": [
+        "Anonymous and unrelated authenticated accounts cannot read or modify protected records.",
+        "The authorized user can complete intended workflows.",
+        "Forged audit actors and event edits are rejected."
+      ],
+      "issues": "C1 \u00b7 authorization and audit trust",
+      "evidence": [
+        {
+          "label": "Database access implementation plan",
+          "href": "DATABASE_ACCESS.md"
+        },
+        {
+          "label": "Read-only metadata inspection SQL",
+          "href": "../database/security/inspect-access.sql"
+        }
+      ]
     },
     {
-      "id": 3, "title": "Stop false-success saves", "short": "Reliable saves", "priority": "Critical", "status": "pending",
+      "id": 3,
+      "title": "Stop false-success saves",
+      "short": "Reliable saves",
+      "priority": "Critical",
+      "status": "pending",
       "summary": "Make every save result reflect confirmed persistence and give users a recoverable error when a write fails.",
       "actions": [
-        { "text": "Check every Supabase response for errors and confirm the expected record was affected." },
-        { "text": "Update client state after persistence, or add rollback for deliberate optimistic updates." },
-        { "text": "Add visible errors and retry controls; prevent repeated clicks while pending." },
-        { "text": "Separate a successful mutation from a failed subsequent refresh." }
+        {
+          "text": "Check every Supabase response for errors and confirm the expected record was affected."
+        },
+        {
+          "text": "Update client state after persistence, or add rollback for deliberate optimistic updates."
+        },
+        {
+          "text": "Add visible errors and retry controls; prevent repeated clicks while pending."
+        },
+        {
+          "text": "Separate a successful mutation from a failed subsequent refresh."
+        }
       ],
-      "verify": ["Permission, network and missing-record failures never show Saved.", "Denied writes preserve prior client state.", "Reloaded state agrees with the save result."],
-      "issues": "C2 · mutation error handling"
+      "verify": [
+        "Permission, network and missing-record failures never show Saved.",
+        "Denied writes preserve prior client state.",
+        "Reloaded state agrees with the save result."
+      ],
+      "issues": "C2 \u00b7 mutation error handling"
     },
     {
-      "id": 4, "title": "Fix IDs and concurrent mutations", "short": "IDs & concurrency", "priority": "Critical", "status": "pending",
+      "id": 4,
+      "title": "Fix IDs and concurrent mutations",
+      "short": "IDs & concurrency",
+      "priority": "Critical",
+      "status": "pending",
       "summary": "Move allocation and related-record integrity into the database, while safely merging concurrent client updates.",
       "actions": [
-        { "text": "Migrate IDs to database generation; initialize the sequence above the highest existing ID." },
-        { "text": "Remove browser-side maxId + 1 allocation and obtain the inserted ID from the returned row." },
-        { "text": "Use functional state updates and serialize conflicting writes to the same idea." },
-        { "text": "Put related status/history/activity changes in database transactions." },
-        { "text": "Delete the parent once and use cascading foreign keys for child records." }
+        {
+          "text": "Migrate IDs to database generation; initialize the sequence above the highest existing ID."
+        },
+        {
+          "text": "Remove browser-side maxId + 1 allocation and obtain the inserted ID from the returned row."
+        },
+        {
+          "text": "Use functional state updates and serialize conflicting writes to the same idea."
+        },
+        {
+          "text": "Put related status/history/activity changes in database transactions."
+        },
+        {
+          "text": "Delete the parent once and use cascading foreign keys for child records."
+        }
       ],
-      "verify": ["Concurrent creates receive unique IDs and deleted IDs are not reused.", "Simultaneous changes retain both overrides.", "Failures leave no partial status/history or destructive child-only changes."],
-      "issues": "C4 · C5 · C8"
+      "verify": [
+        "Concurrent creates receive unique IDs and deleted IDs are not reused.",
+        "Simultaneous changes retain both overrides.",
+        "Failures leave no partial status/history or destructive child-only changes."
+      ],
+      "issues": "C4 \u00b7 C5 \u00b7 C8"
     },
     {
-      "id": 5, "title": "Prevent autosave data loss", "short": "Safe autosave", "priority": "Critical", "status": "pending",
+      "id": 5,
+      "title": "Prevent autosave data loss",
+      "short": "Safe autosave",
+      "priority": "Critical",
+      "status": "pending",
       "summary": "Keep drafts alive across dialog closure and refresh; prevent older save responses overwriting newer text.",
       "actions": [
-        { "text": "Move draft ownership and save scheduling outside the modal lifecycle." },
-        { "text": "Flush changes before Close, Escape, backdrop dismissal, Edit and navigation; retain recoverable drafts on failure." },
-        { "text": "Serialize notes and score saves so older responses cannot overwrite newer values." },
-        { "text": "Refresh in the background without replacing the app shell." },
-        { "text": "Clean up score timers and keep input bounds consistent with persisted values." }
+        {
+          "text": "Move draft ownership and save scheduling outside the modal lifecycle."
+        },
+        {
+          "text": "Flush changes before Close, Escape, backdrop dismissal, Edit and navigation; retain recoverable drafts on failure."
+        },
+        {
+          "text": "Serialize notes and score saves so older responses cannot overwrite newer values."
+        },
+        {
+          "text": "Refresh in the background without replacing the app shell."
+        },
+        {
+          "text": "Clean up score timers and keep input bounds consistent with persisted values."
+        }
       ],
-      "verify": ["Notes survive immediate closure, Edit and background refresh.", "Reversed network response timing preserves the latest value.", "Failed saves retain the draft with Retry; page reload uses a recoverable local draft."],
-      "issues": "C3 · M4"
+      "verify": [
+        "Notes survive immediate closure, Edit and background refresh.",
+        "Reversed network response timing preserves the latest value.",
+        "Failed saves retain the draft with Retry; page reload uses a recoverable local draft."
+      ],
+      "issues": "C3 \u00b7 M4"
     },
     {
-      "id": 6, "title": "Harden configuration and storage", "short": "Storage resilience", "priority": "High · easy wins", "status": "pending",
+      "id": 6,
+      "title": "Harden configuration and storage",
+      "short": "Storage resilience",
+      "priority": "High \u00b7 easy wins",
+      "status": "pending",
       "summary": "Handle missing settings, denied storage and malformed values without blanking the application.",
       "actions": [
-        { "text": "Render a setup error before mounting App when connection settings are missing or invalid." },
-        { "text": "Centralize guarded reads/writes and validate JSON shapes, event fields, preferences and numeric bounds." },
-        { "text": "Use in-memory preferences when storage cannot persist." },
-        { "text": "Namespace local data by account and clean up deleted-idea data." }
+        {
+          "text": "Render a setup error before mounting App when connection settings are missing or invalid."
+        },
+        {
+          "text": "Centralize guarded reads/writes and validate JSON shapes, event fields, preferences and numeric bounds."
+        },
+        {
+          "text": "Use in-memory preferences when storage cannot persist."
+        },
+        {
+          "text": "Namespace local data by account and clean up deleted-idea data."
+        }
       ],
-      "verify": ["Denied reads/writes, quota failures, malformed JSON, null and unexpected objects do not blank the app.", "Missing URL/key produces a clear configuration error.", "Healthy preferences still survive reload."],
+      "verify": [
+        "Denied reads/writes, quota failures, malformed JSON, null and unexpected objects do not blank the app.",
+        "Missing URL/key produces a clear configuration error.",
+        "Healthy preferences still survive reload."
+      ],
       "issues": "C6"
     },
     {
-      "id": 7, "title": "Repair summaries and workflow feedback", "short": "State & feedback", "priority": "High", "status": "pending",
+      "id": 7,
+      "title": "Repair summaries and workflow feedback",
+      "short": "State & feedback",
+      "priority": "High",
+      "status": "pending",
       "summary": "Keep reporting synchronized with assignments and statuses, and make action feedback recover correctly.",
       "actions": [
-        { "text": "Make group/status maps explicit inputs to memoized calculations." },
-        { "text": "Consolidate scope and priority sorting; define Groups/Spaces and hidden-selection behavior." },
-        { "text": "Count triage decisions separately from skips and reset busy state in finally." },
-        { "text": "Restore action-button mounted state during effect setup so StrictMode remains usable." }
+        {
+          "text": "Make group/status maps explicit inputs to memoized calculations."
+        },
+        {
+          "text": "Consolidate scope and priority sorting; define Groups/Spaces and hidden-selection behavior."
+        },
+        {
+          "text": "Count triage decisions separately from skips and reset busy state in finally."
+        },
+        {
+          "text": "Restore action-button mounted state during effect setup so StrictMode remains usable."
+        }
       ],
-      "verify": ["Assignment changes immediately refresh scoped totals and workspace metrics.", "Failed triage actions recover and completed/deferred counts are accurate.", "Action buttons return to idle in StrictMode; filters do not cause undisclosed hidden mutations."],
-      "issues": "C7 · M5 · M6 · M9"
+      "verify": [
+        "Assignment changes immediately refresh scoped totals and workspace metrics.",
+        "Failed triage actions recover and completed/deferred counts are accurate.",
+        "Action buttons return to idle in StrictMode; filters do not cause undisclosed hidden mutations."
+      ],
+      "issues": "C7 \u00b7 M5 \u00b7 M6 \u00b7 M9"
     },
     {
-      "id": 8, "title": "Make history and exports trustworthy", "short": "History & exports", "priority": "High", "status": "pending",
+      "id": 8,
+      "title": "Make history and exports trustworthy",
+      "short": "History & exports",
+      "priority": "High",
+      "status": "pending",
       "summary": "Show real decisions, recover pending events exactly once, and prevent silent export truncation.",
       "actions": [
-        { "text": "Remove fabricated fallback activity; correct legacy predecessor calculations and displayed counts." },
-        { "text": "Add an idempotent retry outbox with visible unavailable/full-buffer states." },
-        { "text": "Paginate reads and exports and identify incomplete data." },
-        { "text": "Use consistent local date boundaries and decision-event definitions; reject future timestamps." }
+        {
+          "text": "Remove fabricated fallback activity; correct legacy predecessor calculations and displayed counts."
+        },
+        {
+          "text": "Add an idempotent retry outbox with visible unavailable/full-buffer states."
+        },
+        {
+          "text": "Paginate reads and exports and identify incomplete data."
+        },
+        {
+          "text": "Use consistent local date boundaries and decision-event definitions; reject future timestamps."
+        }
       ],
-      "verify": ["Empty or filtered-out history displays an honest empty state.", "Offline events synchronize exactly once; repeated transitions remain visible.", "More than 1,000 records export completely; Adelaide midnight/DST fixtures give correct counts."],
-      "issues": "M3 · M7 · M8 · M13"
+      "verify": [
+        "Empty or filtered-out history displays an honest empty state.",
+        "Offline events synchronize exactly once; repeated transitions remain visible.",
+        "More than 1,000 records export completely; Adelaide midnight/DST fixtures give correct counts."
+      ],
+      "issues": "M3 \u00b7 M7 \u00b7 M8 \u00b7 M13"
     },
     {
-      "id": 9, "title": "Resolve validation and business-rule inconsistencies", "short": "Validation & rules", "priority": "High", "status": "pending",
+      "id": 9,
+      "title": "Resolve validation and business-rule inconsistencies",
+      "short": "Validation & rules",
+      "priority": "High",
+      "status": "pending",
       "summary": "Make validation, scores, ranking and planning behavior match what the interface promises.",
       "actions": [
-        { "text": "Trim and validate values at the application boundary; add appropriate database constraints." },
-        { "text": "Keep unknown classifications visible instead of silently dropping ideas." },
-        { "text": "Document score range; show pain and manual adjustment in the breakdown; apply promised priority ordering." },
-        { "text": "Make matrix placement rules explicit and clarify sprint duration/scheduling semantics." }
+        {
+          "text": "Trim and validate values at the application boundary; add appropriate database constraints."
+        },
+        {
+          "text": "Keep unknown classifications visible instead of silently dropping ideas."
+        },
+        {
+          "text": "Document score range; show pain and manual adjustment in the breakdown; apply promised priority ordering."
+        },
+        {
+          "text": "Make matrix placement rules explicit and clarify sprint duration/scheduling semantics."
+        }
       ],
-      "verify": ["Boundary values, whitespace-only entries and unknown classifications behave predictably.", "Score explanation reconciles with the computed value.", "Priority ties and planning rules are consistent across views."],
-      "issues": "M10 · M11 · M12 · M14"
+      "verify": [
+        "Boundary values, whitespace-only entries and unknown classifications behave predictably.",
+        "Score explanation reconciles with the computed value.",
+        "Priority ties and planning rules are consistent across views."
+      ],
+      "issues": "M10 \u00b7 M11 \u00b7 M12 \u00b7 M14"
     },
     {
-      "id": 10, "title": "Fix accessibility and review-document defects", "short": "Accessible controls", "priority": "High · easy wins", "status": "pending",
+      "id": 10,
+      "title": "Fix accessibility and review-document defects",
+      "short": "Accessible controls",
+      "priority": "High \u00b7 easy wins",
+      "status": "pending",
       "summary": "Make core workflows usable by keyboard, touch and assistive technology, and repair standalone review navigation.",
       "actions": [
-        { "text": "Add associated labels, native forms/buttons and accessible error messages." },
-        { "text": "Separate card-opening actions from checkboxes/advance controls; complete tabs and expanded/pressed states." },
-        { "text": "Improve modal isolation/focus restoration and score explanations for keyboard/touch." },
-        { "text": "Fix duplicate review IDs, unsafe hash lookup, lightbox keys and tall-slide tracking." },
-        { "text": "Check contrast, scalable text, target sizes and reduced-motion behavior." }
+        {
+          "text": "Add associated labels, native forms/buttons and accessible error messages."
+        },
+        {
+          "text": "Separate card-opening actions from checkboxes/advance controls; complete tabs and expanded/pressed states."
+        },
+        {
+          "text": "Improve modal isolation/focus restoration and score explanations for keyboard/touch."
+        },
+        {
+          "text": "Fix duplicate review IDs, unsafe hash lookup, lightbox keys and tall-slide tracking."
+        },
+        {
+          "text": "Check contrast, scalable text, target sizes and reduced-motion behavior."
+        }
       ],
-      "verify": ["Core workflows complete using only a keyboard; checkbox Space does not open a card.", "Screen readers announce controls, errors and states; focus returns correctly.", "200% zoom and narrow screens remain usable; review links/lightboxes and reduced motion work."],
-      "issues": "Accessibility · review HTML"
+      "verify": [
+        "Core workflows complete using only a keyboard; checkbox Space does not open a card.",
+        "Screen readers announce controls, errors and states; focus returns correctly.",
+        "200% zoom and narrow screens remain usable; review links/lightboxes and reduced motion work."
+      ],
+      "issues": "Accessibility \u00b7 review HTML"
     },
     {
-      "id": 11, "title": "Perform focused cleanup and performance work", "short": "Cleanup & performance", "priority": "Later", "status": "pending",
+      "id": 11,
+      "title": "Perform focused cleanup and performance work",
+      "short": "Cleanup & performance",
+      "priority": "Later",
+      "status": "pending",
       "summary": "Reduce duplication and loading cost after correctness is protected by regression tests.",
       "actions": [
-        { "text": "Consolidate metadata, scoring, filtering and event helpers; lift nested component definitions." },
-        { "text": "Remove confirmed unused parameters, CSS and stale comments." },
-        { "text": "Narrow store subscriptions, parallelize independent reads and lazy-load inactive views/dialogs/seeds." },
-        { "text": "Split CSS while preserving cascade order; add lint, tests and build checks to CI." },
-        { "text": "Assess the 13 recorded dependency advisories and plan compatible, tested upgrades; declare Node/browser support baselines." }
+        {
+          "text": "Consolidate metadata, scoring, filtering and event helpers; lift nested component definitions."
+        },
+        {
+          "text": "Remove confirmed unused parameters, CSS and stale comments."
+        },
+        {
+          "text": "Narrow store subscriptions, parallelize independent reads and lazy-load inactive views/dialogs/seeds."
+        },
+        {
+          "text": "Split CSS while preserving cascade order; add lint, tests and build checks to CI."
+        },
+        {
+          "text": "Assess the 13 recorded dependency advisories and plan compatible, tested upgrades; declare Node/browser support baselines."
+        }
       ],
-      "verify": ["Established scoring and UI behavior remain unchanged; focus is preserved.", "Initial bundle decreases and requests remain bounded.", "Regression checks pass on supported Chrome/Edge versions; advisory exposure is assessed."],
-      "issues": "Maintainability · performance · dependency baseline"
+      "verify": [
+        "Established scoring and UI behavior remain unchanged; focus is preserved.",
+        "Initial bundle decreases and requests remain bounded.",
+        "Regression checks pass on supported Chrome/Edge versions; advisory exposure is assessed."
+      ],
+      "issues": "Maintainability \u00b7 performance \u00b7 dependency baseline"
     },
     {
-      "id": 12, "title": "Apply the production release gate", "short": "Release decision", "priority": "Release gate", "status": "pending",
+      "id": 12,
+      "title": "Apply the production release gate",
+      "short": "Release decision",
+      "priority": "Release gate",
+      "status": "pending",
       "summary": "Approve deployment only with evidence that authorization, data integrity and core interaction checks pass.",
       "actions": [
-        { "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful." },
-        { "text": "Confirm drafts survive close/refresh and concurrent operations preserve data." },
-        { "text": "Reconcile summaries/exports with persisted records and pass core keyboard workflows." },
-        { "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build." },
-        { "text": "Record the release decision and evidence; track remaining low-impact work separately." }
+        {
+          "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful."
+        },
+        {
+          "text": "Confirm drafts survive close/refresh and concurrent operations preserve data."
+        },
+        {
+          "text": "Reconcile summaries/exports with persisted records and pass core keyboard workflows."
+        },
+        {
+          "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build."
+        },
+        {
+          "text": "Record the release decision and evidence; track remaining low-impact work separately."
+        }
       ],
-      "verify": ["Security and data-integrity blockers are resolved with passing tests.", "No unresolved expected-failure test is treated as release approval.", "Release is approved only after its acceptance gate; completing this plan does not itself deploy the app."],
+      "verify": [
+        "Security and data-integrity blockers are resolved with passing tests.",
+        "No unresolved expected-failure test is treated as release approval.",
+        "Release is approved only after its acceptance gate; completing this plan does not itself deploy the app."
+      ],
       "issues": "Production acceptance"
     }
   ],
   "history": [
-    { "date": "2026-10-10", "title": "Local regression baseline completed", "body": "Branch created; existing work archived; 18 isolated checks added; build passed. Application behavior remains unchanged. Live backup and remote staging deferred by user." },
-    { "date": "2026-10-10", "title": "Review tracker created", "body": "The initial 12-step plan is preserved here. Statuses will be updated after verified work, with evidence and explicit deferrals." }
+    {
+      "date": "2026-10-10",
+      "title": "Local regression baseline completed",
+      "body": "Branch created; existing work archived; 18 isolated checks added; build passed. Application behavior remains unchanged. Live backup and remote staging deferred by user."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Review tracker created",
+      "body": "The initial 12-step plan is preserved here. Statuses will be updated after verified work, with evidence and explicit deferrals."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 1 published; database access step started",
+      "body": "Committed baseline and tracker as ab3acb1 and pushed to main using existing SSH authentication. Step 2 source review, read-only inspection SQL and authorization/audit rollout plan prepared on codex/database-access. No production database or app behavior changed."
+    }
   ]
 }
