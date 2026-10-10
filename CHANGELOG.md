@@ -1,5 +1,14 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.9 (2026-10-10) — Synchronized summaries and workflow feedback
+### Fixed
+- Assignment/status map changes invalidate summary and console rankings immediately
+- Shared workspace scope and priority ordering; Groups/Spaces include unassigned ideas and honor filters
+- Hidden Kanban selections and stale batch retries cleared; triage decisions separated from deferrals with accurate completion feedback
+### Added
+- Ten scope/order/browser checks; all 157 regressions now pass without known failures
+- Tracker v1.0.12 records step 7 completion locally and step 8 next; production release gates remain open
+
 ## v1.9.8 (2026-10-10) — Step 6 main publication
 ### Changed
 - Tracker v1.0.11 records the requested step 6 push and verified origin/main at d50ea20

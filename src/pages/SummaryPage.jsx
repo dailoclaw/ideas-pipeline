@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
-import { scoreIdea, isStale, STATUS_LABELS } from '../lib/scoring'
+import { scoreIdea, sortIdeas, scopeIdeas, isStale, STATUS_LABELS } from '../lib/scoring'
 import { GROUPS, GROUP_MAP } from '../data/groups'
 import Icon from '../components/Icon'
 import CountUp from '../components/CountUp'
@@ -92,7 +92,7 @@ function IdeaRow({ idea, status, groupKey, onOpen }) {
 }
 
 export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
-  const { ideas, getStatus, getGroup, activityLog } = useStore()
+  const { ideas, getStatus, getGroup, groupAssignments, statusOverrides, activityLog } = useStore()
   const [view, setView] = useState('pulse')
   const [drillStatus, setDrillStatus] = useState('')
   const [search, setSearch] = useState('')
@@ -105,16 +105,12 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
     if (scroller) scroller.scrollTop = 0
   }, [view, drillStatus])
 
-  const scopedIdeas = useMemo(() => {
-    if (groupFilter === '__none__') return ideas.filter(idea => !getGroup(idea.id))
-    if (groupFilter) return ideas.filter(idea => getGroup(idea.id) === groupFilter)
-    return ideas
-  }, [ideas, groupFilter, getGroup])
+  const scopedIdeas = useMemo(() => scopeIdeas(ideas, groupAssignments, groupFilter), [ideas, groupFilter, groupAssignments])
 
   const statusCounts = useMemo(() => STATUS_META.reduce((counts, status) => ({
     ...counts,
     [status.key]: scopedIdeas.filter(idea => getStatus(idea) === status.key).length,
-  }), {}), [scopedIdeas, getStatus])
+  }), {}), [scopedIdeas, statusOverrides, getStatus])
 
   const events = useMemo(() => scopedIdeas
     .flatMap(idea => activityLog[idea.id] || [])
@@ -132,10 +128,9 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
   const averageScore = scopedIdeas.length ? Math.round(scopedIdeas.reduce((sum, idea) => sum + scoreIdea(idea), 0) / scopedIdeas.length) : 0
   const weeks = useMemo(() => buildMomentum(events), [events])
 
-  const attentionIdeas = useMemo(() => [...scopedIdeas]
-    .filter(idea => ['building', 'ready', 'researching'].includes(getStatus(idea)))
-    .sort((a, b) => Number(b.isPriority) - Number(a.isPriority) || scoreIdea(b) - scoreIdea(a))
-    .slice(0, 4), [scopedIdeas, getStatus])
+  const attentionIdeas = useMemo(() => sortIdeas(scopedIdeas
+    .filter(idea => ['building', 'ready', 'researching'].includes(getStatus(idea))), 'score')
+    .slice(0, 4), [scopedIdeas, statusOverrides, getStatus])
 
   const ungroupedCount = scopedIdeas.filter(idea => !getGroup(idea.id)).length
   const staleCount = scopedIdeas.filter(idea => isStale(idea, getStatus)).length
@@ -145,10 +140,10 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
   const priorityCount = scopedIdeas.filter(idea => idea.isPriority).length
 
   const workspaceMetrics = useMemo(() => GROUPS.map(group => {
-    const groupIdeas = ideas.filter(idea => getGroup(idea.id) === group.key)
+    const groupIdeas = scopeIdeas(scopedIdeas, groupAssignments, group.key)
     const done = groupIdeas.filter(idea => getStatus(idea) === 'done').length
     const active = groupIdeas.filter(idea => ['building', 'ready', 'researching'].includes(getStatus(idea))).length
-    const topIdea = [...groupIdeas].sort((a, b) => scoreIdea(b) - scoreIdea(a))[0]
+    const topIdea = sortIdeas(groupIdeas, 'score')[0]
     return {
       ...group,
       total: groupIdeas.length,
@@ -158,17 +153,16 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
       average: groupIdeas.length ? Math.round(groupIdeas.reduce((sum, idea) => sum + scoreIdea(idea), 0) / groupIdeas.length) : 0,
       topIdea,
     }
-  }).sort((a, b) => b.active - a.active || b.total - a.total), [ideas, getGroup, getStatus])
+  }).filter(group => !groupFilter || group.key === groupFilter).sort((a, b) => b.active - a.active || b.total - a.total), [scopedIdeas, groupFilter, groupAssignments, statusOverrides, getStatus])
 
-  const listIdeas = useMemo(() => scopedIdeas
+  const listIdeas = useMemo(() => sortIdeas(scopedIdeas
     .filter(idea => {
       const query = search.trim().toLowerCase()
       return !query || idea.name.toLowerCase().includes(query) || idea.pitch.toLowerCase().includes(query) || String(idea.id).includes(query)
-    })
-    .sort((a, b) => scoreIdea(b) - scoreIdea(a)), [scopedIdeas, search])
+    }), 'score'), [scopedIdeas, search])
 
   const drillIdeas = drillStatus
-    ? scopedIdeas.filter(idea => getStatus(idea) === drillStatus).sort((a, b) => scoreIdea(b) - scoreIdea(a))
+    ? sortIdeas(scopedIdeas.filter(idea => getStatus(idea) === drillStatus), 'score')
     : []
   const drillMeta = STATUS_META.find(status => status.key === drillStatus)
 
@@ -288,13 +282,14 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
               </article>
             ))}
           </div>
+          {!workspaceMetrics.length && <div className="pulse-empty">No assigned workspaces in this scope. View Ideas to review unassigned items.</div>}
         </div>
       )}
 
       {view === 'ideas' && (
         <div className="portfolio-pulse__content pulse-all-ideas">
           <label className="pulse-search"><Icon name="search" size={17} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search every idea" aria-label="Search every idea" />{search && <button onClick={() => setSearch('')} aria-label="Clear search"><Icon name="close" size={15} /></button>}</label>
-          <div className="pulse-list-heading"><span>{listIdeas.length} ideas</span><strong>Ranked by strategic score</strong></div>
+          <div className="pulse-list-heading"><span>{listIdeas.length} ideas</span><strong>Priority first · then strategic score</strong></div>
           <div className="pulse-list-panel">
             {listIdeas.length ? listIdeas.map(idea => <IdeaRow key={idea.id} idea={idea} status={getStatus(idea)} groupKey={getGroup(idea.id)} onOpen={onOpenIdea} />) : <div className="pulse-empty"><Icon name="search" size={24} /><strong>No matching ideas</strong><span>Try a different name, ID or phrase.</span></div>}
           </div>

@@ -3,7 +3,6 @@ import assert from 'node:assert/strict'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
 import { fileURLToPath } from 'node:url'
-import { knownDefect } from './helpers/known-defect.mjs'
 
 let server, browser, context, page, url, unexpectedRequests, runtimeErrors
 before(async () => {
@@ -65,22 +64,22 @@ test('closing details immediately must persist pending notes', async () => {
   assert.equal(await page.evaluate(() => window.__baseline.backend.tables.ideas.find(i => i.id === 101).notes), 'Draft saved before close')
 })
 
-test('workspace assignment must immediately refresh scoped summary', t => knownDefect(t, 'C7: memo ignores groupAssignments changes', async () => {
+test('workspace assignment must immediately refresh scoped summary', async () => {
   await openApp(); await navigate('Summary')
   await page.getByRole('combobox', { name: 'Filter ideas by workspace' }).selectOption('__none__')
   await page.evaluate(() => window.__baseline.store.getState().setGroupAssignment(101, 'intel'))
   await page.waitForTimeout(100)
   assert.equal(await page.locator('.pulse-hero__metrics > div').first().locator('strong').innerText(), '4')
-}))
+})
 
-test('workspace comparison must immediately reflect new membership', t => knownDefect(t, 'C7: workspace metrics memo ignores groupAssignments changes', async () => {
+test('workspace comparison must immediately reflect new membership', async () => {
   await openApp(); await navigate('Summary')
   await page.getByRole('tab', { name: 'Workspaces', exact: true }).click()
   await page.evaluate(() => window.__baseline.store.getState().setGroupAssignment(101, 'intel'))
   await page.waitForTimeout(100)
   const card = page.locator('.workspace-pulse-card').filter({ hasText: 'HR Intelligence' })
   assert.equal(await card.getByRole('button').count(), 1)
-}))
+})
 
 test('storage denial must retain a usable application shell', async () => {
   await context.addInitScript(() => {
@@ -215,9 +214,11 @@ test('failed triage releases busy state so the same idea can be retried', async 
   await page.getByRole('button', { name: /Triage/ }).first().click()
   await page.getByRole('button', { name: 'Start Building', exact: true }).click()
   await page.getByRole('alert').waitFor()
+  assert.equal(await page.getByRole('dialog').getByRole('status').innerText(), '0 decided · 0 deferred · 1 left')
   await page.evaluate(() => { window.__baseline.backend.denied = [] })
   await page.getByRole('button', { name: 'Start Building', exact: true }).click()
   await page.getByText('All triaged!', { exact: true }).waitFor()
+  assert.equal(await page.getByRole('dialog').getByRole('status').innerText(), '1 decided · 0 deferred · 0 left')
   assert.equal(await page.evaluate(() => window.__baseline.backend.tables.status_overrides[0].status), 'building')
   assert.deepEqual(runtimeErrors, [])
 })
@@ -407,4 +408,91 @@ test('healthy account appearance survives reload and corrupt cache shapes remain
   await page.reload(); await page.getByRole('navigation',{name:'Primary navigation',exact:true}).waitFor()
   await page.getByRole('button',{name:'Open #101 Fixture intake',exact:true}).click()
   assert.deepEqual(runtimeErrors,[])
+})
+
+test('seed status override updates pulse totals and workspace completion immediately', async () => {
+  await openApp(); await navigate('Summary')
+  await page.evaluate(async () => { await window.__baseline.store.getState().setGroupAssignment(101,'intel'); await window.__baseline.store.getState().setStatus(101,'done') })
+  await page.waitForTimeout(150)
+  assert.equal(await page.locator('.pulse-score-ring strong').innerText(),'40%')
+  await page.getByRole('tab',{name:'Workspaces',exact:true}).click()
+  const card=page.locator('.workspace-pulse-card').filter({hasText:'HR Intelligence'})
+  assert.ok((await card.innerText()).includes('100%'))
+  assert.deepEqual(runtimeErrors,[])
+})
+test('Groups and console Spaces honor assigned and unassigned workspace scopes', async () => {
+  await openApp()
+  await page.evaluate(() => window.__baseline.store.getState().setGroupAssignment(101,'intel'))
+  await page.getByRole('combobox',{name:'Filter ideas by workspace'}).selectOption('intel')
+  await navigate('Groups')
+  assert.equal(await page.locator('.group-section').count(),1)
+  assert.ok((await page.locator('.groups-page').innerText()).includes('Fixture intake'))
+  await page.getByRole('combobox',{name:'Filter ideas by workspace'}).selectOption('__none__')
+  assert.equal(await page.locator('.group-section').count(),1)
+  assert.ok(!(await page.locator('.groups-page').innerText()).includes('Fixture intake'))
+  await page.getByRole('button',{name:'Switch to Obsidian Console layout'}).click()
+  await page.getByRole('navigation',{name:'Console navigation'}).getByRole('button',{name:'Spaces',exact:true}).click()
+  assert.equal(await page.locator('.group-section').count(),1)
+  assert.deepEqual(runtimeErrors,[])
+})
+test('workspace changes clear batch selections and cannot mutate hidden ideas', async () => {
+  await openApp(); await navigate('Layout')
+  await page.getByRole('checkbox',{name:'Select #101 Fixture intake'}).check()
+  await page.locator('.batch-bar').waitFor()
+  await page.getByRole('combobox',{name:'Filter ideas by workspace'}).selectOption('intel')
+  await page.locator('.batch-bar').waitFor({state:'detached'})
+  await page.getByRole('combobox',{name:'Filter ideas by workspace'}).selectOption('')
+  assert.equal(await page.getByRole('checkbox',{name:'Select #101 Fixture intake'}).isChecked(),false)
+  assert.equal(await page.evaluate(()=>window.__baseline.backend.tables.status_overrides.length),0)
+})
+test('changing Kanban view clears failed batch retries and selections', async () => {
+  await openApp(); await navigate('Layout')
+  await page.getByRole('checkbox',{name:'Select #101 Fixture intake'}).check()
+  await page.evaluate(()=>window.__baseline.backend.deny('status_overrides','upsert'))
+  await page.locator('.batch-bar').getByRole('button',{name:'Building',exact:true}).click()
+  await page.getByRole('alert').waitFor()
+  await page.getByRole('button',{name:'Matrix',exact:true}).click()
+  await page.locator('.batch-bar').waitFor({state:'detached'})
+  assert.equal(await page.getByRole('button',{name:'Retry save',exact:true}).count(),0)
+})
+test('triage skips defer without decisions and reviewed decisions increment only on success', async () => {
+  await openApp()
+  await page.getByRole('button',{name:/Triage ideas,/}).click()
+  await page.getByRole('button',{name:'Skip for now',exact:true}).click()
+  await page.getByText('Review paused',{exact:true}).waitFor()
+  assert.equal(await page.getByRole('dialog').getByRole('status').innerText(),'0 decided · 1 deferred · 0 left')
+  assert.equal(await page.evaluate(()=>window.__baseline.backend.tables.status_overrides.length),0)
+  await page.getByRole('button',{name:'Review deferred ideas',exact:true}).click()
+  await page.getByRole('button',{name:'Move to Ready',exact:true}).click()
+  await page.getByText('All triaged!',{exact:true}).waitFor()
+  assert.equal(await page.getByRole('dialog').getByRole('status').innerText(),'1 decided · 0 deferred · 0 left')
+  assert.deepEqual(runtimeErrors,[])
+})
+test('priority ordering and scoped triage agree in tabbed and console layouts', async () => {
+  await openApp(); await page.evaluate(async()=>{ await window.__baseline.store.getState().setPriority(103,true);await window.__baseline.store.getState().setGroupAssignment(103,'intel') })
+  await navigate('Strategy')
+  assert.ok((await page.locator('.strategy-row').first().innerText()).includes('#103'))
+  await navigate('Summary');await page.getByRole('tab',{name:'Ideas',exact:true}).click()
+  assert.ok((await page.locator('.pulse-idea-row').first().innerText()).includes('#103'))
+  await page.getByRole('combobox',{name:'Filter ideas by workspace'}).selectOption('intel')
+  await page.getByRole('button',{name:'Triage ideas, 0 remaining',exact:true}).click()
+  assert.equal(await page.getByRole('button',{name:'Skip for now',exact:true}).count(),0)
+  await page.getByRole('button',{name:'Close triage',exact:true}).click()
+  await page.getByRole('button',{name:'Switch to Obsidian Console layout'}).click()
+  await page.getByRole('navigation',{name:'Console navigation'}).getByRole('button',{name:'Command',exact:true}).click()
+  await page.getByRole('combobox',{name:'Filter console by workspace'}).selectOption('')
+  await page.getByRole('button',{name:/#101 Fixture intake/}).waitFor()
+  await page.evaluate(()=>window.__baseline.store.getState().setStatus(101,'done'))
+  await page.getByRole('button',{name:/#101 Fixture intake/}).waitFor({state:'detached'})
+  assert.deepEqual(runtimeErrors,[])
+})
+
+test('assignment changes discard hidden selections even when the filter stays unchanged', async () => {
+  await openApp(); await navigate('Layout')
+  await page.getByRole('combobox',{name:'Filter ideas by workspace'}).selectOption('__none__')
+  await page.getByRole('checkbox',{name:'Select #101 Fixture intake'}).check()
+  await page.evaluate(()=>window.__baseline.store.getState().setGroupAssignment(101,'intel'))
+  await page.locator('.batch-bar').waitFor({state:'detached'})
+  await page.evaluate(()=>window.__baseline.store.getState().setGroupAssignment(101,''))
+  assert.equal(await page.getByRole('checkbox',{name:'Select #101 Fixture intake'}).isChecked(),false)
 })

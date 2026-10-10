@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.11",
+  "planVersion": "1.0.12",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "main",
+  "branch": "codex/summary-workflows",
   "readiness": "Not production-ready",
-  "scopeNote": "Steps 1, 3, 5 & 6 complete locally; database rollout remains open",
+  "scopeNote": "Steps 1, 3, 5, 6 & 7 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 6 source pushed to main at d50ea20 by request; origin/main verified. Recorded checks: 147 total, 145 pass, 2 known summary defects remain. Live backup/staging and database rollout stay deferred; no deployment verification claimed. Next planned work is step 7 summary/workflow accuracy.",
+  "progressNote": "Step 7 summary/workflow repairs verified locally: 157 checks pass with zero known/TODO failures. Shared workspace scope and priority ordering, immediate summary/console updates, safe selections and separate triage decision/deferral counts. No main push, live SQL or deployment; next work is step 8 history/export completeness.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -347,24 +347,28 @@
       "title": "Repair summaries and workflow feedback",
       "short": "State & feedback",
       "priority": "High",
-      "status": "in-progress",
-      "summary": "Keep reporting synchronized with assignments and statuses, and make action feedback recover correctly.",
+      "status": "local-complete",
+      "summary": "Summary and console reporting observe assignment/status maps. Shared scope/order includes Groups/Spaces; hidden selections and stale batch retries are cleared. Triage decisions and deferrals are counted separately. All 157 isolated checks pass; source remains local, with production/database acceptance still open.",
       "actions": [
         {
-          "text": "Make group/status maps explicit inputs to memoized calculations."
+          "text": "Make group/status maps explicit inputs to memoized calculations.",
+          "status": "complete",
+          "note": "Summary scope/totals/attention/workspace metrics and Console Command ranking explicitly depend on assignment/status maps. Both original C7 checks now pass normally."
         },
         {
-          "text": "Consolidate scope and priority sorting; define Groups/Spaces and hidden-selection behavior."
+          "text": "Consolidate scope and priority sorting; define Groups/Spaces and hidden-selection behavior.",
+          "status": "complete",
+          "note": "Shared workspace scope and priority sorting across views. Groups/Spaces honor filters and include unassigned items. Visible-only Kanban selection; scope/view changes clear selections and batch retries; assignment changes prune hidden IDs."
         },
         {
           "text": "Count triage decisions separately from skips and reset busy state in finally.",
-          "status": "in-progress",
-          "note": "Step 3 now resets triage busy/animation state in finally and observes rejection immediately. Accurate skip/decision counts remain open."
+          "status": "complete",
+          "note": "Session candidate IDs stay fixed; decisions increment only after confirmed saves; skips remain separate deferrals and can be reviewed. Finally releases busy state. Failed-action and skip/review counters verified."
         },
         {
           "text": "Restore action-button mounted state during effect setup so StrictMode remains usable.",
           "status": "complete",
-          "note": "Step 3 restores the mounted ref in effect setup, disables pending actions, and promotes the StrictMode reuse check to a passing regression."
+          "note": "Existing mounted-ref setup repair and per-idea triage action keys verified under StrictMode; action reuse regression remains passing."
         }
       ],
       "verify": [
@@ -372,7 +376,21 @@
         "Failed triage actions recover and completed/deferred counts are accurate.",
         "Action buttons return to idle in StrictMode; filters do not cause undisclosed hidden mutations."
       ],
-      "issues": "C7 · M5 · M6 · M9"
+      "issues": "C7 · M5 · M6 · M9",
+      "evidence": [
+        {
+          "label": "Workflow behavior, verification & limits",
+          "href": "SUMMARY_WORKFLOWS.md"
+        },
+        {
+          "label": "Browser workflow regressions",
+          "href": "../tests/browser.test.mjs"
+        },
+        {
+          "label": "Shared scope/order checks",
+          "href": "../tests/scoring.test.mjs"
+        }
+      ]
     },
     {
       "id": 8,
@@ -589,13 +607,18 @@
       "date": "2026-10-10",
       "title": "Step 6 pushed to main",
       "body": "User requested publication. Fast-forwarded main and pushed d50ea20; verified origin/main. Recorded verification: 147 checks, 145 pass, 2 known C7 failures; build passes. Untracked review assets preserved. No live SQL or deployment verification; step 7 remains next."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 7 summary and workflow repairs verified locally",
+      "body": "157 checks pass, zero known/TODO failures. Two C7 regressions now pass; ten new scope/order/browser checks verify map updates, Groups/Spaces filtering, hidden selections, priority ordering and triage decisions/deferrals. Build passes. No main push/live SQL/deployment; step 8 next. Original regression completion does not satisfy the production release gate."
     }
   ],
-  "nextStepId": 7,
+  "nextStepId": 8,
   "verification": {
-    "tests": 147,
-    "passing": 145,
-    "knownFailures": 2,
+    "tests": 157,
+    "passing": 157,
+    "knownFailures": 0,
     "unexpectedFailures": 0
   }
 }

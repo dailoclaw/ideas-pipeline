@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { useDialogFocus } from '../hooks/useDialogFocus'
-import { scoreIdea } from '../lib/scoring'
+import { sortIdeas, scopeIdeas } from '../lib/scoring'
 import { TimePill, PlatPill, ScoreBadge } from './Pills'
 import LedgeButton from './LedgeButton'
 import SaveFeedback from './SaveFeedback'
@@ -9,23 +9,21 @@ import Icon from './Icon'
 
 const THROW_MS = 240
 
-export default function TriageModal({ onClose }) {
-  const { ideas, getStatus, setStatus, pendingSaves } = useStore()
+export default function TriageModal({ onClose, groupFilter = '' }) {
+  const { ideas, groupAssignments, getStatus, setStatus, pendingSaves } = useStore()
+  const [sessionIds] = useState(() => sortIdeas(scopeIdeas(ideas, groupAssignments, groupFilter).filter(i => getStatus(i) === 'idea'), 'score').map(i => i.id))
+  const [decided, setDecided] = useState(new Set())
   const [skipped, setSkipped] = useState(new Set())
   const [thrown, setThrown] = useState(null)
   const busy = useRef(false)
   const dialogRef = useRef(null)
   useDialogFocus(dialogRef, onClose)
 
-  // Queue: all 'idea' status, sorted by score desc
-  const queue = ideas
-    .filter(i => getStatus(i) === 'idea')
-    .sort((a, b) => scoreIdea(b) - scoreIdea(a))
-
+  const queue = sessionIds.map(id => ideas.find(idea => idea.id === id)).filter(idea => idea && getStatus(idea) === 'idea' && !decided.has(idea.id))
   const remaining = queue.filter(i => !skipped.has(i.id))
   const current = remaining[0] || null
   const upNext = remaining.slice(1, 3)
-  const done = queue.length - remaining.length
+  const deferredCount = queue.filter(i => skipped.has(i.id)).length
 
   const act = useCallback(async action => {
     if (!current || busy.current) return
@@ -36,8 +34,10 @@ export default function TriageModal({ onClose }) {
       if (action === 'skip') {
         await new Promise(resolve => setTimeout(resolve, THROW_MS))
         setSkipped(s => new Set([...s, current.id]))
+        if (useStore.getState().saveFeedback?.id === current.id) useStore.getState().clearSaveFeedback()
       } else {
         await Promise.all([setStatus(current.id, statusMap[action]), new Promise(resolve => setTimeout(resolve, THROW_MS))])
+        setDecided(s => new Set([...s, current.id]))
       }
     } finally {
       setThrown(null)
@@ -45,7 +45,16 @@ export default function TriageModal({ onClose }) {
     }
   }, [current, setStatus])
 
-  const pct = queue.length > 0 ? Math.round((done / queue.length) * 100) : 100
+  const retryDecision = async feedback => {
+    await feedback.retry()
+    const state = useStore.getState()
+    const idea = state.ideas.find(item => item.id === feedback.id)
+    if (feedback.method === 'setStatus' && sessionIds.includes(feedback.id) && idea && state.getStatus(idea) !== 'idea') {
+      setDecided(previous => new Set([...previous, feedback.id]))
+    }
+  }
+
+  const pct = sessionIds.length ? Math.round(((decided.size + deferredCount) / sessionIds.length) * 100) : 100
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -65,14 +74,16 @@ export default function TriageModal({ onClose }) {
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1" aria-label="Close triage"><Icon name="close" size={20} /></button>
         </div>
 
-        <SaveFeedback />
+        <p className="px-4 py-2 text-xs text-gray-500" role="status">{decided.size} decided · {deferredCount} deferred · {remaining.length} left</p>
+        <SaveFeedback onRetry={retryDecision} />
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5">
           {!current ? (
             <div className="text-center py-12">
               <Icon name="sparkles" size={38} className="mx-auto mb-3 text-violet-500" />
-              <div className="text-lg font-bold text-gray-800 mb-1">All triaged!</div>
-              <div className="text-sm text-gray-500">No ideas left to review.</div>
+              <div className="text-lg font-bold text-gray-800 mb-1">{thrown !== null ? 'Saving decision…' : deferredCount ? 'Review paused' : 'All triaged!'}</div>
+              <div className="text-sm text-gray-500">{deferredCount ? `${deferredCount} ${deferredCount === 1 ? 'idea deferred for later; its status is' : 'ideas deferred for later; their statuses are'} unchanged.` : 'No ideas left to review.'}</div>
+              {deferredCount > 0 && <button className="mt-4 px-4 py-2 rounded-lg border border-gray-200" onClick={() => setSkipped(new Set())}>Review deferred ideas</button>}
             </div>
           ) : (
             <div className="au-deck" data-leaving={thrown === current.id ? 'true' : 'false'}>
@@ -122,7 +133,7 @@ export default function TriageModal({ onClose }) {
 
         {/* Actions */}
         {current && (
-          <div className="p-4 border-t border-gray-100 flex-shrink-0 space-y-2">
+          <div key={current.id} className="p-4 border-t border-gray-100 flex-shrink-0 space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <LedgeButton
                 disabled={thrown !== null || !!pendingSaves[current.id]}

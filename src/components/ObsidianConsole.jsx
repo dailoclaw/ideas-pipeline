@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useStore } from '../lib/store'
-import { gradeFromScore, isStale, scoreIdea } from '../lib/scoring'
+import { gradeFromScore, isStale, scoreIdea, scopeIdeas, sortIdeas } from '../lib/scoring'
 import { GROUPS } from '../data/groups'
 import LayoutPage from '../pages/LayoutPage'
 import StrategyPage from '../pages/StrategyPage'
@@ -56,12 +56,6 @@ function ObsidianMark() {
   )
 }
 
-const scopedIdeas = (ideas, getGroup, groupFilter) => groupFilter === '__none__'
-  ? ideas.filter(idea => !getGroup(idea.id))
-  : groupFilter
-    ? ideas.filter(idea => getGroup(idea.id) === groupFilter)
-    : ideas
-
 function nextStatus(status) {
   if (status === 'idea') return 'researching'
   if (status === 'researching') return 'ready'
@@ -70,11 +64,10 @@ function nextStatus(status) {
 }
 
 function CommandPage({ groupFilter, onOpenIdea, onNavigate }) {
-  const { ideas, getStatus, getGroup, setStatus, activityLog, pendingSaves } = useStore()
-  const scoped = scopedIdeas(ideas, getGroup, groupFilter)
-  const ranked = useMemo(() => [...scoped]
-    .filter(idea => !['done', 'shelved'].includes(getStatus(idea)))
-    .sort((a, b) => Number(b.isPriority) - Number(a.isPriority) || scoreIdea(b) - scoreIdea(a)), [scoped, getStatus])
+  const { ideas, getStatus, groupAssignments, statusOverrides, setStatus, activityLog, pendingSaves } = useStore()
+  const scoped = scopeIdeas(ideas, groupAssignments, groupFilter)
+  const ranked = useMemo(() => sortIdeas(scoped
+    .filter(idea => !['done', 'shelved'].includes(getStatus(idea))), 'score'), [scoped, statusOverrides, getStatus])
   const counts = scoped.reduce((all, idea) => ({ ...all, [getStatus(idea)]: (all[getStatus(idea)] || 0) + 1 }), {})
   const activeCount = (counts.building || 0) + (counts.ready || 0) + (counts.researching || 0)
   const average = scoped.length ? Math.round(scoped.reduce((sum, idea) => sum + scoreIdea(idea), 0) / scoped.length) : 0
@@ -180,9 +173,9 @@ function activityDate(value) {
 }
 
 function ActivityPage({ groupFilter, onOpenIdea }) {
-  const { ideas, getGroup, getStatus, activityLog } = useStore()
+  const { ideas, groupAssignments, getStatus, activityLog } = useStore()
   const [filter, setFilter] = useState('all')
-  const scoped = scopedIdeas(ideas, getGroup, groupFilter)
+  const scoped = scopeIdeas(ideas, groupAssignments, groupFilter)
   const allowedIds = new Set(scoped.map(idea => idea.id))
   const ideasById = new Map(ideas.map(idea => [idea.id, idea]))
   const events = Object.values(activityLog).flat()
@@ -198,7 +191,7 @@ function ActivityPage({ groupFilter, onOpenIdea }) {
     actor: 'IdeaFlow',
   }))
   const visible = events.length ? events : fallback
-  const nextDecision = scoped.filter(idea => ['idea', 'ready'].includes(getStatus(idea))).sort((a, b) => scoreIdea(b) - scoreIdea(a))[0]
+  const nextDecision = sortIdeas(scoped.filter(idea => ['idea', 'ready'].includes(getStatus(idea))), 'score')[0]
 
   return (
     <div className="obsidian-page obsidian-activity-page">
@@ -309,7 +302,7 @@ export default function ObsidianConsole({
     activity: <ActivityPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
     plan: <SprintPage groupFilter={groupFilter} />,
     ideas: <LayoutPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
-    spaces: <GroupsPage onOpenIdea={onOpenIdea} />,
+    spaces: <GroupsPage onOpenIdea={onOpenIdea} groupFilter={groupFilter} />,
     pulse: <SummaryPage groupFilter={groupFilter} onOpenIdea={onOpenIdea} />,
     more: <MorePage active={active} groupFilter={groupFilter} setGroupFilter={setGroupFilter} onNavigate={navigate} onSettings={onSettings} onTriage={onTriage} onExport={onExport} onOriginal={onOriginal} triageCount={triageCount} dark={dark} toggleDark={toggleDark} />,
   }[active]

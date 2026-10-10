@@ -1,25 +1,36 @@
 import { useState } from 'react'
 import { useStore } from '../lib/store'
-import { scoreIdea } from '../lib/scoring'
+import { sortIdeas, scopeIdeas } from '../lib/scoring'
 import { TimePill, StatusBadge } from '../components/Pills'
 import { GROUPS } from '../data/groups'
 import Icon from '../components/Icon'
 
-const STATUS_ORDER = { building: 0, ready: 1, idea: 2, done: 3, shelved: 4 }
+const STATUS_ORDER = { building: 0, ready: 1, researching: 2, idea: 3, done: 4, shelved: 5 }
 
-export default function GroupsPage({ onOpenIdea }) {
-  const { ideas, getStatus, getGroup } = useStore()
+export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
+  const { ideas, getStatus, groupAssignments } = useStore()
   const [collapsed, setCollapsed] = useState({})
+  const scoped = scopeIdeas(ideas, groupAssignments, groupFilter)
+  const visibleGroups = groupFilter ? GROUPS.filter(group => group.key === groupFilter) : GROUPS
+  const ungrouped = sortIdeas(scoped.filter(idea => !groupAssignments[idea.id]), 'score')
   const toggle = key => setCollapsed(s => ({ ...s, [key]: !s[key] }))
 
   return (
     <div className="groups-page h-full overflow-auto p-3 space-y-3">
-      {GROUPS.map(group => {
-        const groupIdeas = ideas
-          .filter(i => getGroup(i.id) === group.key)
+      {(!groupFilter || groupFilter === '__none__') && (
+        <section className="group-section bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
+          <h2 className="font-bold">No workspace · {ungrouped.length}</h2>
+          {ungrouped.map(idea => (
+            <button key={idea.id} className="block text-left py-2" onClick={() => onOpenIdea(idea.id)}>
+              #{idea.id} {idea.name} <StatusBadge status={getStatus(idea)} />
+            </button>
+          ))}
+        </section>
+      )}
+      {visibleGroups.map(group => {
+        const groupIdeas = sortIdeas(scopeIdeas(scoped, groupAssignments, group.key), 'score')
           .sort((a, b) =>
-            (STATUS_ORDER[getStatus(a)] ?? 5) - (STATUS_ORDER[getStatus(b)] ?? 5) ||
-            scoreIdea(b) - scoreIdea(a)
+            (STATUS_ORDER[getStatus(a)] ?? 5) - (STATUS_ORDER[getStatus(b)] ?? 5)
           )
         const active = groupIdeas.filter(i => !['done', 'shelved'].includes(getStatus(i))).length
         const done   = groupIdeas.filter(i => getStatus(i) === 'done').length

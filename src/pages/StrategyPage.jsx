@@ -1,5 +1,5 @@
 import { useStore } from '../lib/store'
-import { scoreIdea, gradeFromScore, getBuildNext } from '../lib/scoring'
+import { scoreIdea, scopeIdeas, sortIdeas, gradeFromScore, getBuildNext } from '../lib/scoring'
 import { TimePill, StatusBadge, StatusRail } from '../components/Pills'
 import LedgeButton from '../components/LedgeButton'
 import Icon from '../components/Icon'
@@ -15,15 +15,12 @@ const NEXT_STATUS = { idea: 'researching', researching: 'ready', ready: 'buildin
 const NEXT_LABEL = { idea: 'To discovery', researching: 'To ready', ready: 'Start build' }
 
 export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
-  const { ideas, getStatus, setStatus, getGroup, pendingSaves } = useStore()
+  const { ideas, getStatus, setStatus, groupAssignments, pendingSaves } = useStore()
 
-  const groupIdeas = groupFilter === '__none__'
-    ? ideas.filter(i => !getGroup(i.id))
-    : groupFilter ? ideas.filter(i => getGroup(i.id) === groupFilter) : ideas
+  const groupIdeas = scopeIdeas(ideas, groupAssignments, groupFilter)
 
-  const active = groupIdeas
-    .filter(i => !['done', 'shelved'].includes(getStatus(i)))
-    .sort((a, b) => scoreIdea(b) - scoreIdea(a))
+  const active = sortIdeas(groupIdeas
+    .filter(i => !['done', 'shelved'].includes(getStatus(i))), 'score')
 
   // Raw scores in an active portfolio cluster tightly (90–95 is typical), so a
   // 0–100 fill shows eight near-identical bars. Normalising against the visible

@@ -124,7 +124,7 @@ checks cover serialization, waiting, refresh, dismissal/Edit, bounded score, fai
 close/retry, account-scoped reload recovery and logout cleanup. See
 [autosave guarantees and limits](../docs/SAFE_AUTOSAVE.md).
 
-## Step 6 additions — v1.9.7 (current)
+## Step 6 additions — v1.9.7
 
 `npm test`: **147 checks, 145 pass, 2 known C7 failures**. Strict mode reports
 145 passes and the same two actual failures. Three C6 tests now pass normally.
@@ -132,3 +132,13 @@ Ten adapter, four store and two browser checks cover blocked/quota storage,
 cache validation, memory fallback, account isolation, deletion/logout cleanup
 and healthy appearance reload. `npm run test:storage` runs the ten adapter checks.
 See [storage guarantees and limits](../docs/STORAGE_RESILIENCE.md).
+
+## Step 7 additions — v1.9.9 (current)
+
+`npm test` and strict mode: **157 passing checks, zero known/TODO failures**.
+Two C7 regressions are ordinary passing checks. Three scope/order checks and
+seven browser checks cover summary/console map updates, shared workspace scope,
+priority ordering, hidden selection/retry safety and triage counts. Passing
+the baseline suite does not approve production; the remaining audit steps and
+deferred real database acceptance still apply. See
+[summary/workflow guarantees](../docs/SUMMARY_WORKFLOWS.md).

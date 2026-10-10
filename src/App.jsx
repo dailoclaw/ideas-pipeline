@@ -1,3 +1,4 @@
+import { scopeIdeas } from './lib/scoring'
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from './lib/store'
 import { useDarkMode } from './hooks/useDarkMode'
@@ -69,7 +70,7 @@ export default function App({ onSignOut, accountId }) {
 
   const {
     load, loading, error, ideas, getStatus, getGroup, getSprintWeeks,
-    getSprintAssignment, statusHistory, activityLog,
+    getSprintAssignment, statusHistory, activityLog, groupAssignments,
   } = useStore()
   useDialogFocus(mobileToolsRef, () => setMobileToolsOpen(false), mobileToolsOpen)
   useSpotlight(theme === 'aurora')
@@ -108,7 +109,7 @@ export default function App({ onSignOut, accountId }) {
     })
   }, [tab, consoleTab, appLayout, openId, settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
 
-  const triageCount = ideas.filter(i => getStatus(i) === 'idea').length
+  const triageCount = scopeIdeas(ideas, groupAssignments, groupFilter).filter(i => getStatus(i) === 'idea').length
   const exportAllIdeas = () => downloadIdeasCsv({
     ideas,
     getStatus,
@@ -277,7 +278,7 @@ export default function App({ onSignOut, accountId }) {
         {tab === 'layout'   && <LayoutPage   onOpenIdea={setOpenId} groupFilter={groupFilter} />}
         {tab === 'strategy' && <StrategyPage onOpenIdea={setOpenId} groupFilter={groupFilter} />}
         {tab === 'sprint'   && <SprintPage groupFilter={groupFilter} />}
-        {tab === 'groups'   && <GroupsPage onOpenIdea={setOpenId} />}
+        {tab === 'groups'   && <GroupsPage onOpenIdea={setOpenId} groupFilter={groupFilter} />}
         {tab === 'summary'  && <SummaryPage  onOpenIdea={setOpenId} groupFilter={groupFilter} />}
       </main>
 
@@ -301,7 +302,7 @@ export default function App({ onSignOut, accountId }) {
       {/* ── Modals ── */}
       {openId && <IdeaModal ideaId={openId} onClose={() => setOpenId(null)} onEdit={id => { setOpenId(null); setEditId(id) }} />}
       {(addOpen || editId) && <AddIdeaModal editId={editId || null} onClose={() => { setAddOpen(false); setEditId(null) }} />}
-      {triageOpen && <TriageModal onClose={() => setTriageOpen(false)} />}
+      {triageOpen && <TriageModal groupFilter={groupFilter} onClose={() => setTriageOpen(false)} />}
       {settingsOpen && (
         <SettingsDrawer
           onSignOut={onSignOut}

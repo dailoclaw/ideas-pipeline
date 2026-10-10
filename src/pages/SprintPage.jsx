@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { useStore } from '../lib/store'
-import { scoreIdea } from '../lib/scoring'
+import { sortIdeas, scopeIdeas } from '../lib/scoring'
 import { TimePill, PlatPill } from '../components/Pills'
 import Icon from '../components/Icon'
 
 const WEEKS = 8
 
 export default function SprintPage({ groupFilter = '' }) {
-  const { ideas, getStatus, getSprintWeeks, getGroup, sprintAssignments: plan, setSprintAssignment, pendingSaves } = useStore()
+  const { ideas, getStatus, getSprintWeeks, groupAssignments, sprintAssignments: plan, setSprintAssignment, pendingSaves } = useStore()
   const [selected, setSelected] = useState(null)
 
-  const groupIdeas  = groupFilter === '__none__' ? ideas.filter(i => !getGroup(i.id)) : groupFilter ? ideas.filter(i => getGroup(i.id) === groupFilter) : ideas
-  const active      = groupIdeas.filter(i => !['done','shelved'].includes(getStatus(i))).sort((a,b) => scoreIdea(b) - scoreIdea(a))
+  const groupIdeas = scopeIdeas(ideas, groupAssignments, groupFilter)
+  const active = sortIdeas(groupIdeas.filter(i => !['done','shelved'].includes(getStatus(i))), 'score')
   const scheduled   = active.filter(i => plan[i.id])
   const unscheduled = active.filter(i => !plan[i.id])
   const totalWeeks  = scheduled.reduce((sum, i) => sum + (getSprintWeeks(i.id, i) || 1), 0)

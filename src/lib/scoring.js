@@ -45,7 +45,12 @@ export function daysOld(idea) {
   return Math.floor((Date.now() - new Date(idea.addedAt).getTime()) / 86400000)
 }
 
-export function sortIdeas(ideas, sort, getStatus) {
+export function scopeIdeas(ideas, groupAssignments, groupFilter = '') {
+  if (groupFilter === '__none__') return ideas.filter(idea => !groupAssignments[idea.id])
+  return groupFilter ? ideas.filter(idea => groupAssignments[idea.id] === groupFilter) : ideas
+}
+
+export function sortIdeas(ideas, sort) {
   const priorityFirst = (a, b) => (b.isPriority ? 1 : 0) - (a.isPriority ? 1 : 0)
   if (sort === 'score') return [...ideas].sort((a, b) => priorityFirst(a, b) || scoreIdea(b) - scoreIdea(a))
   if (sort === 'name')  return [...ideas].sort((a, b) => priorityFirst(a, b) || a.name.localeCompare(b.name))

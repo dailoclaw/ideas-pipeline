@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
-import { scoreIdea, sortIdeas, getBuildNext, isStale, daysOld } from '../lib/scoring'
+import { scoreIdea, scopeIdeas, sortIdeas, getBuildNext, isStale, daysOld } from '../lib/scoring'
 import { TimePill, PlatPill, ScoreBadge, StatusRail } from '../components/Pills'
 import Icon from '../components/Icon'
 import { useMorphPill } from '../hooks/useMorphPill'
@@ -10,7 +10,7 @@ const VIEW_LABELS = { kanban: 'Kanban', matrix: 'Matrix', features: 'Feature Car
 
 export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   const [view, setView] = useState('kanban')
-  const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, getGroup, pendingSaves } = useStore()
+  const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, groupAssignments, statusOverrides, pendingSaves } = useStore()
   const [selected, setSelected] = useState(new Set())
   const canvasRef = useRef(null)
   const switcherRef = useRef(null)
@@ -21,11 +21,32 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
     if (scroller) scroller.scrollTop = 0
   }, [view])
 
-  const filteredIdeas = groupFilter === '__none__'
-    ? ideas.filter(i => !getGroup(i.id))
-    : groupFilter
-      ? ideas.filter(i => getGroup(i.id) === groupFilter)
-      : ideas
+  const filteredIdeas = scopeIdeas(ideas, groupAssignments, groupFilter)
+
+  const scopeVersion = `${groupFilter}:${view}`
+  const currentScope = useRef(scopeVersion)
+  currentScope.current = scopeVersion
+  const visibleIds = new Set(view === 'kanban' ? filteredIdeas.filter(idea => getStatus(idea) === 'done' || getStatus(idea) !== 'shelved' && ['1w', '1-2w', '2-4w'].includes(idea.time)).map(idea => idea.id) : [])
+  const visibleSelected = new Set([...selected].filter(id => visibleIds.has(id)))
+  useEffect(() => {
+    setSelected(new Set())
+    if (useStore.getState().saveFeedback?.method === 'batchSetStatus') useStore.getState().clearSaveFeedback()
+  }, [groupFilter, view])
+  useEffect(() => {
+    setSelected(previous => {
+      const next = new Set([...previous].filter(id => visibleIds.has(id)))
+      if (next.size === previous.size) return previous
+      return next
+    })
+    if (selected.size !== visibleSelected.size && useStore.getState().saveFeedback?.method === 'batchSetStatus') useStore.getState().clearSaveFeedback()
+  }, [ideas, groupAssignments, statusOverrides, view, groupFilter, selected])
+  useEffect(() => {
+    currentScope.current = scopeVersion
+    return () => {
+      currentScope.current = null
+      if (useStore.getState().saveFeedback?.method === 'batchSetStatus') useStore.getState().clearSaveFeedback()
+    }
+  }, [])
 
   const toggleSelect = (id, e) => {
     e.stopPropagation()
@@ -47,21 +68,28 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
         ))}
       </div>
 
+      <p className="px-4 py-1 text-xs text-gray-500">Selections clear when the workspace or view changes.</p>
+
       {/* View */}
       <div ref={canvasRef} className="layout-canvas flex-1 overflow-auto p-3 sm:p-4">
-        {view === 'kanban'   && <KanbanView ideas={filteredIdeas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={selected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} pendingSaves={pendingSaves} />}
+        {view === 'kanban'   && <KanbanView ideas={filteredIdeas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={visibleSelected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} pendingSaves={pendingSaves} />}
         {view === 'matrix'  && <MatrixView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
         {view === 'features' && <FeaturesView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
       </div>
 
       {/* Batch bar */}
-      {selected.size > 0 && (
+      {visibleSelected.size > 0 && (
         <BatchBar
           disabled={!!pendingSaves.batch}
-          count={selected.size}
+          count={visibleSelected.size}
           onAction={async status => {
-            try { await useStore.getState().batchSetStatus(selected, status); clearSelected() }
-            catch { /* Keep selection visible; Retry targets only failed writes. */ }
+            try {
+              await useStore.getState().batchSetStatus(visibleSelected, status)
+              if (currentScope.current === scopeVersion) clearSelected()
+            }
+            catch {
+              if (currentScope.current !== scopeVersion && useStore.getState().saveFeedback?.method === 'batchSetStatus') useStore.getState().clearSaveFeedback()
+            }
           }}
           onClear={clearSelected}
         />
@@ -107,6 +135,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
             {i.isPriority && <Icon name="starFilled" size={12} className="inline mr-1 text-amber-500" />}#{i.id} {i.name}
           </div>
           <input
+            aria-label={`Select #${i.id} ${i.name}`}
             type="checkbox"
             checked={sel}
             onChange={() => {}}
