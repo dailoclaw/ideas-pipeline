@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.1 (2026-10-10) — Main publication recorded
+### Changed
+- Tracker v1.0.3 records the user-requested step 2 main push and verified local checks
+- Deployment prerequisites remain explicit: membership RPC, account enrollment, RLS/audit and staging verification are still open
+
 ## v1.9.0 (2026-10-10) — Private dataset email/password gate
 ### Added
 - Email/password sign-in and fail-closed server membership verification before loading the data app

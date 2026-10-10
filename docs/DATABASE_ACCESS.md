@@ -1,8 +1,8 @@
-# Step 2: secure database access — local authentication implementation (v1.9.0)
+# Step 2: secure database access — authentication implementation published to main (v1.9.1)
 
 Status: **In progress. No deployed security fix is claimed.**
 
-Step 1 is published on main at `ab3acb1`. Step 2 starts on `codex/database-access`.
+Step 1 is published on main at `ab3acb1`. Step 2 implementation from `codex/database-access` is pushed to main at `7f10fe2` by user request.
 Live backup and staging remain deferred by the user's instruction. No SQL was executed
 against a database; email/password authentication is implemented locally, and no deployed policies have changed.
 
@@ -121,6 +121,7 @@ until the staging matrix proves access control and coordinated login work.
   checks outside the SDK callback, unsubscribe during cleanup, and ignore stale results.
 - Missing settings, invalid URLs and remote HTTP URLs show a setup error; loopback HTTP
   remains available for local Supabase development.
-- Keep this branch local until staged RLS, audit and authenticated workflow checks pass.
-  The existing live deployment remains unchanged; merging/deploying this gate before
-  the RPC and permitted account are configured would deny the legitimate user's access.
+- The user requested publication to main, and the implementation was pushed. Deployment
+  status has not been inspected or certified. Deploying this gate before the RPC and
+  permitted account are configured would deny the legitimate user's access. Staged RLS,
+  audit and authenticated workflow acceptance must still pass before release approval.

@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.2",
+  "planVersion": "1.0.3",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "codex/database-access",
+  "branch": "main",
   "readiness": "Not production-ready",
-  "scopeNote": "Step 1 pushed \u00b7 Step 2 in progress",
+  "scopeNote": "Steps 1 & 2 pushed \u00b7 Database work open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Email/password login for one private dataset is implemented locally. 46 isolated checks: 33 pass, 13 known defects remain. Missing or denied membership fails closed. Live authorization and trusted audit remain unverified; backup/staging are deferred.",
+  "progressNote": "Email/password gate and local step 2 preparation are pushed to main at 7f10fe2 by user request. 46 isolated checks: 33 pass, 13 known defects remain. The membership RPC and account enrollment are deployment prerequisites; live RLS and trusted audit remain unverified. Backup/staging remain deferred.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -83,7 +83,7 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Email/password authentication and a fail-closed membership gate are implemented and locally tested. An admin-only allowlist RPC draft is prepared. No live policies have changed; six-table RLS, trusted audit and staging acceptance remain open.",
+      "summary": "Email/password authentication and a fail-closed membership gate are pushed to main and locally tested. The allowlist RPC remains an unexecuted draft. Account enrollment, six-table RLS, trusted audit and staging acceptance remain open.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
@@ -448,6 +448,11 @@
       "date": "2026-10-10",
       "title": "Email/password access gate implemented locally",
       "body": "One private dataset confirmed. Added login/session gate with server membership verification, memory-only sessions, setup errors, retry and sign-out. 28 new checks pass; 46 total checks include 13 unchanged known defects. Production build passed. Allowlist SQL is a draft, not deployed or PostgreSQL-verified; RLS/audit and live acceptance remain open."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 2 implementation pushed to main",
+      "body": "User requested main push. Fast-forwarded and pushed 6259fe1 and 7f10fe2; verified origin/main. Build passed; 46 checks: 33 pass, 13 recorded defects. No database SQL executed or deployment status verified. Gate requires the membership RPC and permitted account enrollment before use."
     }
   ]
 }
