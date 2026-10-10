@@ -17,4 +17,5 @@ jobs:
       - run: npm run test:strict
       - run: npm run build
       - run: npm run check:bundle
+      - run: npm run test:release
       - run: npm audit --omit=dev --audit-level=high

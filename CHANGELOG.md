@@ -1,5 +1,14 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.19 (2026-10-11) — Step 12 release gate assessment
+### Added
+- Explicit installed Chrome/Edge test channels with no silent fallback and a disposable optimized fixture smoke for navigation, drafts, CSV and anonymous gating
+- Main CI success verified at ab86823; new compiled-smoke CI step verified locally, pending publication
+- Release verdict/evidence and ordered database authorization, staging, browser/accessibility and recovery acceptance plan
+### Changed
+- Tracker v1.0.22 records 205 strict and 62 installed Chrome passes, seven assessed build findings and zero production audit findings
+- Production release remains NOT APPROVED; step 12 stays in progress with deferred live work, unavailable Edge and manual acceptance gates explicit
+
 ## v1.9.18 (2026-10-11) — Step 11 main publication
 ### Changed
 - Tracker v1.0.21 records requested step 11 publication and verified origin/main at 6c09b37

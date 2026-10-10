@@ -1,9 +1,9 @@
 import test, { before, after, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { chromium } from 'playwright'
+import { launchTestBrowser } from './helpers/browser-runner.mjs'
 import { accessibleReview } from '../ui-review/accessible-review.mjs'
 let browser, page, context, errors
-before(async()=>{browser=await chromium.launch({headless:true})})
+before(async()=>{browser=await launchTestBrowser()})
 after(async()=>{await browser?.close()})
 beforeEach(async()=>{
  context=await browser.newContext({viewport:{width:390,height:844},reducedMotion:'reduce'})

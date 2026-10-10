@@ -4,7 +4,7 @@ This document preserves the historical step 1 baseline. Current results are reco
 
 ## Run
 
-Use Node 20 or newer. On a fresh checkout:
+Use Node 24 (see `.nvmrc`). On a fresh checkout:
 
 ```sh
 npm ci
@@ -162,7 +162,7 @@ browser coverage now also exercises the repair section. SQL 004 is tested only
 in PGlite; real data preflight, legacy repair and Supabase rollout are deferred.
 See [validation/planning rules](../docs/VALIDATION_RULES.md).
 
-## Step 10 additions — v1.9.15 (current)
+## Step 10 additions — v1.9.15
 
 **201 ordinary passing checks; zero known/TODO failures in strict mode.** Six
 application keyboard/contrast and four isolated review checks cover separate
@@ -172,3 +172,35 @@ hashes, tall slides, lightbox focus and blocked storage. Review fixtures use the
 same controller as generators and do not require ignored HTML/assets. Real
 screen-reader/browser-release acceptance remains release-gate work. See
 [accessibility guarantees and review generation](../docs/ACCESSIBILITY.md).
+
+
+## Step 11/12 additions — v1.9.19 (current)
+
+205 ordinary strict checks pass without TODOs or skipped checks. Step 11 adds
+parallel reads, lazy module reuse/error recovery and stable matrix-focus coverage.
+Step 12 supports explicitly selected installed browsers:
+
+```sh
+npm run test:chrome  # installed Chrome, 62 browser/review checks
+npm run test:edge    # installed Edge required; never falls back to Chromium
+npm run build
+npm run test:release # disposable optimized fixture build + default Chromium smoke
+TEST_BROWSER_CHANNEL=chrome npm run test:release
+TEST_BROWSER_CHANNEL=msedge npm run test:release
+```
+
+The release smoke builds into a unique temporary directory, never overwrites
+`dist`, ignores `.env.local`, uses fictional records and blocks every non-local
+request. It verifies real production assets exclude the fixture hook, then checks
+optimized fixture navigation, lazy dialogs, keyboard capture, immediate-close
+notes, CSV reconciliation, narrow doubled text and anonymous gating. Temporary
+output/server/browser resources are removed afterwards. Existing untracked review
+assets remain untouched. Do not deploy the temporary fixture build.
+
+Installed Chrome 155.0.8059.39 passes all 62 checks and the compiled fixture smoke;
+bundled Chromium 151.0.7922.34 passes all 205 checks and its compiled smoke. Edge
+is unavailable on the current machine, so no Edge pass is claimed. Main's CI is
+verified green at ab86823; this branch's new smoke CI step is locally verified
+but not published or run remotely. Live JWT/RLS and multi-session tests, actual
+Supabase reconciliation, assistive technology and deployment/rollback acceptance
+remain open. See [release decision](../docs/RELEASE_GATE.md).

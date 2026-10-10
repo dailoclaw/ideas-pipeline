@@ -1,0 +1,161 @@
+{
+  "version": "1.9.19",
+  "date": "2026-10-11",
+  "decision": "NOT APPROVED",
+  "applicationSourceCommit": "ab86823d2657af5645a8c93bff2deb4ef214a555",
+  "scope": "Local fixtures and disposable PostgreSQL WASM; no live database, staging or deployment operations. Only release test tooling/docs change on this branch.",
+  "runtime": "Node 24.21.0",
+  "strict": {
+    "tests": 205,
+    "passing": 205,
+    "failures": 0,
+    "skipped": 0,
+    "todo": 0,
+    "browser": "bundled Chromium 151.0.7922.34"
+  },
+  "chrome": {
+    "browser": "Google Chrome 155.0.8059.39",
+    "mode": "installed channel, headless",
+    "tests": 62,
+    "passing": 62,
+    "failures": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "edge": {
+    "status": "not-run",
+    "reason": "Microsoft Edge default channel is not installed on this machine."
+  },
+  "compiledFixtureSmoke": {
+    "chrome": "passed",
+    "bundledChromium": "passed",
+    "checks": [
+      "production assets exclude fixture hook",
+      "five pages and lazy dialogs",
+      "keyboard capture",
+      "notes survive immediate Escape close",
+      "CSV matches captured fixture and persisted notes",
+      "320px doubled-root-text layout",
+      "anonymous login makes zero protected table requests",
+      "no external network requests or uncaught page errors"
+    ],
+    "limitations": "Production optimization pipeline with fixture connection module; not a real Supabase or deployed integration."
+  },
+  "ci": {
+    "commit": "ab86823d2657af5645a8c93bff2deb4ef214a555",
+    "conclusion": "success",
+    "url": "https://github.com/dailoclaw/ideas-pipeline/actions/runs/38059176120",
+    "steps": [
+      {
+        "name": "Set up job",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run actions/setup-node@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run npm ci",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run npx playwright install --with-deps chromium",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run npm run lint",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run npm run test:strict",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run npm run build",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run npm run check:bundle",
+        "conclusion": "success"
+      },
+      {
+        "name": "Run npm audit --omit=dev --audit-level=high",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/setup-node@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Post Run actions/checkout@v4",
+        "conclusion": "success"
+      },
+      {
+        "name": "Complete job",
+        "conclusion": "success"
+      }
+    ],
+    "limitation": "Verified for published main, not this unpushed release-gate branch or its new compiled-smoke workflow step."
+  },
+  "dependencies": {
+    "full": {
+      "info": 0,
+      "low": 0,
+      "moderate": 2,
+      "high": 5,
+      "critical": 0,
+      "total": 7
+    },
+    "production": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "remainingPlan": "DEPENDENCY_REVIEW.md"
+  },
+  "blockers": [
+    {
+      "id": "database-backup",
+      "priority": "critical",
+      "status": "user-deferred",
+      "required": "Verified live schema/data backup and restore into staging."
+    },
+    {
+      "id": "authorization",
+      "priority": "critical",
+      "status": "unverified",
+      "required": "Complete six-table RLS/grants/audit enforcement and real JWT allow/deny/bypass tests."
+    },
+    {
+      "id": "integration",
+      "priority": "high",
+      "status": "unverified",
+      "required": "Coordinated RPC/constraint installation, legacy-data repair and independent-session concurrency with summaries/exports reconciled to persisted staging records."
+    },
+    {
+      "id": "edge",
+      "priority": "high",
+      "status": "unverified",
+      "required": "Installed supported Edge workflow and compiled smoke tests."
+    },
+    {
+      "id": "manual-accessibility",
+      "priority": "high",
+      "status": "unverified",
+      "required": "Assistive-technology, browser-toolbar zoom and final focus/contrast acceptance."
+    },
+    {
+      "id": "rollout",
+      "priority": "high",
+      "status": "unverified",
+      "required": "Approved matching frontend/database rollout and tested safe rollback/restore evidence."
+    }
+  ]
+}

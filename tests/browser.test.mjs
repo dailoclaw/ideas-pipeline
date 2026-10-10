@@ -1,6 +1,6 @@
 import test, { before, after, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
-import { chromium } from 'playwright'
+import { launchTestBrowser } from './helpers/browser-runner.mjs'
 import { createServer } from 'vite'
 import { fileURLToPath } from 'node:url'
 
@@ -9,7 +9,7 @@ before(async () => {
   server = await createServer({ configFile: fileURLToPath(new URL('./vite.config.mjs', import.meta.url)) })
   await server.listen()
   url = `http://127.0.0.1:${server.httpServer.address().port}`
-  browser = await chromium.launch({ headless: true })
+  browser = await launchTestBrowser()
 })
 after(async () => { await browser?.close(); await server?.close() })
 beforeEach(async () => {

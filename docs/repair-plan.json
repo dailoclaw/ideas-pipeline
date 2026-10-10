@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.21",
+  "planVersion": "1.0.22",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "main",
+  "branch": "codex/release-gate",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 11 implementation published to main at 6c09b37; origin/main verified. Recorded local evidence: 205 strict checks, clean Node 24 install, lint/build, bundle budgets and responsive QA pass. Authenticated initial JavaScript decreases about 13%; full audit has seven assessed development findings and production audit zero. Remote CI result remains unverified. Step 12 release gate is next; live database and manual acceptance deferrals remain open.",
+  "progressNote": "Step 12 release assessment recorded: NOT APPROVED. All 205 strict checks and 62 installed Chrome checks pass; optimized fixture smoke passes in Chrome and Chromium. Published main CI at ab86823 is verified green. Edge, real JWT/RLS, restored staging/concurrency/export reconciliation, manual accessibility and rollout/rollback evidence remain open. Live backup/staging remains user-deferred. No live operations, deployment or main push for this step.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -615,23 +615,33 @@
       "title": "Apply the production release gate",
       "short": "Release decision",
       "priority": "Release gate",
-      "status": "pending",
-      "summary": "Approve deployment only with evidence that authorization, data integrity and core interaction checks pass.",
+      "status": "in-progress",
+      "summary": "Release verdict recorded: not approved for production. Local tests, installed Chrome and optimized fixture smoke pass; main CI is green. Critical real authorization/integration gates remain deferred or unverified, with explicit acceptance and recovery instructions.",
       "actions": [
         {
-          "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful."
+          "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
+          "status": "in-progress",
+          "note": "Local session/member allow/deny and failed/zero-row write checks pass; candidate SQL enforces RPC membership in disposable PGlite. Real JWTs, complete six-table RLS/grants/audit and raw-API bypass denial remain unverified under deferred database workflow."
         },
         {
-          "text": "Confirm drafts survive close/refresh and concurrent operations preserve data."
+          "text": "Confirm drafts survive close/refresh and concurrent operations preserve data.",
+          "status": "in-progress",
+          "note": "Draft close/refresh/recovery, retries and local concurrent ordering/replay pass. Optimized fixture verifies notes survive Escape close. Independent real database sessions, remote lost responses and multi-device contention remain open."
         },
         {
-          "text": "Reconcile summaries/exports with persisted records and pass core keyboard workflows."
+          "text": "Reconcile summaries/exports with persisted records and pass core keyboard workflows.",
+          "status": "in-progress",
+          "note": "Fixture summaries/history/exports and keyboard controls pass. Optimized CSV reconciles capture and persisted notes. Real persisted staging records, manual screen-reader and browser zoom acceptance remain required."
         },
         {
-          "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build."
+          "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build.",
+          "status": "in-progress",
+          "note": "205 strict tests, 62 installed Chrome 155 checks, both Chromium/Chrome optimized smoke, Node 24 lint/build/budgets pass. Main ab86823 CI verified green. Seven assessed development advisories; production audit zero. Edge unavailable. Added compiled-smoke CI step remains local/unpublished."
         },
         {
-          "text": "Record the release decision and evidence; track remaining low-impact work separately."
+          "text": "Record the release decision and evidence; track remaining low-impact work separately.",
+          "status": "complete",
+          "note": "Recorded NOT APPROVED / Not Ready verdict, exact source/CI/browser/audit evidence and ordered remediation/acceptance/rollback plan. Later build-chain migration/performance/archive work tracked separately. Recording a decision does not complete unmet gates or deploy the application."
         }
       ],
       "verify": [
@@ -639,7 +649,25 @@
         "No unresolved expected-failure test is treated as release approval.",
         "Release is approved only after its acceptance gate; completing this plan does not itself deploy the app."
       ],
-      "issues": "Production acceptance"
+      "issues": "Production acceptance",
+      "evidence": [
+        {
+          "label": "Release verdict, blockers and acceptance/rollback plan",
+          "href": "RELEASE_GATE.md"
+        },
+        {
+          "label": "Structured release evidence and exact CI commit",
+          "href": "release-evidence-v1.9.19.json"
+        },
+        {
+          "label": "Reproducible browser and compiled-smoke commands",
+          "href": "../tests/README.md"
+        },
+        {
+          "label": "Remaining dependency assessment",
+          "href": "DEPENDENCY_REVIEW.md"
+        }
+      ]
     }
   ],
   "history": [
@@ -757,6 +785,11 @@
       "date": "2026-10-11",
       "title": "Step 11 published to main",
       "body": "User requested publication. Fast-forwarded main and pushed 6c09b37; confirmed origin/main matches. Existing untracked review assets preserved. Tracker updated to v1.0.21 with recorded 205 passing local checks. No live SQL, deployment or remote CI acceptance verified; step 12 is next."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Step 12 release decision: not approved",
+      "body": "Step 12 release assessment recorded: NOT APPROVED. All 205 strict checks and 62 installed Chrome checks pass; optimized fixture smoke passes in Chrome and Chromium. Published main CI at ab86823 is verified green. Edge, real JWT/RLS, restored staging/concurrency/export reconciliation, manual accessibility and rollout/rollback evidence remain open. Live backup/staging remains user-deferred. No live operations, deployment or main push for this step."
     }
   ],
   "nextStepId": 12,
