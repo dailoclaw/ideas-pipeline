@@ -3,7 +3,8 @@
 **Verified locally.** Notes and score drafts now belong to the store/controller rather
 than the detail modal. No database migration is needed for these paths, but the
 published step 4 create/status functions still require their deferred backend rollout.
-Step 5 is committed locally on `codex/safe-autosave`; it is not pushed or deployed.
+Step 5 source is pushed to main at `7c0cd76` by user request. Deployment status
+has not been inspected or verified.
 
 ## Behavior
 

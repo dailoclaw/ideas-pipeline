@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.8",
+  "planVersion": "1.0.9",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "codex/safe-autosave",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3 & 5 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Steps 3 and 4 pushed to main at 56f08d6; publication tracker at 4eeea4a. Step 5 detail notes/score autosave is verified locally: flush before dismissal/Edit, ordered saves, account-scoped reload recovery and safe background refresh. 131 checks: 126 pass, 5 known defects remain. No live SQL or step 5 push/deployment.",
+  "progressNote": "Step 5 autosave source pushed to main at 7c0cd76 by request. 131 isolated checks: 126 pass, 5 known defects remain. Notes/score draft recovery is verified locally. Live backup/staging and step 2/4 database rollout remain deferred; no deployment verification claimed. Next planned work is step 6 storage resilience.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -243,7 +243,7 @@
       "short": "Safe autosave",
       "priority": "Critical",
       "status": "local-complete",
-      "summary": "Notes/score autosave verified locally. Store-owned drafts flush before Close/Escape/backdrop/Edit, retain failures and survive same-account reload for review. Saves run in order, and refresh preserves drafts and the app shell. Live browser/database acceptance remains at the release gate.",
+      "summary": "Notes/score autosave source pushed to main at 7c0cd76. Store-owned drafts flush before Close/Escape/backdrop/Edit, retain failures and survive same-account reload for review. Ordered saves and background refresh are verified locally. Live browser/database acceptance remains at the release gate.",
       "actions": [
         {
           "text": "Move draft ownership and save scheduling outside the modal lifecycle.",
@@ -552,6 +552,11 @@
       "date": "2026-10-10",
       "title": "Step 5 safe detail autosave verified locally",
       "body": "131 checks: 126 pass, 5 known failures. Immediate-close notes loss now passes. Added 9 controller, 6 store and 8 browser checks for ordered writes, close/Edit, draft retry, account-scoped reload recovery and logout cleanup. Build passes. Step 5 remains local; database rollout remains deferred. Next work is step 6 legacy configuration/storage resilience."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 5 pushed to main",
+      "body": "User requested publication. Fast-forwarded and pushed 7c0cd76; verified origin/main. Existing untracked review assets preserved. Recorded verification: 131 checks, 126 pass, 5 known failures; build passes. No database SQL executed or deployment inspected. Step 6 remains the next planned work."
     }
   ],
   "nextStepId": 6,

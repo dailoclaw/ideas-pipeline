@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.6 (2026-10-10) — Step 5 main publication
+### Changed
+- Tracker v1.0.9 records the requested step 5 push and verified origin/main at 7c0cd76
+- Retains five known failures and deferred database rollout; no production deployment verification claimed
+
 ## v1.9.5 (2026-10-10) — Safe detail autosave and draft recovery
 ### Fixed
 - Store-owned note/score drafts flush before dialog close, Escape, backdrop and Edit; failed flushes retain visible drafts and Retry
