@@ -1,5 +1,14 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.0 (2026-10-10) — Private dataset email/password gate
+### Added
+- Email/password sign-in and fail-closed server membership verification before loading the data app
+- Admin-only allowlist/RPC SQL draft for coordinated staging rollout; no deployed policy changes
+- 28 auth, configuration and browser regressions covering failure, retry, race, session-loss and sign-out paths
+### Changed
+- Memory-only sessions; refresh requires login; missing/insecure connection settings render a setup error
+- Sign out in appearance settings clears the application realm; tracker v1.0.2 records local progress and outstanding RLS/audit work
+
 ## v1.8.3 (2026-10-10) — Database authorization preparation
 ### Added
 - Read-only SQL inventory for six-table RLS, grants, constraints, public RPC permissions and triggers

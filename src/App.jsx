@@ -49,7 +49,7 @@ function AppMark() {
   )
 }
 
-export default function App() {
+export default function App({ onSignOut }) {
   const [tab, setTab]         = useState('layout')
   const [consoleTab, setConsoleTab] = useState('pulse')
   const [groupFilter, setGroupFilter] = useState('')
@@ -289,6 +289,7 @@ export default function App() {
       {triageOpen && <TriageModal onClose={() => setTriageOpen(false)} />}
       {settingsOpen && (
         <SettingsDrawer
+          onSignOut={onSignOut}
           open={settingsOpen}
           onClose={() => setSettingsOpen(false)}
           dark={dark}

@@ -13,6 +13,7 @@ export default defineConfig({
     {
       name: 'baseline-fixture-only', enforce: 'pre',
       resolveId(id, importer) {
+        if (id === '../lib/supabase' && importer?.replaceAll('\\', '/').endsWith('/src/auth/AuthGate.jsx')) return mock
         if (id === './supabase' && importer?.replaceAll('\\', '/').endsWith('/src/lib/store.js')) return mock
         if (id.replaceAll('\\', '/').endsWith('/src/lib/supabase.js')) return mock
       },

@@ -1,10 +1,10 @@
-# Step 2: secure database access — local preparation (v1.8.3)
+# Step 2: secure database access — local authentication implementation (v1.9.0)
 
 Status: **In progress. No deployed security fix is claimed.**
 
 Step 1 is published on main at `ab3acb1`. Step 2 starts on `codex/database-access`.
 Live backup and staging remain deferred by the user's instruction. No SQL was executed
-against a database; no application authentication or deployed policies have changed.
+against a database; email/password authentication is implemented locally, and no deployed policies have changed.
 
 ## Confirmed source findings
 
@@ -12,7 +12,7 @@ against a database; no application authentication or deployed policies have chan
 - `supabase-activity-timeline-migration.sql:16` disables it again for activity. Running
   either legacy script after a security migration would reopen access.
 - `src/lib/supabase.js` creates a browser client with a public key. `src/main.jsx`
-  mounts the app directly; there is no authenticated session gate.
+  previously mounted the app directly. It now mounts AuthGate, which loads the app only after a positive can_access_ideas RPC result.
 - `src/lib/store.js` sends an actor of `You` and client timestamps. Activity and
   status history are separate client writes, so authorization alone will not make
   their content a reliable audit trail.
@@ -35,13 +35,12 @@ must not automatically receive access to this personal dataset.
    unsafe RPC can defeat otherwise correct table policies. Include public views,
    sequences, schema usage, exposed schemas and Realtime publication configuration
    in the administrator review; this script does not certify those surfaces.
-2. **Choose and record the permitted identity and login flow.** Confirm the existing
+2. **Enroll the permitted identity.** The user confirmed one private dataset and email/password login. Confirm the existing
    Supabase Auth user(s) and whether this is one shared personal dataset or distinct
    workspaces. The current UI's Groups/Spaces are classifications, not authorization
    boundaries. Do not infer ownership from labels or use editable user metadata.
-   The recommended starting model is one private dataset with an admin-maintained
-   account allowlist, unless the owner requires separate workspace permissions.
-3. **Build the session gate with isolated tests.** Wait for session resolution before
+   Use an administrator-maintained allowlist for the confirmed single private dataset.
+3. **Verify the implemented gate on staging.** Local session/login tests pass. Wait for session resolution before
    mounting/loading the data app. Add login, logout, session-expiry and access-denied
    states. Subscribe/unsubscribe correctly under StrictMode; clear sensitive in-memory
    state and account-specific caches on logout/account change. No anonymous fallback
@@ -96,9 +95,32 @@ must not automatically receive access to this personal dataset.
 Source locations and six-table inventory were checked. The read-only inspection was
 reviewed against PostgreSQL catalog shapes; **it has not been parsed or executed by
 PostgreSQL** because no local database runtime or approved staging connection exists.
-No security acceptance test is marked passed. The existing isolated baseline still
-records 5 passing checks and 13 known failures, and the production build passes.
+No staging security acceptance test is marked passed. The expanded isolated suite records 46 checks: 33 pass and 13 unchanged known defects. The production build passes.
 
-Next implementation depends on the identity/access model and selected login flow;
-actual rollout also requires the deferred backup/staging workflow. Keep step 2 open
+The access model and login flow are confirmed. Administrator enrollment, six-table RLS and trusted-audit implementation remain open; actual rollout requires the deferred backup/staging workflow. Keep step 2 open
 until the staging matrix proves access control and coordinated login work.
+
+## Local gate behavior and deployment prerequisites
+
+- The app uses `signInWithPassword`; there is no public signup or password-reset flow.
+  Provision the permitted account and manage recovery through Supabase administration.
+- `database/security/001-account-allowlist.sql` is an **unexecuted draft** for the RPC.
+  Its empty allowlist denies everyone. It does not install the six application table
+  policies or make client-written events trustworthy. Do not deploy it alone as a fix.
+- Sessions and passwords are not persisted by this app. A refresh/closed page requires
+  login again. Token refresh operates while the page is open. Supabase project settings
+  determine token expiration; local sign-out does not revoke already-issued access JWTs.
+- Signed-out users do not load the protected app. A denied or unavailable RPC keeps it
+  gated. Focus/session refresh rechecks membership; RLS must deny revoked accounts on
+  every database request independently of the UI.
+- Logout, account changes and access loss destroy the application realm by reloading,
+  clearing in-memory stores and drafts. Already-sent database mutations may still finish
+  server-side. Draft preservation remains step 5; legacy local activity caches and
+  preferences still require the step 6 storage review.
+- Same-account refresh does not remount the data app. Auth callbacks schedule membership
+  checks outside the SDK callback, unsubscribe during cleanup, and ignore stale results.
+- Missing settings, invalid URLs and remote HTTP URLs show a setup error; loopback HTTP
+  remains available for local Supabase development.
+- Keep this branch local until staged RLS, audit and authenticated workflow checks pass.
+  The existing live deployment remains unchanged; merging/deploying this gate before
+  the RPC and permitted account are configured would deny the legitimate user's access.

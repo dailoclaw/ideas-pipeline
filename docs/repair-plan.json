@@ -1,5 +1,5 @@
 {
-  "planVersion": "1.0.1",
+  "planVersion": "1.0.2",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
   "branch": "codex/database-access",
@@ -7,7 +7,7 @@
   "scopeNote": "Step 1 pushed \u00b7 Step 2 in progress",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Baseline and tracker are published on main at ab3acb1. Step 2 now has a read-only inspection and coordinated authorization rollout plan; live database access has not been inspected or changed.",
+  "progressNote": "Email/password login for one private dataset is implemented locally. 46 isolated checks: 33 pass, 13 known defects remain. Missing or denied membership fails closed. Live authorization and trusted audit remain unverified; backup/staging are deferred.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -83,7 +83,7 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Local preparation is complete: source exposure reviewed, read-only metadata inspection prepared, and login/RLS/audit rollout defined. Deployed authorization remains unverified; authentication implementation and policy rollout are still open.",
+      "summary": "Email/password authentication and a fail-closed membership gate are implemented and locally tested. An admin-only allowlist RPC draft is prepared. No live policies have changed; six-table RLS, trusted audit and staging acceptance remain open.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
@@ -92,8 +92,8 @@
         },
         {
           "text": "Add authentication and restrict access to the permitted account or workspace members.",
-          "status": "pending",
-          "note": "Access model and login preference requested. No session gate exists yet; permitted identity must be configured administratively."
+          "status": "in-progress",
+          "note": "Confirmed: one private dataset, email/password. Login, retry, session handling and settings sign-out tested locally; access requires can_access_ideas() = true. Admin enrollment and real authorization tests remain pending. Sessions are memory-only; refresh requires login."
         },
         {
           "text": "Enable RLS on all six application tables, including child-record ownership or membership policies.",
@@ -125,6 +125,10 @@
         {
           "label": "Read-only metadata inspection SQL",
           "href": "../database/security/inspect-access.sql"
+        },
+        {
+          "label": "Auth and configuration regression tests",
+          "href": "../tests/auth.test.mjs"
         }
       ]
     },
@@ -439,6 +443,11 @@
       "date": "2026-10-10",
       "title": "Step 1 published; database access step started",
       "body": "Committed baseline and tracker as ab3acb1 and pushed to main using existing SSH authentication. Step 2 source review, read-only inspection SQL and authorization/audit rollout plan prepared on codex/database-access. No production database or app behavior changed."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Email/password access gate implemented locally",
+      "body": "One private dataset confirmed. Added login/session gate with server membership verification, memory-only sessions, setup errors, retry and sign-out. 28 new checks pass; 46 total checks include 13 unchanged known defects. Production build passed. Allowlist SQL is a draft, not deployed or PostgreSQL-verified; RLS/audit and live acceptance remain open."
     }
   ]
 }

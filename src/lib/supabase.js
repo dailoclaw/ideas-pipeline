@@ -1,10 +1,10 @@
 import { createClient } from '@supabase/supabase-js'
+import { configureSupabase } from '../auth/config'
 
-const url  = import.meta.env.VITE_SUPABASE_URL
-const key  = import.meta.env.VITE_SUPABASE_ANON_KEY
-
-if (!url || !key) {
-  console.warn('Supabase env vars missing — check .env.local')
-}
-
-export const supabase = createClient(url, key)
+const configured = configureSupabase(
+  createClient,
+  import.meta.env.VITE_SUPABASE_URL,
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+)
+export const supabase = configured.client
+export const configurationError = configured.error

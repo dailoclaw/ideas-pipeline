@@ -68,3 +68,39 @@ export const supabase = {
     return query
   },
 }
+
+// Auth-only fixture. JWT validation and PostgreSQL permissions still require staging.
+export const configurationError = ''
+const initialSession = () => new URLSearchParams(location.search).has('signedOut') ? null : { user: { id: 'fixture-owner' } }
+let fixtureSession = typeof location === 'undefined' ? null : initialSession()
+const authListeners = new Set()
+backend.authAllowed = true
+backend.authError = false
+backend.authCalls = []
+backend.emitAuth = (event, session) => {
+  fixtureSession = session
+  for (const listener of authListeners) listener(event, session)
+}
+supabase.rpc = async name => {
+  if (name !== 'can_access_ideas') throw new Error('Unknown fixture RPC')
+  backend.authCalls.push('access')
+  return { data: backend.authAllowed, error: backend.authError ? { message: 'Fixture RPC unavailable' } : null }
+}
+supabase.auth = {
+  onAuthStateChange(listener) {
+    authListeners.add(listener)
+    return { data: { subscription: { unsubscribe: () => authListeners.delete(listener) } } }
+  },
+  getSession: async () => ({ data: { session: fixtureSession }, error: null }),
+  signInWithPassword: async ({ email, password }) => {
+    backend.authCalls.push('signIn')
+    if (email !== 'owner@example.test' || password !== 'fixture-password') return { data: {}, error: { message: 'Invalid credentials' } }
+    fixtureSession = { user: { id: 'fixture-owner' } }
+    backend.emitAuth('SIGNED_IN', fixtureSession)
+    return { data: { session: fixtureSession }, error: null }
+  },
+  signOut: async () => {
+    backend.emitAuth('SIGNED_OUT', null)
+    return { error: null }
+  },
+}

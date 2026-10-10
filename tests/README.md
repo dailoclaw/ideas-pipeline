@@ -73,3 +73,16 @@ The archive includes existing tracked source and untracked review files, includi
 - Baseline test mode reproduces known failures; strict mode demonstrates they remain unresolved.
 - npm dependency advisory metadata is recorded separately in ignored `test-results/dependency-audit.json`; installation reported 13 advisories (3 moderate, 10 high). No automated upgrades were applied. Deduplicate/transitive advisory counts and assess actual exposure before planning dependency repairs.
 - Generated test logs/results belong in ignored `test-results/`, not fixture source or production code.
+
+## Step 2 additions — v1.9.0
+
+`npm test` now runs 46 checks: 33 pass and 13 original known defects remain.
+`npm run test:auth` runs 22 passing session/configuration checks. Six additional
+browser checks exercise anonymous gating, credential failure/retry, unlisted accounts,
+unavailable membership RPCs, session loss and settings sign-out. The existing baseline
+counts above remain the historical step 1 result.
+
+The auth fixture defaults to a fictional permitted account for existing workflow checks;
+`?signedOut` starts auth tests without a session. The fixture RPC is only a boolean stub:
+these tests do not validate JWTs, passwords against Supabase, or PostgreSQL RLS.
+Account allowlist/RLS/audit enforcement still requires restored staging tests.

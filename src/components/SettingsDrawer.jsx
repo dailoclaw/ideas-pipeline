@@ -10,7 +10,7 @@ const SIZE_OPTIONS = [
   { key: 'xl',      label: 'XL',      desc: 'Maximum comfort', aaSize: 24 },
 ]
 
-export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme, setTheme, fontSize, setFontSizeKey, appLayout, setAppLayout }) {
+export default function SettingsDrawer({ onSignOut, open, onClose, dark, toggleDark, theme, setTheme, fontSize, setFontSizeKey, appLayout, setAppLayout }) {
   const drawerRef = useRef(null)
   useDialogFocus(drawerRef, onClose, open)
 
@@ -155,6 +155,8 @@ export default function SettingsDrawer({ open, onClose, dark, toggleDark, theme,
           </section>
 
         </div>
+
+        {onSignOut && <div className="px-5 pb-4"><button type="button" onClick={onSignOut} className="w-full py-3 rounded-xl border border-gray-300 dark:border-slate-600 text-sm font-bold">Sign out</button></div>}
 
         {/* Footer */}
         <div className="px-5 py-4 border-t border-gray-100 dark:border-slate-700 flex-shrink-0">

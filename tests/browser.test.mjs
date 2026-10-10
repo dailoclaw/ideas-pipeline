@@ -96,3 +96,58 @@ test('action button must finish and become reusable under StrictMode', t => know
   await button.click(); await page.waitForTimeout(1700)
   assert.equal(await button.getAttribute('data-ledge'), 'idle')
 }))
+
+const openLogin = async () => {
+  await page.goto(`${url}/?signedOut`)
+  await page.getByRole('heading', { name: 'Sign in', exact: true }).waitFor()
+}
+const login = async (password = 'fixture-password') => {
+  await page.getByLabel('Email', { exact: true }).fill('owner@example.test')
+  await page.getByLabel('Password', { exact: true }).fill(password)
+  await page.getByLabel('Password', { exact: true }).press('Enter')
+}
+test('anonymous login screen makes no protected table requests and fits mobile', async () => {
+  await page.setViewportSize({ width: 320, height: 740 }); await openLogin()
+  assert.equal(await page.evaluate(() => window.__baseline.backend.requests.length), 0)
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false)
+  assert.deepEqual(runtimeErrors, [])
+})
+test('wrong password shows a recoverable error without reading protected data', async () => {
+  await openLogin(); await login('incorrect-password')
+  await page.getByRole('alert').waitFor()
+  assert.equal(await page.getByLabel('Password', { exact: true }).inputValue(), '')
+  assert.equal(await page.evaluate(() => window.__baseline.backend.requests.length), 0)
+  await login(); await page.getByRole('navigation', { name: 'Primary navigation', exact: true }).waitFor()
+  assert.deepEqual(runtimeErrors, [])
+})
+test('unlisted account stays gated and can sign out for another account', async () => {
+  await openLogin(); await page.evaluate(() => { window.__baseline.backend.authAllowed = false }); await login()
+  await page.getByRole('heading', { name: 'Access unavailable' }).waitFor()
+  assert.equal(await page.evaluate(() => window.__baseline.backend.requests.length), 0)
+  await page.getByRole('button', { name: 'Use another account' }).click()
+  await page.getByRole('heading', { name: 'Sign in', exact: true }).waitFor()
+})
+test('missing membership RPC fails closed then recovers via Retry', async () => {
+  await openLogin(); await page.evaluate(() => { window.__baseline.backend.authError = true }); await login()
+  await page.getByRole('heading', { name: 'Access unavailable' }).waitFor()
+  assert.equal(await page.evaluate(() => window.__baseline.backend.requests.length), 0)
+  await page.evaluate(() => { window.__baseline.backend.authError = false })
+  await page.getByRole('button', { name: 'Retry access check' }).click()
+  await page.getByRole('navigation', { name: 'Primary navigation', exact: true }).waitFor()
+  assert.deepEqual(runtimeErrors, [])
+})
+test('session loss clears loaded data through a new signed-out realm', async () => {
+  await openLogin(); await login(); await page.getByRole('navigation', { name: 'Primary navigation', exact: true }).waitFor()
+  await page.evaluate(() => window.__baseline.backend.emitAuth('SIGNED_OUT', null))
+  await page.getByRole('heading', { name: 'Sign in', exact: true }).waitFor()
+  assert.equal(await page.evaluate(() => window.__baseline.store.getState().ideas.length), 0)
+  assert.equal(await page.evaluate(() => window.__baseline.backend.requests.length), 0)
+})
+test('settings Sign out returns to login and clears the loaded store', async () => {
+  await openLogin(); await login(); await page.getByRole('navigation', { name: 'Primary navigation', exact: true }).waitFor()
+  await page.getByRole('button', { name: 'Customise appearance' }).click()
+  await page.getByRole('button', { name: 'Sign out', exact: true }).click()
+  await page.getByRole('heading', { name: 'Sign in', exact: true }).waitFor()
+  assert.equal(await page.evaluate(() => window.__baseline.store.getState().ideas.length), 0)
+  assert.deepEqual(runtimeErrors, [])
+})
