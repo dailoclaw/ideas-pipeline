@@ -1,3 +1,5 @@
+import { readAll } from './pagination.js'
+import { isPastEvent } from './history.js'
 import { create } from 'zustand'
 import { supabase } from './supabase'
 import { createDraftController } from './drafts.js'
@@ -13,6 +15,8 @@ const normaliseActivity = row => ({
   type: row.event_type,
   payload: row.payload || {},
   occurredAt: row.occurred_at,
+  requestId: row.client_request_id,
+  pending: false,
   actor: row.actor || 'You',
 })
 
@@ -128,8 +132,20 @@ const recordActivity = (get, id, type, payload) => async () => {
 export const useStore = create((set, get) => {
   let loadTicket = 0
   const accountKey = key => scopedKey(key, get().draftAccount)
-  const readLocalActivity = () => safeStorage.readJSON(accountKey(ACTIVITY_STORAGE_KEY), [], sanitizeActivity)
-  const writeLocalActivity = events => safeStorage.writeJSON(accountKey(ACTIVITY_STORAGE_KEY), sanitizeActivity(events).slice(-100))
+  let syncTask = null, accountGeneration = 0
+  const writeLocalActivity = events => {
+    const stored = safeStorage.writeJSON(accountKey(ACTIVITY_STORAGE_KEY), sanitizeActivity(events))
+    set({outboxCount:events.length, outboxStorageError:!stored})
+    return stored
+  }
+  const readLocalActivity = () => {
+    const events = safeStorage.readJSON(accountKey(ACTIVITY_STORAGE_KEY), [], sanitizeActivity)
+    if (events.some(event => !/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(event.requestId || ''))) {
+      const migrated = events.map(event => /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(event.requestId || '') ? event : ({...event,requestId:crypto.randomUUID()}))
+      writeLocalActivity(migrated); return migrated
+    }
+    return events
+  }
   const drafts = createDraftController({
     publish: (draftValues, draftStorageError) => set({ draftValues, draftStorageError }),
     save: async (id, field, value) => {
@@ -156,11 +172,15 @@ export const useStore = create((set, get) => {
   pendingSaves: {},
   dataRevision: 0,
   hasLoaded: false,
+  datasetComplete:false, activityHistoryComplete:false,
+  outboxCount:0, outboxStorageError:false, outboxError:null, outboxSyncing:false,
   draftAccount: null,
   draftValues: {},
   draftStorageError: false,
   configureDrafts(account) {
+    if (get().draftAccount !== account) accountGeneration++
     drafts.configure(account); set({ draftAccount: account })
+    set({outboxCount:readLocalActivity().length})
     // Unowned legacy activity cannot be safely attributed to a signed-in account.
     safeStorage.remove(ACTIVITY_STORAGE_KEY)
   },
@@ -171,8 +191,9 @@ export const useStore = create((set, get) => {
   flushDrafts(id) { return drafts.flush(id) },
   flushAllDrafts() { return drafts.flushAll() },
   clearDrafts() {
+    accountGeneration++; syncTask=null
     safeStorage.remove(accountKey(ACTIVITY_STORAGE_KEY))
-    set({ draftAccount: null }); drafts.clear()
+    set({ draftAccount: null, outboxCount:0, outboxError:null }); drafts.clear()
   },
   saveFeedback: null,
   clearSaveFeedback() { set({ saveFeedback: null }) },
@@ -190,50 +211,29 @@ export const useStore = create((set, get) => {
     const ticket = ++loadTicket, revision = get().dataRevision
     if (!background) set({ loading: true, error: null })
     try {
-      // Fetch ideas
-      const { data: rows, error } = await supabase
-        .from('ideas')
-        .select('*')
-        .order('id')
-      if (error) throw error
-      if (!Array.isArray(rows)) throw new Error('Ideas could not be loaded.')
-
-      // Fetch status overrides
-      const { data: overrides, error: overridesError } = await supabase
-        .from('status_overrides')
-        .select('idea_id, status')
-      if (overridesError) throw overridesError
-      if (!Array.isArray(overrides)) throw new Error('Status data could not be loaded.')
+      const rows = await readAll(supabase, 'ideas', '*', 'id')
+      const overrides = await readAll(supabase, 'status_overrides', 'idea_id, status', 'idea_id')
       const overrideMap = {}
       if (overrides) overrides.forEach(o => { overrideMap[o.idea_id] = o.status })
 
-      // Fetch status history
-      const { data: history, error: historyError } = await supabase
-        .from('status_history')
-        .select('idea_id, status, changed_at')
-        .order('changed_at')
-      if (historyError) throw historyError
-      if (!Array.isArray(history)) throw new Error('History data could not be loaded.')
+      const history = await readAll(supabase, 'status_history', 'id, idea_id, status, changed_at', 'id')
       const historyMap = {}
       if (history) {
-        history.forEach(h => {
+        [...history].sort((a,b)=>String(a.changed_at).localeCompare(String(b.changed_at)) || a.id-b.id).forEach(h => {
           if (!historyMap[h.idea_id]) historyMap[h.idea_id] = []
-          historyMap[h.idea_id].push({ status: h.status, date: h.changed_at })
+          historyMap[h.idea_id].push({ id:h.id, status: h.status, date: h.changed_at })
         })
       }
 
-      // Fetch richer decision/activity history. The app remains usable while
-      // older deployments are waiting for the idea_activity migration.
-      const { data: activityRows, error: activityError } = await supabase
-        .from('idea_activity')
-        .select('id, idea_id, event_type, payload, occurred_at, actor')
-        .order('occurred_at', { ascending: false })
+      let activityRows = [], activityError = null
+      try { activityRows = await readAll(supabase, 'idea_activity', '*', 'id') }
+      catch(error) { activityError = error }
       const activityMap = {}
       const combinedActivity = [
         ...(activityRows || []).map(normaliseActivity),
-        ...readLocalActivity(),
+        ...readLocalActivity().filter(event => !activityRows.some(row => row.client_request_id === event.requestId)),
       ]
-      combinedActivity.forEach(event => {
+      combinedActivity.filter(event => isPastEvent(event) && sanitizeActivity([{...event,id:'local-validate'}]).length).forEach(event => {
         if (!activityMap[event.ideaId]) activityMap[event.ideaId] = []
         if (!activityMap[event.ideaId].some(existing => existing.id === event.id)) {
           activityMap[event.ideaId].push(event)
@@ -241,21 +241,11 @@ export const useStore = create((set, get) => {
       })
       Object.values(activityMap).forEach(events => events.sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt)))
 
-      // Fetch group assignments
-      const { data: groupRows, error: groupError } = await supabase
-        .from('idea_group_assignments')
-        .select('idea_id, group_key')
-      if (groupError) throw groupError
-      if (!Array.isArray(groupRows)) throw new Error('Group data could not be loaded.')
+      const groupRows = await readAll(supabase, 'idea_group_assignments', 'idea_id, group_key', 'idea_id')
       const groupMap = {}
       if (groupRows) groupRows.forEach(r => { groupMap[r.idea_id] = r.group_key })
 
-      // Fetch sprint assignments so exports include the current plan.
-      const { data: sprintRows, error: sprintError } = await supabase
-        .from('sprint_assignments')
-        .select('idea_id, week_num')
-      if (sprintError) throw sprintError
-      if (!Array.isArray(sprintRows)) throw new Error('Sprint data could not be loaded.')
+      const sprintRows = await readAll(supabase, 'sprint_assignments', 'idea_id, week_num', 'idea_id')
       const sprintMap = {}
       if (sprintRows) sprintRows.forEach(r => { sprintMap[r.idea_id] = r.week_num })
 
@@ -269,6 +259,7 @@ export const useStore = create((set, get) => {
       }
       drafts.reconcile(ideas)
       set({
+        datasetComplete: true, activityHistoryComplete: !activityError,
         hasLoaded: true,
         ideas,
         statusOverrides: overrideMap,
@@ -283,6 +274,7 @@ export const useStore = create((set, get) => {
       return true
     } catch (err) {
       if (ticket !== loadTicket) return false
+      set({ datasetComplete:false })
       console.error('Load error:', err)
       if (background) set({ saveFeedback: { level: 'warning', message: 'Refresh failed. Your last confirmed changes are still shown.', retry: () => get().load({ background: true }) } })
       else set({ error: err.message, loading: false })
@@ -437,57 +429,51 @@ export const useStore = create((set, get) => {
 
   // ── Activity & decision timeline ──────────────────────────────────────────
   async logActivity(ideaId, type, payload = {}) {
-    const localEvent = {
-      id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      ideaId,
-      type,
-      payload,
-      occurredAt: new Date().toISOString(),
-      actor: 'You',
-    }
-
+    const requestId = crypto.randomUUID()
+    const localEvent = {pending:true,id:`local-${requestId}`,requestId,ideaId,type,payload,occurredAt:new Date().toISOString(),actor:'You (pending)'}
     if (!sanitizeActivity([localEvent]).length) throw new Error('Invalid activity event')
-    const pending = [...readLocalActivity(), localEvent]
-    writeLocalActivity(pending)
-    set(s => ({
-      activityLog: {
-        ...s.activityLog,
-        [ideaId]: [localEvent, ...(s.activityLog[ideaId] || [])],
-      },
-    }))
-
-    if (get().activityPersistenceAvailable === false) return localEvent
-
-    const { data, error } = await supabase
-      .from('idea_activity')
-      .insert({
-        idea_id: ideaId,
-        event_type: type,
-        payload,
-        occurred_at: localEvent.occurredAt,
-        actor: 'You',
-      })
-      .select('id, idea_id, event_type, payload, occurred_at, actor')
-      .single()
-
-    // Keep the local event as an offline-safe fallback when the new table is
-    // unavailable or the device is temporarily disconnected.
-    if (error || !data) {
-      set({ activityPersistenceAvailable: false })
-      return localEvent
+    const pending=readLocalActivity()
+    if(pending.length>=100) {
+      set({outboxError:'Activity buffer full. Retry synchronization or export pending history; this new event could not be queued.',activityPersistenceAvailable:false})
+      throw new Error('Activity buffer full; existing events have been retained')
     }
-
-    const savedEvent = normaliseActivity(data)
-    set({ activityPersistenceAvailable: true })
-    writeLocalActivity(readLocalActivity().filter(event => event.id !== localEvent.id))
-    set(s => ({
-      activityLog: {
-        ...s.activityLog,
-        [ideaId]: (s.activityLog[ideaId] || []).map(event => event.id === localEvent.id ? savedEvent : event),
-      },
-    }))
-    return savedEvent
+    writeLocalActivity([...pending,localEvent])
+    set(state=>({activityLog:{...state.activityLog,[ideaId]:[localEvent,...(state.activityLog[ideaId] || [])]}}))
+    if(get().activityPersistenceAvailable !== false) await get().syncActivity()
+    return localEvent
   },
+  async syncActivity() {
+    if(syncTask)return syncTask
+    const epoch=accountGeneration, account=get().draftAccount
+    if(!account)return false
+    const work=(async()=>{
+      await Promise.resolve()
+      set({outboxSyncing:true,outboxError:null})
+      try {
+        for(let n=0;n<100;n++) {
+          if(epoch!==accountGeneration)return false
+          const event=readLocalActivity()[0]
+          if(!event) { set({activityPersistenceAvailable:true});return true }
+          const {data,error}=await supabase.rpc('record_idea_activity',{p_request_id:event.requestId,p_idea_id:Number(event.ideaId),p_type:event.type,p_payload:event.payload,p_occurred_at:event.occurredAt})
+          if(epoch!==accountGeneration)return false
+          if(error)throw error
+          if(!data?.activity?.id || data.activity.client_request_id !== event.requestId || Number(data.activity.idea_id) !== Number(event.ideaId) || data.activity.event_type !== event.type)throw new Error('Activity confirmation is incomplete')
+          if (!get().ideas.some(idea => idea.id === Number(event.ideaId))) {
+            writeLocalActivity(readLocalActivity().filter(item=>item.requestId!==event.requestId)); continue
+          }
+          const saved=normaliseActivity(data.activity)
+          writeLocalActivity(readLocalActivity().filter(item=>item.requestId!==event.requestId))
+          set(state=>({dataRevision:state.dataRevision+1,activityLog:{...state.activityLog,[event.ideaId]:[saved,...(state.activityLog[event.ideaId] || []).filter(item=>item.id!==event.id && item.id!==saved.id && item.requestId!==event.requestId)]}}))
+        }
+        return readLocalActivity().length===0
+      } catch(error) {
+        if(epoch===accountGeneration)set({outboxError:error.message || 'Activity synchronization unavailable',activityPersistenceAvailable:false})
+        return false
+      } finally {if(epoch===accountGeneration)set({outboxSyncing:false,outboxCount:readLocalActivity().length})}
+    })().finally(()=>{if(syncTask===work)syncTask=null})
+    syncTask=work;return work
+  },
+  exportPendingActivity() { return JSON.stringify(readLocalActivity(),null,2) },
 
   // ── Kanban sort (localStorage) ─────────────────────────────────────────────
   getKanbanSort() {

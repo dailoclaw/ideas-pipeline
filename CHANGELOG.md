@@ -1,5 +1,15 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.11 (2026-10-10) — Honest history and complete exports
+### Fixed
+- Removed fabricated activity; corrected legacy predecessors, repeated transitions, counts and local decision-date boundaries
+- Paginated all six reads and refreshed CSV/Markdown exports; incomplete loads block downloads explicitly
+- Stable account-scoped activity outbox tokens, visible full/unavailable states and pending JSON export replace silent truncation
+### Added
+- Local migration 003 for idempotent activity replay and validated server actor/timestamps/payloads; Supabase rollout remains deferred
+- 23 history/paging/store/PostgreSQL/browser checks; all 180 tests pass
+- Tracker v1.0.14 records local step 8 work and open database acceptance; step 9 next
+
 ## v1.9.10 (2026-10-10) — Step 7 main publication
 ### Changed
 - Tracker v1.0.13 records the requested step 7 push and verified origin/main at ba5f915

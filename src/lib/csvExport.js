@@ -72,7 +72,7 @@ const COLUMNS = [
   ['Activity history', ({ idea, activityLog }) => (activityLog[idea.id] || [])
     .map(event => {
       const payload = event.payload && Object.keys(event.payload).length ? ` | ${JSON.stringify(event.payload)}` : ''
-      return `${formatExportDate(event.occurredAt)} | ${event.type || ''} | ${event.actor || ''}${payload}`
+      return `${formatExportDate(event.occurredAt)} | ${event.type || ''}${event.pending ? ' [pending synchronization]' : ''} | ${event.actor || ''}${payload}`
     })
     .join('\n')],
 ]

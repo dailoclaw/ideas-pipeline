@@ -22,8 +22,10 @@ backend.reset()
 export const supabase = {
   from(table) {
     if (!tableNames.includes(table)) throw new Error(`Unknown fixture table: ${table}`)
-    let operation = 'select', body, single = false, sort, filter = () => true
+    let limit=Infinity; let operation = 'select', body, single = false, sort, filter = () => true
     const query = {
+      limit(value) { limit=value; return this },
+      gt(field,value) { const previous=filter;filter=row=>previous(row) && Number(row[field])>value;return this },
       select() { return this },
       order(field, options = {}) { sort = { field, ascending: options.ascending !== false }; return this },
       eq(field, value) { const previous = filter; filter = row => previous(row) && row[field] === value; return this },
@@ -67,6 +69,7 @@ export const supabase = {
             }
           }
           if (sort) data.sort((a, b) => (a[sort.field] > b[sort.field] ? 1 : a[sort.field] < b[sort.field] ? -1 : 0) * (sort.ascending ? 1 : -1))
+          if(operation === 'select')data=data.slice(0,Math.min(limit,backend.rowCap ?? Infinity))
           return { data: clone(single ? data[0] ?? null : data), error: null }
         }).then(resolve, reject)
       },
@@ -114,6 +117,13 @@ supabase.rpc = async (name, args) => {
   let result
   try {
     let idea, override = null, previous, effective, history = null, activity = null
+    if (name === 'record_idea_activity') {
+      if(!backend.tables.ideas.some(i=>i.id===args.p_idea_id))throw new Error('Idea no longer exists')
+      const activity=await confirmed(supabase.from('idea_activity').insert({idea_id:args.p_idea_id,event_type:args.p_type,payload:args.p_payload,actor:'fixture-owner',occurred_at:args.p_occurred_at,client_request_id:args.p_request_id}))
+      result=clone({activity,replayed:false});backend.mutationRequests.set(args.p_request_id,{args:clone(args),result})
+      if(fault?.kind === 'lost-response')return {data:null,error:{message:'Fixture response lost after commit'}}
+      return {data:result,error:null}
+    }
     if (name === 'create_idea') {
       idea = await confirmed(supabase.from('ideas').insert({ ...args.p_fields, status: 'idea', is_seed: false, added_at: '2026-10-10' }))
       effective = 'idea'

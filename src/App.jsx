@@ -1,3 +1,4 @@
+import DataIntegrityNotice from './components/DataIntegrityNotice'
 import { scopeIdeas } from './lib/scoring'
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from './lib/store'
@@ -110,15 +111,16 @@ export default function App({ onSignOut, accountId }) {
   }, [tab, consoleTab, appLayout, openId, settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
 
   const triageCount = scopeIdeas(ideas, groupAssignments, groupFilter).filter(i => getStatus(i) === 'idea').length
-  const exportAllIdeas = () => downloadIdeasCsv({
-    ideas,
-    getStatus,
-    getGroup,
-    getSprintWeeks,
-    getSprintAssignment,
-    statusHistory,
-    activityLog,
-  })
+  const exportAllIdeas = async () => {
+    const state=useStore.getState()
+    if(!await state.load({background:true}) || !useStore.getState().activityHistoryComplete) {
+      useStore.setState({saveFeedback:{level:'warning',message:'Export blocked: the dataset or remote history is incomplete. Retry a complete refresh.',retry:()=>useStore.getState().load({background:true})}})
+      return
+    }
+    const snapshot=useStore.getState()
+    downloadIdeasCsv(snapshot)
+  }
+
 
   if (loading) return (
     <div className="flex items-center justify-center h-screen text-gray-400">
@@ -139,6 +141,7 @@ export default function App({ onSignOut, accountId }) {
 
   return (
     <div className="app-shell flex flex-col h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
+      <DataIntegrityNotice />
       {!openId && !addOpen && !editId && !triageOpen && <><SaveFeedback /><DraftNotice onOpen={setOpenId} /></>}
 
       {appLayout === 'obsidian' ? (

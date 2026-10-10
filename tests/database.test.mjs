@@ -204,3 +204,36 @@ test('initial seeds remain available through an explicit empty-dataset administr
     assert.equal((await fresh.query('SELECT count(*) AS n FROM public.ideas')).rows[0].n,SEED_IDEAS.length)
   } finally { await fresh.close() }
 })
+
+const record = async (token=randomUUID(),payload={fromLength:0,toLength:3},at='2026-01-01T00:00:00Z') =>
+  (await query('SELECT public.record_idea_activity($1::uuid,101,$2::text,$3::jsonb,$4::timestamptz) AS result',[token,'notes_updated',JSON.stringify(payload),at]))[0].result
+test('activity outbox migration preserves history and installs the retry contract', async()=>{
+  const before=await count('public.idea_activity')
+  await db.exec(await readFile(new URL('../database/history/003-activity-outbox.sql',import.meta.url),'utf8'))
+  assert.equal(await count('public.idea_activity'),before)
+})
+test('activity retries insert once and reject token reuse with different payloads', async()=>{
+  const token=randomUUID(),before=await count('public.idea_activity')
+  const first=await record(token),replay=await record(token)
+  assert.equal(first.activity.id,replay.activity.id);assert.equal(replay.replayed,true)
+  assert.equal(first.activity.actor,owner);assert.equal(first.activity.client_request_id,token)
+  assert.equal(await count('public.idea_activity'),before+1)
+  await assert.rejects(record(token,{fromLength:0,toLength:4}),/different values/)
+})
+test('activity rejects future timestamps and denied membership', async()=>{
+  await assert.rejects(record(randomUUID(),{},'2999-01-01T00:00:00Z'),/Invalid activity/)
+  await identity(outsider);await assert.rejects(record(),/Dataset access denied/);await identity(owner)
+})
+test('activity insert failure rolls back the retry ledger and succeeds after repair', async()=>{
+  const token=randomUUID()
+  await db.exec("ALTER TABLE public.idea_activity ADD CONSTRAINT test_outbox_failure CHECK(event_type <> 'notes_updated') NOT VALID")
+  await assert.rejects(record(token),/test_outbox_failure/)
+  assert.equal((await query('SELECT request_id FROM app_private.idea_mutation_requests WHERE request_id=$1',[token])).length,0)
+  await db.exec('ALTER TABLE public.idea_activity DROP CONSTRAINT test_outbox_failure')
+  assert.equal((await record(token)).replayed,false)
+})
+test('activity payload validation rejects malformed fields before inserting anything',async()=>{
+ const before=await count('public.idea_activity')
+ for(const payload of [{},{fromLength:'0',toLength:3},{fromLength:-1,toLength:3},{fromLength:0,toLength:1.5}])await assert.rejects(record(randomUUID(),payload),/Invalid activity payload/)
+ assert.equal(await count('public.idea_activity'),before)
+})

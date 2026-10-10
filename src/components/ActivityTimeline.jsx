@@ -1,3 +1,4 @@
+import { DECISION_TYPES, mergeTimeline, localDayKey, eventDate } from '../lib/history.js'
 import { useMemo, useState } from 'react'
 import { GROUPS } from '../data/groups'
 
@@ -22,13 +23,7 @@ const FIELD_LABELS = {
   plat: 'Platform',
 }
 
-const DECISION_TYPES = new Set([
-  'status_changed',
-  'priority_changed',
-  'score_adjusted',
-  'group_changed',
-  'sprint_scheduled',
-])
+
 
 const EVENT_META = {
   created:          { tone: 'violet', icon: 'plus' },
@@ -44,7 +39,7 @@ const EVENT_META = {
 const groupLabel = key => GROUPS.find(group => group.key === key)?.label || key || 'No group'
 const statusLabel = status => STATUS_LABELS[status] || status || 'Unknown'
 const signed = value => Number(value) > 0 ? `+${value}` : String(value || 0)
-const dayKey = value => String(value || '').slice(0, 10)
+const dayKey = localDayKey
 
 function describeEvent(event) {
   const p = event.payload || {}
@@ -119,15 +114,16 @@ function describeEvent(event) {
 }
 
 function formatDate(value) {
-  const date = new Date(value)
+  const date = eventDate(value)
   if (Number.isNaN(date.getTime())) return value || 'Earlier'
   const today = new Date()
   const yesterday = new Date(today)
   yesterday.setDate(today.getDate() - 1)
-  if (dayKey(date.toISOString()) === dayKey(today.toISOString())) {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return date.toLocaleDateString()
+  if (dayKey(date) === dayKey(today)) {
     return `Today, ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`
   }
-  if (dayKey(date.toISOString()) === dayKey(yesterday.toISOString())) return 'Yesterday'
+  if (dayKey(date) === dayKey(yesterday)) return 'Yesterday'
   return date.toLocaleDateString([], { day: 'numeric', month: 'short', year: date.getFullYear() === today.getFullYear() ? undefined : 'numeric' })
 }
 
@@ -146,38 +142,12 @@ function TimelineIcon({ name }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true">{paths[name] || paths.note}</svg>
 }
 
-export default function ActivityTimeline({ idea, activity = [], statusHistory = [] }) {
+export default function ActivityTimeline({ idea, activity = [], statusHistory = [], complete = true }) {
   const [filter, setFilter] = useState('all')
   const [expandedId, setExpandedId] = useState(null)
 
-  const events = useMemo(() => {
-    const richEvents = activity.map(event => ({ ...event, meta: EVENT_META[event.type] || EVENT_META.idea_updated }))
-    const legacyEvents = statusHistory
-      .filter(item => !richEvents.some(event => event.type === 'status_changed' && event.payload?.to === item.status && dayKey(event.occurredAt) === dayKey(item.date)))
-      .map((item, index) => ({
-        id: `legacy-status-${item.status}-${item.date}-${index}`,
-        ideaId: idea.id,
-        type: 'status_changed',
-        payload: { from: index > 0 ? statusHistory[index - 1]?.status : 'idea', to: item.status },
-        occurredAt: `${item.date}T12:00:00`,
-        actor: 'IdeaFlow',
-        meta: EVENT_META.status_changed,
-      }))
-
-    const hasCreated = richEvents.some(event => event.type === 'created')
-    const capturedEvent = !hasCreated && idea.addedAt ? [{
-      id: `captured-${idea.id}`,
-      ideaId: idea.id,
-      type: 'created',
-      payload: { name: idea.name },
-      occurredAt: `${idea.addedAt}T09:00:00`,
-      actor: 'IdeaFlow',
-      meta: EVENT_META.created,
-    }] : []
-
-    return [...richEvents, ...legacyEvents, ...capturedEvent]
-      .sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt))
-  }, [activity, idea.addedAt, idea.id, idea.name, statusHistory])
+  const events = useMemo(() => mergeTimeline(idea.id, activity, statusHistory)
+    .map(event => ({...event, meta: EVENT_META[event.type] || EVENT_META.idea_updated})), [activity, idea.id, statusHistory])
 
   const visibleEvents = filter === 'decisions'
     ? events.filter(event => DECISION_TYPES.has(event.type))
@@ -188,9 +158,9 @@ export default function ActivityTimeline({ idea, activity = [], statusHistory = 
       <div className="activity-timeline__summary">
         <div>
           <span>Trace every change</span>
-          <strong>{events.length} recorded {events.length === 1 ? 'event' : 'events'}</strong>
+          <strong>{visibleEvents.length} shown / {events.length} recorded {events.length === 1 ? 'event' : 'events'}</strong>
         </div>
-        <span className="activity-timeline__live"><i /> Live record</span>
+        <span className="activity-timeline__live"><i /> Loaded history</span>
       </div>
 
       <div className="activity-timeline__filters" role="group" aria-label="Filter timeline">
@@ -201,7 +171,7 @@ export default function ActivityTimeline({ idea, activity = [], statusHistory = 
       {visibleEvents.length === 0 ? (
         <div className="activity-timeline__empty">
           <TimelineIcon name="note" />
-          <strong>No decisions recorded yet</strong>
+          <strong>{!complete ? 'History is incomplete' : filter === 'decisions' ? 'No decisions recorded yet' : 'No activity recorded yet'}</strong>
           <span>Changes to status, score, priority, group, and sprint timing will appear here.</span>
         </div>
       ) : (
@@ -227,6 +197,7 @@ export default function ActivityTimeline({ idea, activity = [], statusHistory = 
                   </span>
                   <span className="activity-event__description">{content.description}</span>
                   <span className="activity-event__meta">
+                    {event.pending && <b>Pending synchronization</b>}
                     {isDecision && <b>Decision</b>}
                     <span>by {event.actor || 'You'}</span>
                     {hasDetails && <i>{expanded ? 'Hide detail' : 'Explain change'} <TimelineIcon name="chevron" /></i>}

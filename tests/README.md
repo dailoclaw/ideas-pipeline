@@ -133,7 +133,7 @@ cache validation, memory fallback, account isolation, deletion/logout cleanup
 and healthy appearance reload. `npm run test:storage` runs the ten adapter checks.
 See [storage guarantees and limits](../docs/STORAGE_RESILIENCE.md).
 
-## Step 7 additions — v1.9.9 (current)
+## Step 7 additions — v1.9.9
 
 `npm test` and strict mode: **157 passing checks, zero known/TODO failures**.
 Two C7 regressions are ordinary passing checks. Three scope/order checks and
@@ -142,3 +142,12 @@ priority ordering, hidden selection/retry safety and triage counts. Passing
 the baseline suite does not approve production; the remaining audit steps and
 deferred real database acceptance still apply. See
 [summary/workflow guarantees](../docs/SUMMARY_WORKFLOWS.md).
+
+## Step 8 additions — v1.9.11 (current)
+
+**180 ordinary passing checks; zero known/TODO failures.** Eight history/paging,
+six store, five PostgreSQL and four browser checks cover complete paginated
+exports, date boundaries, honest history, outbox replay and visible failure states.
+Migration 003 executes in local PGlite only; real JWT/RLS, independent-session
+contention and Supabase installation remain deferred. See
+[history/export guarantees and rollout](../docs/HISTORY_EXPORTS.md).

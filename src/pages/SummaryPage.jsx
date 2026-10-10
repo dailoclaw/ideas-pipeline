@@ -1,3 +1,4 @@
+import { buildMomentum, decisionPeriods, localDayKey } from '../lib/history.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea, sortIdeas, scopeIdeas, isStale, STATUS_LABELS } from '../lib/scoring'
@@ -14,28 +15,6 @@ const STATUS_META = [
   { key: 'done', label: 'Done', color: '#a69cff', icon: 'check' },
   { key: 'shelved', label: 'Shelved', color: '#d7a64a', icon: 'archive' },
 ]
-
-const weekLabel = date => date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
-
-function buildMomentum(events) {
-  const now = new Date()
-  const weeks = Array.from({ length: 6 }, (_, index) => {
-    const end = new Date(now)
-    end.setDate(end.getDate() - ((5 - index) * 7))
-    const start = new Date(end)
-    start.setDate(start.getDate() - 6)
-    start.setHours(0, 0, 0, 0)
-    end.setHours(23, 59, 59, 999)
-    return { start, end, label: weekLabel(end), count: 0 }
-  })
-
-  events.forEach(event => {
-    const occurred = new Date(event.occurredAt)
-    const week = weeks.find(item => occurred >= item.start && occurred <= item.end)
-    if (week) week.count += 1
-  })
-  return weeks
-}
 
 function MomentumChart({ weeks }) {
   const max = Math.max(1, ...weeks.map(week => week.count))
@@ -92,7 +71,7 @@ function IdeaRow({ idea, status, groupKey, onOpen }) {
 }
 
 export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
-  const { ideas, getStatus, getGroup, groupAssignments, statusOverrides, activityLog } = useStore()
+  const { ideas, getStatus, getGroup, groupAssignments, statusOverrides, activityLog, activityHistoryComplete } = useStore()
   const [view, setView] = useState('pulse')
   const [drillStatus, setDrillStatus] = useState('')
   const [search, setSearch] = useState('')
@@ -116,12 +95,7 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
     .flatMap(idea => activityLog[idea.id] || [])
     .sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt)), [scopedIdeas, activityLog])
 
-  const now = Date.now()
-  const recentEvents = events.filter(event => now - new Date(event.occurredAt).getTime() <= 30 * 86400000)
-  const priorEvents = events.filter(event => {
-    const age = now - new Date(event.occurredAt).getTime()
-    return age > 30 * 86400000 && age <= 60 * 86400000
-  })
+  const { recent: recentEvents, prior: priorEvents } = decisionPeriods(events)
   const movementDelta = recentEvents.length - priorEvents.length
   const completionRate = scopedIdeas.length ? Math.round((statusCounts.done / scopedIdeas.length) * 100) : 0
   const activeCount = statusCounts.building + statusCounts.ready + statusCounts.researching
@@ -166,10 +140,16 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
     : []
   const drillMeta = STATUS_META.find(status => status.key === drillStatus)
 
-  const exportMd = () => {
-    const date = new Date().toISOString().slice(0, 10)
+  const exportMd = async () => {
+    if(!await useStore.getState().load({background:true}) || !useStore.getState().activityHistoryComplete) {
+      useStore.setState({saveFeedback:{level:'warning',message:'Export blocked: the dataset or remote history is incomplete.',retry:()=>useStore.getState().load({background:true})}})
+      return
+    }
+    const snapshot=useStore.getState()
+    const exportIdeas=scopeIdeas(snapshot.ideas,snapshot.groupAssignments,groupFilter)
+    const date = localDayKey(new Date())
     const sections = STATUS_META.map(({ key, label }) => {
-      const rows = scopedIdeas.filter(idea => getStatus(idea) === key)
+      const rows = exportIdeas.filter(idea => snapshot.getStatus(idea) === key)
       if (!rows.length) return ''
       return `## ${label}\n\n${rows.map(idea => `### #${idea.id} ${idea.name}\n**Status:** ${label} | **Score:** ${scoreIdea(idea)} | **Build:** ${idea.time}\n\n${idea.pitch}\n`).join('\n')}`
     }).filter(Boolean).join('\n')
@@ -204,7 +184,7 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
             <div className="pulse-hero__copy">
               <span className="pulse-kicker"><i /> Live portfolio</span>
               <h2>{activeCount ? `${activeCount} ideas are moving forward` : 'The portfolio is ready for its next move'}</h2>
-              <p>{recentEvents.length
+              <p>{!activityHistoryComplete ? 'Activity history is incomplete; momentum reflects loaded events only.' : recentEvents.length
                 ? `${recentEvents.length} meaningful change${recentEvents.length === 1 ? '' : 's'} logged in the last 30 days${movementDelta ? ` · ${Math.abs(movementDelta)} ${movementDelta > 0 ? 'more' : 'fewer'} than the prior period` : ''}.`
                 : 'No decisions have been logged in the last 30 days. Review the ready queue to restart momentum.'}</p>
               <div className="pulse-hero__metrics">

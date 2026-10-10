@@ -1,3 +1,4 @@
+import { mergeTimeline } from '../lib/history.js'
 import { useRef, useState, useCallback } from 'react'
 import { useStore } from '../lib/store'
 import { TimePill, PlatPill, StatusBadge, ScoreBadge, STATUS_ICONS } from './Pills'
@@ -18,7 +19,7 @@ const ALL_STATUSES = [
 ]
 
 export default function IdeaModal({ ideaId, onClose, onEdit }) {
-  const { ideas, statusHistory, activityLog, getStatus, setStatus, deleteIdea, getGroup, setGroupAssignment, setPriority, pendingSaves, draftValues, draftStorageError, changeDraft, flushDrafts } = useStore()
+  const { ideas, statusHistory, activityLog, activityHistoryComplete, getStatus, setStatus, deleteIdea, getGroup, setGroupAssignment, setPriority, pendingSaves, draftValues, draftStorageError, changeDraft, flushDrafts } = useStore()
   const idea = ideas.find(i => i.id === ideaId)
   const ref = useRef()
   const [activeTab, setActiveTab] = useState('overview')
@@ -53,6 +54,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
   const status = getStatus(idea)
   const history = statusHistory[idea.id] || []
   const activity = activityLog[idea.id] || []
+  const eventCount = mergeTimeline(idea.id, activity, history).length
   const groupKey = getGroup(idea.id)
   const groupIcon = GROUPS.find(group => group.key === groupKey)?.icon || 'groups'
 
@@ -100,7 +102,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
             onClick={() => setActiveTab('activity')}
           >
             Activity
-            {(activity.length + history.length) > 0 && <span>{activity.length + history.length}</span>}
+            {(eventCount) > 0 && <span>{eventCount}</span>}
           </button>
         </div>
 
@@ -246,14 +248,14 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           <div className="activity-preview">
             <div>
               <span>Decision record</span>
-              <strong>{activity.length + history.length > 0 ? 'See how this idea evolved' : 'Ready for its first decision'}</strong>
+              <strong>{eventCount > 0 ? 'See how this idea evolved' : 'Ready for its first decision'}</strong>
             </div>
             <button type="button" onClick={() => setActiveTab('activity')}>View activity <span aria-hidden="true">→</span></button>
           </div>
         </div>
         ) : (
           <div className="idea-detail-activity flex-1 overflow-y-auto" role="tabpanel">
-            <ActivityTimeline idea={idea} activity={activity} statusHistory={history} />
+            <ActivityTimeline idea={idea} activity={activity} statusHistory={history} complete={activityHistoryComplete} />
           </div>
         )}
 

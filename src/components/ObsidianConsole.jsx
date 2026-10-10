@@ -1,3 +1,4 @@
+import { DECISION_TYPES as DECISION_EVENTS, isPastEvent } from '../lib/history.js'
 import { useMemo, useState } from 'react'
 import { useStore } from '../lib/store'
 import { gradeFromScore, isStale, scoreIdea, scopeIdeas, sortIdeas } from '../lib/scoring'
@@ -44,7 +45,7 @@ const EVENT_LABELS = {
   idea_updated: 'Idea updated',
 }
 
-const DECISION_EVENTS = new Set(['status_changed', 'priority_changed', 'score_adjusted', 'group_changed', 'sprint_scheduled'])
+
 
 function ObsidianMark() {
   return (
@@ -173,24 +174,15 @@ function activityDate(value) {
 }
 
 function ActivityPage({ groupFilter, onOpenIdea }) {
-  const { ideas, groupAssignments, getStatus, activityLog } = useStore()
+  const { ideas, groupAssignments, getStatus, activityLog, activityHistoryComplete } = useStore()
   const [filter, setFilter] = useState('all')
   const scoped = scopeIdeas(ideas, groupAssignments, groupFilter)
   const allowedIds = new Set(scoped.map(idea => idea.id))
   const ideasById = new Map(ideas.map(idea => [idea.id, idea]))
   const events = Object.values(activityLog).flat()
-    .filter(event => allowedIds.has(event.ideaId))
+    .filter(event => allowedIds.has(event.ideaId) && isPastEvent(event))
     .filter(event => filter === 'all' || (filter === 'decisions' ? DECISION_EVENTS.has(event.type) : event.type === 'status_changed'))
     .sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt))
-  const fallback = scoped.slice().sort((a, b) => scoreIdea(b) - scoreIdea(a)).slice(0, 6).map((idea, index) => ({
-    id: `snapshot-${idea.id}`,
-    ideaId: idea.id,
-    type: index === 0 ? 'priority_changed' : 'idea_updated',
-    payload: { to: index === 0 },
-    occurredAt: idea.addedAt || new Date(Date.now() - index * 86400000).toISOString(),
-    actor: 'IdeaFlow',
-  }))
-  const visible = events.length ? events : fallback
   const nextDecision = sortIdeas(scoped.filter(idea => ['idea', 'ready'].includes(getStatus(idea))), 'score')[0]
 
   return (
@@ -201,8 +193,9 @@ function ActivityPage({ groupFilter, onOpenIdea }) {
       <div className="obsidian-filter-row" role="group" aria-label="Filter portfolio activity">
         {[['all', 'All activity'], ['decisions', 'Decisions'], ['status', 'Status']].map(([key, label]) => <button key={key} className={filter === key ? 'is-active' : ''} onClick={() => setFilter(key)}>{label}</button>)}
       </div>
+      {!events.length && <p role="status">{activityHistoryComplete ? 'No activity matches this scope and filter.' : 'Activity history is unavailable or incomplete.'}</p>}
       <ol className="obsidian-event-list">
-        {visible.map((event, index) => {
+        {events.map((event, index) => {
           const idea = ideasById.get(event.ideaId)
           const decision = DECISION_EVENTS.has(event.type)
           return (

@@ -335,3 +335,45 @@ test('logout removes current account pending activity', async () => {
   useStore.getState().clearDrafts()
   assert.equal(values.has('ideas-webapp-pending-activity:owner'),false)
 })
+
+test('paginated load and CSV include more than 1000 ideas under smaller server caps',async()=>{
+ backend.tables.ideas=Array.from({length:1203},(_,i)=>({...backend.tables.ideas[0],id:i+1,name:`Fixture ${i+1}`}));backend.rowCap=37
+ try {
+  assert.equal(await useStore.getState().load(),true);assert.equal(useStore.getState().ideas.length,1203)
+  const {createIdeasCsv}=await import('../src/lib/csvExport.js')
+  assert.equal(createIdeasCsv(useStore.getState()).split('\r\n').length,1204)
+ }finally{delete backend.rowCap}
+})
+test('unavailable activity history is explicitly incomplete without blanking ideas',async()=>{
+ backend.deny('idea_activity','select');await useStore.getState().load()
+ assert.equal(useStore.getState().datasetComplete,true);assert.equal(useStore.getState().activityHistoryComplete,false)
+})
+test('lost activity response retries one stable token and creates exactly one row',async()=>{
+ backend.fault('record_idea_activity','rpc','lost-response')
+ await useStore.getState().logActivity(101,'notes_updated',{fromLength:0,toLength:3})
+ assert.equal(useStore.getState().outboxCount,1);assert.equal(backend.tables.idea_activity.length,1)
+ backend.faults=[];assert.equal(await useStore.getState().syncActivity(),true)
+ assert.equal(useStore.getState().outboxCount,0);assert.equal(backend.tables.idea_activity.length,1)
+ assert.equal(useStore.getState().activityLog[101].length,1)
+})
+test('full outbox preserves all existing events and warns instead of truncating',async()=>{
+ useStore.setState({activityPersistenceAvailable:false})
+ for(let n=0;n<100;n++)await useStore.getState().logActivity(101,'notes_updated',{fromLength:n,toLength:n+1})
+ await assert.rejects(useStore.getState().logActivity(101,'notes_updated',{fromLength:100,toLength:101}),/buffer full/)
+ assert.equal(JSON.parse(useStore.getState().exportPendingActivity()).length,100)
+ assert.match(useStore.getState().outboxError,/buffer full/)
+})
+test('parallel sync clicks share a worker and cannot duplicate activity',async()=>{
+ useStore.setState({activityPersistenceAvailable:false})
+ await useStore.getState().logActivity(101,'notes_updated',{fromLength:0,toLength:3})
+ await Promise.all([useStore.getState().syncActivity(),useStore.getState().syncActivity()])
+ assert.equal(backend.tables.idea_activity.length,1)
+})
+test('legacy token migration cannot replace a token whose response was lost',async()=>{
+ useStore.setState({activityPersistenceAvailable:false})
+ await useStore.getState().logActivity(101,'notes_updated',{fromLength:0,toLength:1})
+ const pending=JSON.parse(useStore.getState().exportPendingActivity()),token=pending[0].requestId
+ values.set('ideas-webapp-pending-activity:owner',JSON.stringify([...pending,{...pending[0],id:'local-legacy',requestId:undefined}]))
+ const recovered=JSON.parse(useStore.getState().exportPendingActivity())
+ assert.equal(recovered[0].requestId,token);assert.notEqual(recovered[1].requestId,token)
+})
