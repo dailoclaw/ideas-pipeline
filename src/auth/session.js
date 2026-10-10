@@ -27,7 +27,7 @@ export function createSessionController(client, onChange, onExit) {
         return
       }
       admittedId = nextSession.user.id
-      publish({ status: 'authorized', error: '' })
+      publish({ status: 'authorized', userId: admittedId, error: '' })
     } catch {
       if (stopped || ticket !== revision) return
       if (admittedId) { leave(); return }

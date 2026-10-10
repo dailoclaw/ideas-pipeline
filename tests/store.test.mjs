@@ -12,9 +12,10 @@ globalThis.localStorage = {
 globalThis.fetch = () => { throw new Error('Network access is forbidden in store fixtures') }
 const { useStore } = await loadFixtureStore()
 beforeEach(async () => {
+  useStore.getState().clearDrafts()
   values.clear(); backend.reset()
   useStore.setState({ ideas: [], statusOverrides: {}, statusHistory: {}, activityLog: {},
-    activityPersistenceAvailable: null, groupAssignments: {}, sprintAssignments: {}, loading: true, error: null, pendingSaves: {}, saveFeedback: null })
+    hasLoaded: false, dataRevision: 0, draftAccount: null, draftValues: {}, draftStorageError: false, activityPersistenceAvailable: null, groupAssignments: {}, sprintAssignments: {}, loading: true, error: null, pendingSaves: {}, saveFeedback: null })
   await useStore.getState().load()
 })
 
@@ -246,4 +247,54 @@ test('create history failure leaves no idea or activity and can retry the reques
   await retry()
   assert.equal(backend.tables.ideas.length,6)
   assert.equal(backend.tables.idea_activity.length,1)
+})
+
+test('notes and score drafts flush serially and preserve the latest values', async () => {
+  useStore.getState().configureDrafts('owner')
+  useStore.getState().changeDraft(101,'notes','Store-owned draft')
+  useStore.getState().changeDraft(101,'score',200)
+  assert.equal(await useStore.getState().flushDrafts(101),true)
+  assert.equal(backend.tables.ideas[0].notes,'Store-owned draft')
+  assert.equal(backend.tables.ideas[0].score_adjust,99)
+  assert.equal(useStore.getState().draftValues[101].notes.dirty,false)
+})
+test('failed draft flush retains dirty text and retries the latest draft', async () => {
+  useStore.getState().configureDrafts('owner');backend.deny('ideas','update')
+  useStore.getState().changeDraft(101,'notes','Retained text')
+  assert.equal(await useStore.getState().flushDrafts(101),false)
+  assert.equal(useStore.getState().draftValues[101].notes.state,'error')
+  backend.denied=[];useStore.getState().changeDraft(101,'notes','Latest retained text')
+  assert.equal(await useStore.getState().flushDrafts(101),true)
+  assert.equal(backend.tables.ideas[0].notes,'Latest retained text')
+})
+test('manual refresh retains the app shell and unsaved draft', async () => {
+  useStore.getState().configureDrafts('owner')
+  useStore.getState().changeDraft(101,'notes','Draft before refresh')
+  const refreshing=useStore.getState().load()
+  assert.equal(useStore.getState().loading,false)
+  await refreshing
+  assert.equal(useStore.getState().draftValues[101].notes.value,'Draft before refresh')
+})
+test('refresh read begun before a status mutation cannot overwrite the confirmed map', async () => {
+  const refreshing=useStore.getState().load({background:true})
+  await useStore.getState().setStatus(101,'ready')
+  await refreshing
+  assert.equal(useStore.getState().statusOverrides[101],'ready')
+  assert.equal(useStore.getState().loading,false)
+})
+test('deleting an idea removes its draft and scheduled saves', async () => {
+  useStore.getState().configureDrafts('owner')
+  useStore.getState().changeDraft(103,'notes','Deleted draft')
+  await useStore.getState().deleteIdea(103)
+  assert.equal(useStore.getState().draftValues[103],undefined)
+  assert.deepEqual(JSON.parse(values.get('ideas-webapp-drafts-v1:owner')), {})
+})
+test('draft flush waits for another same-idea save rather than rejecting the notes', async () => {
+  useStore.getState().configureDrafts('owner')
+  const saving=useStore.getState().setPriority(101,true)
+  useStore.getState().changeDraft(101,'notes','After priority')
+  const flush=useStore.getState().flushDrafts(101)
+  await saving;assert.equal(await flush,true)
+  assert.equal(backend.tables.ideas[0].is_priority,true)
+  assert.equal(backend.tables.ideas[0].notes,'After priority')
 })

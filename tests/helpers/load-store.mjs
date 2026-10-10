@@ -10,6 +10,7 @@ export async function loadFixtureStore() {
   try {
     let source = await readFile(resolve(root, 'src/lib/store.js'), 'utf8')
     const replacements = [
+      ["from './drafts.js'", `from '${pathToFileURL(resolve(root, 'src/lib/drafts.js')).href}'`],
       ["from './supabase'", `from '${pathToFileURL(resolve(root, 'tests/helpers/mock-supabase.js')).href}'`],
     ]
     for (const [before, after] of replacements) {

@@ -7,6 +7,7 @@ import { useSettings } from './hooks/useSettings'
 import { useAppLayout } from './hooks/useAppLayout'
 import { GROUPS } from './data/groups'
 import SaveFeedback from './components/SaveFeedback'
+import DraftNotice from './components/DraftNotice'
 import SettingsDrawer  from './components/SettingsDrawer'
 import LayoutPage      from './pages/LayoutPage'
 import SummaryPage     from './pages/SummaryPage'
@@ -50,7 +51,7 @@ function AppMark() {
   )
 }
 
-export default function App({ onSignOut }) {
+export default function App({ onSignOut, accountId }) {
   const [tab, setTab]         = useState('layout')
   const [consoleTab, setConsoleTab] = useState('pulse')
   const [groupFilter, setGroupFilter] = useState('')
@@ -73,7 +74,19 @@ export default function App({ onSignOut }) {
   useDialogFocus(mobileToolsRef, () => setMobileToolsOpen(false), mobileToolsOpen)
   useSpotlight(theme === 'aurora')
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    useStore.getState().configureDrafts(accountId)
+    const clear = () => useStore.getState().clearDrafts()
+    const beforeUnload = event => {
+      if (Object.values(useStore.getState().draftValues).some(fields => Object.values(fields).some(d => d.dirty))) {
+        event.preventDefault(); event.returnValue = ''
+      }
+    }
+    window.addEventListener('ideaflow-clear-drafts', clear)
+    window.addEventListener('beforeunload', beforeUnload)
+    void load()
+    return () => { window.removeEventListener('ideaflow-clear-drafts', clear); window.removeEventListener('beforeunload', beforeUnload) }
+  }, [accountId, load])
 
   useEffect(() => {
     const meta = document.querySelector('meta[name="theme-color"]')
@@ -88,12 +101,12 @@ export default function App({ onSignOut }) {
   }, [theme, dark])
 
   useEffect(() => {
-    if (settingsOpen || addOpen || editId || triageOpen || mobileToolsOpen) return
+    if (openId || settingsOpen || addOpen || editId || triageOpen || mobileToolsOpen) return
     requestAnimationFrame(() => {
       const shell = document.querySelector(appLayout === 'obsidian' ? '.obsidian-main' : '.app-shell')
       if (shell) shell.scrollTop = 0
     })
-  }, [tab, consoleTab, appLayout, settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
+  }, [tab, consoleTab, appLayout, openId, settingsOpen, addOpen, editId, triageOpen, mobileToolsOpen])
 
   const triageCount = ideas.filter(i => getStatus(i) === 'idea').length
   const exportAllIdeas = () => downloadIdeasCsv({
@@ -125,7 +138,7 @@ export default function App({ onSignOut }) {
 
   return (
     <div className="app-shell flex flex-col h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
-      {!openId && !addOpen && !editId && !triageOpen && <SaveFeedback />}
+      {!openId && !addOpen && !editId && !triageOpen && <><SaveFeedback /><DraftNotice onOpen={setOpenId} /></>}
 
       {appLayout === 'obsidian' ? (
         <ObsidianConsole

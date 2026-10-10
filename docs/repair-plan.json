@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.7",
+  "planVersion": "1.0.8",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "main",
+  "branch": "codex/safe-autosave",
   "readiness": "Not production-ready",
-  "scopeNote": "Steps 1 & 3 complete locally; Step 4 implementation verified, rollout open",
+  "scopeNote": "Steps 1, 3 & 5 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Steps 3 and 4 source changes pushed to main at 56f08d6 by request. 108 isolated checks: 102 pass, 6 known defects. Database rollout remains deferred; create/status require migration 002. Step 5 autosave and draft recovery is next.",
+  "progressNote": "Steps 3 and 4 pushed to main at 56f08d6; publication tracker at 4eeea4a. Step 5 detail notes/score autosave is verified locally: flush before dismissal/Edit, ordered saves, account-scoped reload recovery and safe background refresh. 131 checks: 126 pass, 5 known defects remain. No live SQL or step 5 push/deployment.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -242,25 +242,33 @@
       "title": "Prevent autosave data loss",
       "short": "Safe autosave",
       "priority": "Critical",
-      "status": "pending",
-      "summary": "Keep drafts alive across dialog closure and refresh; prevent older save responses overwriting newer text.",
+      "status": "local-complete",
+      "summary": "Notes/score autosave verified locally. Store-owned drafts flush before Close/Escape/backdrop/Edit, retain failures and survive same-account reload for review. Saves run in order, and refresh preserves drafts and the app shell. Live browser/database acceptance remains at the release gate.",
       "actions": [
         {
-          "text": "Move draft ownership and save scheduling outside the modal lifecycle."
+          "text": "Move draft ownership and save scheduling outside the modal lifecycle.",
+          "status": "complete",
+          "note": "Store-owned controller retains draft values and timers independently of the dialog, with guarded account-scoped dirty-value persistence."
         },
         {
-          "text": "Flush changes before Close, Escape, backdrop dismissal, Edit and navigation; retain recoverable drafts on failure."
+          "text": "Flush changes before Close, Escape, backdrop dismissal, Edit and navigation; retain recoverable drafts on failure.",
+          "status": "complete",
+          "note": "Close/Escape/backdrop/Edit await flush; failures retain the dialog/draft and Retry. Confirmed delete cancels its drafts. Background refresh preserves the shell and draft; reload offers review after login."
         },
         {
-          "text": "Serialize notes and score saves so older responses cannot overwrite newer values."
+          "text": "Serialize notes and score saves so older responses cannot overwrite newer values.",
+          "status": "complete",
+          "note": "Per-idea workers serialize notes/score and wait for other same-idea writes. Delayed older saves cannot clear/replace the newest draft. Account-generation guards stop obsolete workers."
         },
         {
           "text": "Refresh in the background without replacing the app shell.",
-          "status": "in-progress",
-          "note": "Post-save refreshes now run in the background without replacing the app shell. General refresh/draft lifecycle work remains open."
+          "status": "complete",
+          "note": "All subsequent loads run in the background. Load tickets discard old requests; mutation revisions retry a stale snapshot once, then retain client state with a warning."
         },
         {
-          "text": "Clean up score timers and keep input bounds consistent with persisted values."
+          "text": "Clean up score timers and keep input bounds consistent with persisted values.",
+          "status": "complete",
+          "note": "Component timers removed; controller timers are cancelled/flushed safely. Score input is clamped to the persisted -99/+99 bounds."
         }
       ],
       "verify": [
@@ -268,7 +276,21 @@
         "Reversed network response timing preserves the latest value.",
         "Failed saves retain the draft with Retry; page reload uses a recoverable local draft."
       ],
-      "issues": "C3 \u00b7 M4"
+      "issues": "C3 \u00b7 M4",
+      "evidence": [
+        {
+          "label": "Autosave behavior, verification and limits",
+          "href": "SAFE_AUTOSAVE.md"
+        },
+        {
+          "label": "Draft controller regressions",
+          "href": "../tests/drafts.test.mjs"
+        },
+        {
+          "label": "Dismissal/recovery browser checks",
+          "href": "../tests/browser.test.mjs"
+        }
+      ]
     },
     {
       "id": 6,
@@ -525,13 +547,18 @@
       "date": "2026-10-10",
       "title": "Steps 3 and 4 pushed to main",
       "body": "Fast-forwarded main and pushed 7d383ff and 56f08d6 by request; origin/main verified. No Supabase migration or deployment performed. Create/status actions on the new frontend require migration 002 and coordinated step 2 authorization. Step 5 now begins locally."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 5 safe detail autosave verified locally",
+      "body": "131 checks: 126 pass, 5 known failures. Immediate-close notes loss now passes. Added 9 controller, 6 store and 8 browser checks for ordered writes, close/Edit, draft retry, account-scoped reload recovery and logout cleanup. Build passes. Step 5 remains local; database rollout remains deferred. Next work is step 6 legacy configuration/storage resilience."
     }
   ],
-  "nextStepId": 5,
+  "nextStepId": 6,
   "verification": {
-    "tests": 108,
-    "passing": 102,
-    "knownFailures": 6,
+    "tests": 131,
+    "passing": 126,
+    "knownFailures": 5,
     "unexpectedFailures": 0
   }
 }

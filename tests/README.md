@@ -100,7 +100,7 @@ permission handling, concurrent override merging, safe parent deletion and Stric
 action reuse. The six remaining defects concern immediate-close notes, storage and
 stale summary membership. See `docs/RELIABLE_SAVES.md` for guarantees and limits.
 
-## Step 4 additions — v1.9.3 (current)
+## Step 4 additions — v1.9.3
 
 `npm test`: **108 checks, 102 pass, 6 known failures**. `npm run test:database`
 executes 20 ordinary passing checks against the actual migration in a disposable
@@ -114,3 +114,12 @@ independently enforce the transaction contract. PGlite has one connection, so it
 parallel request check does not simulate cross-session contention. Restored staging,
 real JWT/RLS tests and multi-session acceptance remain deferred. See
 [step 4 verification and rollout](../docs/TRANSACTION_INTEGRITY.md).
+
+## Step 5 additions — v1.9.5 (current)
+
+`npm test`: **131 checks, 126 pass, 5 known failures**. Immediate-close notes loss
+is promoted to an ordinary passing regression. `npm run test:drafts` runs nine
+controller checks without a browser/database. Six additional store and eight browser
+checks cover serialization, waiting, refresh, dismissal/Edit, bounded score, failed
+close/retry, account-scoped reload recovery and logout cleanup. See
+[autosave guarantees and limits](../docs/SAFE_AUTOSAVE.md).

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useRef, useState, useCallback } from 'react'
 import { useStore } from '../lib/store'
 import { TimePill, PlatPill, StatusBadge, ScoreBadge, STATUS_ICONS } from './Pills'
 import { GROUPS } from '../data/groups'
@@ -18,50 +18,25 @@ const ALL_STATUSES = [
 ]
 
 export default function IdeaModal({ ideaId, onClose, onEdit }) {
-  const { ideas, statusHistory, activityLog, getStatus, setStatus, deleteIdea, updateNotes, getGroup, setGroupAssignment, setScoreAdjust, setPriority, pendingSaves } = useStore()
+  const { ideas, statusHistory, activityLog, getStatus, setStatus, deleteIdea, getGroup, setGroupAssignment, setPriority, pendingSaves, draftValues, draftStorageError, changeDraft, flushDrafts } = useStore()
   const idea = ideas.find(i => i.id === ideaId)
   const ref = useRef()
   const [activeTab, setActiveTab] = useState('overview')
-  useDialogFocus(ref, onClose)
-
-  const [localNotes, setLocalNotes] = useState('')
   const [groupSaving, setGroupSaving] = useState(false)
   const [statusSaving, setStatusSaving] = useState(false)
-  const [adjSaving, setAdjSaving] = useState(false)
-  const [localAdj, setLocalAdj] = useState(0)
-  const adjTimer = useRef(null)
-
-  useEffect(() => {
-    if (idea) setLocalAdj(idea.scoreAdjust || 0)
-  }, [idea?.id])
-  const [saveState, setSaveState] = useState('idle') // idle | saving | saved
-  const saveTimer = useRef(null)
-  const notesKey = idea?.id
-
-  // Sync localNotes when idea changes
-  useEffect(() => {
-    if (idea) setLocalNotes(idea.notes || '')
-  }, [notesKey])
-
-  const saveNotes = useCallback(async val => {
-    setSaveState('saving')
-    try { await updateNotes(idea.id, val); setSaveState('saved') }
-    catch { setSaveState('error') }
-  }, [idea?.id, updateNotes])
-  const saveScore = async val => {
-    setAdjSaving(true)
-    try { await setScoreAdjust(idea.id, val); setLocalAdj(useStore.getState().ideas.find(i => i.id === idea.id)?.scoreAdjust || 0) }
-    catch { /* SaveFeedback retains the failed value and offers Retry. */ }
-    finally { setAdjSaving(false) }
+  const [closing, setClosing] = useState(false)
+  const draft = draftValues[ideaId] || {}
+  const localNotes = draft.notes?.value ?? idea?.notes ?? ''
+  const localAdj = draft.score?.value ?? idea?.scoreAdjust ?? 0
+  const saveState = draft.notes?.state || 'idle'
+  const adjSaving = ['pending', 'saving'].includes(draft.score?.state)
+  async function leave(action = onClose) {
+    if (closing) return
+    setClosing(true)
+    try { if (await flushDrafts(ideaId)) action() }
+    finally { setClosing(false) }
   }
-  const handleNotesChange = useCallback((val) => {
-    setLocalNotes(val)
-    setSaveState('saving')
-    clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(() => { void saveNotes(val) }, 800)
-  }, [saveNotes])
-
-  useEffect(() => () => clearTimeout(saveTimer.current), [])
+  useDialogFocus(ref, () => { void leave() })
 
   const handleStatusChange = useCallback(async (newStatus) => {
     if (!idea) return
@@ -84,7 +59,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
   return (
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      onClick={e => { if (e.target === e.currentTarget) void leave() }}
     >
       <div
         ref={ref}
@@ -106,7 +81,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               <ScoreBadge idea={idea} />
             </div>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1 -mt-1" aria-label="Close idea details"><Icon name="close" size={20} /></button>
+          <button disabled={closing} onClick={() => { void leave() }} className="text-gray-400 hover:text-gray-600 text-xl p-1 -mt-1" aria-label="Close idea details"><Icon name="close" size={20} /></button>
         </div>
 
         <div className="idea-detail-tabs" role="tablist" aria-label="Idea detail sections">
@@ -130,11 +105,15 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
         </div>
 
         <SaveFeedback onRetry={feedback => {
-          if (feedback.id === idea.id && feedback.method === 'updateNotes') { clearTimeout(saveTimer.current); return saveNotes(localNotes) }
-          if (feedback.id === idea.id && feedback.method === 'setScoreAdjust') { clearTimeout(adjTimer.current); return saveScore(localAdj) }
+          if (feedback.id === idea.id && ['updateNotes', 'setScoreAdjust'].includes(feedback.method)) return flushDrafts(idea.id)
           if (feedback.id === idea.id && feedback.method === 'deleteIdea') return feedback.retry().then(() => onClose())
           return feedback.retry()
         }} />
+        {Object.values(draft).some(d => d.dirty && d.state === 'error') && <div className="save-feedback save-feedback--warning" role="status">
+          <p>Unsaved draft retained. {draft.notes?.error || draft.score?.error}</p>
+          <button type="button" disabled={closing || !!pendingSaves[idea.id]} onClick={() => { void flushDrafts(idea.id) }}>Retry draft</button>
+        </div>}
+        {draftStorageError && Object.values(draft).some(d => d.dirty) && <p role="status" className="px-4 text-xs text-amber-700">Browser storage is unavailable. Keep this page open to preserve the draft.</p>}
         {/* Body */}
         {activeTab === 'overview' ? (
         <div className="idea-detail-overview flex-1 overflow-y-auto p-4 space-y-4" role="tabpanel">
@@ -163,16 +142,10 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               <input
                 type="number"
                 aria-label="Score adjustment"
-                disabled={!!pendingSaves[idea.id]}
+                disabled={closing}
                 min="-99" max="99" step="5"
                 value={localAdj}
-                onChange={e => {
-                  const v = parseInt(e.target.value) || 0
-                  setLocalAdj(v)
-                  setAdjSaving(true)
-                  clearTimeout(adjTimer.current)
-                  adjTimer.current = setTimeout(() => { void saveScore(v) }, 600)
-                }}
+                onChange={e => changeDraft(idea.id, 'score', e.target.value)}
                 className="w-20 text-sm font-bold text-center border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
               />
               <span className={`text-xs font-bold ${
@@ -256,7 +229,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           <div>
             <div className="flex items-center justify-between mb-1">
               <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400">Notes</div>
-              {saveState === 'saving' && <span className="text-[0.625rem] text-gray-400">Saving…</span>}
+              {['pending', 'saving'].includes(saveState) && <span className="text-[0.625rem] text-gray-400">Saving…</span>}
               {saveState === 'error' && <span className="text-xs text-red-600">Not saved</span>}
               {saveState === 'saved' && <span className="inline-flex items-center gap-1 text-[0.625rem] text-green-500 font-semibold"><Icon name="check" size={11} /> Saved</span>}
             </div>
@@ -265,7 +238,8 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               rows={3}
               placeholder="Add notes…"
               value={localNotes}
-              onChange={e => handleNotesChange(e.target.value)}
+              disabled={closing}
+              onChange={e => changeDraft(idea.id, 'notes', e.target.value)}
             />
           </div>
 
@@ -287,13 +261,14 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
         {idea.isNew && activeTab === 'overview' && (
           <div className="flex gap-2 p-4 border-t border-gray-100 flex-shrink-0">
             <button
-              onClick={() => onEdit(idea.id)}
+              disabled={closing}
+              onClick={() => { void leave(() => onEdit(idea.id)) }}
               className="flex-1 inline-flex items-center justify-center gap-1.5 text-sm font-bold py-2 rounded-xl border border-gray-200 text-gray-600"
             ><Icon name="edit" size={15} /> Edit</button>
             <button
               onClick={async () => {
                 if (!confirm(`Delete "${idea.name}"?`)) return
-                try { await deleteIdea(idea.id); onClose() }
+                try { if (!await flushDrafts(idea.id)) return; await deleteIdea(idea.id); onClose() }
                 catch { /* Keep the dialog open for retry. */ }
               }}
               className="inline-flex items-center justify-center text-sm font-bold py-2 px-3 rounded-xl border border-red-100 text-red-500"

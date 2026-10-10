@@ -19,7 +19,11 @@ export default function AuthGate() {
     const current = createSessionController(supabase, next => {
       setSession(next)
       if (next.status !== 'signed-out') setPassword('')
-    }, () => window.location.reload())
+    }, () => {
+      // The protected app registers synchronous draft cleanup after mounting.
+      window.dispatchEvent(new Event('ideaflow-clear-drafts'))
+      window.location.reload()
+    })
     controller.current = current
     const focus = () => current.recheck()
     window.addEventListener('focus', focus)
@@ -36,7 +40,7 @@ export default function AuthGate() {
 
   if (configurationError || !supabase) return <main className="auth-page"><section className="auth-card"><h1>Setup required</h1><p role="alert">{configurationError || 'The database connection is unavailable.'}</p></section></main>
   if (session.status === 'authorized') return <>
-    <Suspense fallback={<main className="auth-page"><p role="status">Loading your dataset…</p></main>}><ProtectedApp onSignOut={() => act(() => controller.current.signOut())} /></Suspense>
+    <Suspense fallback={<main className="auth-page"><p role="status">Loading your dataset…</p></main>}><ProtectedApp accountId={session.userId} onSignOut={() => act(() => controller.current.signOut())} /></Suspense>
   </>
   return <main className="auth-page"><section className="auth-card" aria-labelledby="auth-title">
     <p className="auth-brand">IdeaFlow · Private dataset</p>

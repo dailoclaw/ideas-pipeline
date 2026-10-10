@@ -1,5 +1,15 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.5 (2026-10-10) — Safe detail autosave and draft recovery
+### Fixed
+- Store-owned note/score drafts flush before dialog close, Escape, backdrop and Edit; failed flushes retain visible drafts and Retry
+- Ordered per-idea workers preserve newer edits, wait for other writes, cancel deleted drafts and enforce score bounds
+- Background refresh preserves the shell/drafts and refuses stale snapshots overtaken by saves
+### Added
+- Guarded account-scoped reload recovery with explicit review; logout/access loss clears current-account drafts and queued workers
+- 23 draft/store/browser checks; immediate-close notes promoted to a passing regression
+- Tracker v1.0.8 records 126 passes and five known failures; step 5 verified locally, step 6 next
+
 ## v1.9.4 (2026-10-10) — Steps 3 and 4 main publication
 ### Changed
 - Tracker v1.0.7 records the requested main push and verified origin/main at 56f08d6

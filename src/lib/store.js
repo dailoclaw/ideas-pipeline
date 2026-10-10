@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { supabase } from './supabase'
+import { createDraftController } from './drafts.js'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const today = () => new Date().toISOString().slice(0, 10)
@@ -109,14 +110,14 @@ async function mutate(set, get, method, id, args, work) {
     report(error)
     throw error
   }
-  set(state => ({ pendingSaves: { ...state.pendingSaves, [key]: true }, saveFeedback: null }))
+  set(state => ({ dataRevision: state.dataRevision + 1, pendingSaves: { ...state.pendingSaves, [key]: true }, saveFeedback: null }))
   try { return await work() }
   catch (error) { report(error); throw error }
   finally {
     set(state => {
       const pendingSaves = { ...state.pendingSaves }
       delete pendingSaves[key]
-      return { pendingSaves }
+      return { pendingSaves, dataRevision: state.dataRevision + 1 }
     })
   }
 }
@@ -133,7 +134,22 @@ const recordActivity = (get, id, type, payload) => async () => {
   return get().activityPersistenceAvailable !== false
 }
 
-export const useStore = create((set, get) => ({
+export const useStore = create((set, get) => {
+  let loadTicket = 0
+  const drafts = createDraftController({
+    publish: (draftValues, draftStorageError) => set({ draftValues, draftStorageError }),
+    save: async (id, field, value) => {
+      const account = get().draftAccount
+      if (get().pendingSaves[id]) await new Promise(resolve => {
+        const unsubscribe = useStore.subscribe(state => {
+          if (!state.pendingSaves[id] || state.draftAccount !== account) { unsubscribe(); resolve() }
+        })
+      })
+      if (get().draftAccount !== account) throw new Error('Account changed; draft save stopped.')
+      return field === 'notes' ? get().updateNotes(id, value) : get().setScoreAdjust(id, value)
+    },
+  })
+  return ({
   ideas: [],
   statusOverrides: {},   // { [id]: 'done' | 'shelved' | null }
   statusHistory: {},     // { [id]: [{status, date}] }
@@ -144,6 +160,19 @@ export const useStore = create((set, get) => ({
   loading: true,
   error: null,
   pendingSaves: {},
+  dataRevision: 0,
+  hasLoaded: false,
+  draftAccount: null,
+  draftValues: {},
+  draftStorageError: false,
+  configureDrafts(account) { drafts.configure(account); set({ draftAccount: account }) },
+  changeDraft(id, field, value) {
+    const idea = requireIdea(get, id)
+    drafts.change(id, field, value, field === 'notes' ? idea.notes : idea.scoreAdjust)
+  },
+  flushDrafts(id) { return drafts.flush(id) },
+  flushAllDrafts() { return drafts.flushAll() },
+  clearDrafts() { set({ draftAccount: null }); drafts.clear() },
   saveFeedback: null,
   clearSaveFeedback() { set({ saveFeedback: null }) },
 
@@ -155,7 +184,9 @@ export const useStore = create((set, get) => ({
   },
 
   // ── Load ─────────────────────────────────────────────────────────────────
-  async load({ background = false } = {}) {
+  async load({ background = false, retry = 0 } = {}) {
+    background = background || get().hasLoaded
+    const ticket = ++loadTicket, revision = get().dataRevision
     if (!background) set({ loading: true, error: null })
     try {
       // Fetch ideas
@@ -230,7 +261,14 @@ export const useStore = create((set, get) => ({
       // Normalise: Supabase uses snake_case, app uses camelCase
       const ideas = (rows || []).map(normaliseIdea)
 
+      if (ticket !== loadTicket) return false
+      if (revision !== get().dataRevision) {
+        if (retry < 1) return get().load({ background: true, retry: retry + 1 })
+        throw new Error('Refresh was overtaken by newer changes. Retry when saves finish.')
+      }
+      drafts.reconcile(ideas)
       set({
+        hasLoaded: true,
         ideas,
         statusOverrides: overrideMap,
         statusHistory: historyMap,
@@ -243,6 +281,7 @@ export const useStore = create((set, get) => ({
       })
       return true
     } catch (err) {
+      if (ticket !== loadTicket) return false
       console.error('Load error:', err)
       if (background) set({ saveFeedback: { level: 'warning', message: 'Refresh failed. Your last confirmed changes are still shown.', retry: () => get().load({ background: true }) } })
       else set({ error: err.message, loading: false })
@@ -283,6 +322,7 @@ export const useStore = create((set, get) => ({
       requireIdea(get, id)
       // Supplied schema has cascading foreign keys. Never delete children before the parent.
       await confirmDelete(supabase.from('ideas').delete().eq('id', id), 'id', id)
+      drafts.remove(id)
       set(state => {
         const maps = {}
         for (const key of ['statusOverrides', 'statusHistory', 'activityLog', 'groupAssignments', 'sprintAssignments']) {
@@ -459,4 +499,5 @@ export const useStore = create((set, get) => ({
     // Trigger re-render by touching state
     set(s => ({ ...s }))
   },
-}))
+})
+})
