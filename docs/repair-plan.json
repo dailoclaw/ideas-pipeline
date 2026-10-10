@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.12",
+  "planVersion": "1.0.13",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "codex/summary-workflows",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6 & 7 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 7 summary/workflow repairs verified locally: 157 checks pass with zero known/TODO failures. Shared workspace scope and priority ordering, immediate summary/console updates, safe selections and separate triage decision/deferral counts. No main push, live SQL or deployment; next work is step 8 history/export completeness.",
+  "progressNote": "Step 7 source pushed to main at ba5f915 by request; origin/main verified. Recorded checks: all 157 pass, zero known/TODO failures. Live backup/staging and database rollout remain deferred; no deployment verification claimed. Next planned work is step 8 history/export completeness.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -348,7 +348,7 @@
       "short": "State & feedback",
       "priority": "High",
       "status": "local-complete",
-      "summary": "Summary and console reporting observe assignment/status maps. Shared scope/order includes Groups/Spaces; hidden selections and stale batch retries are cleared. Triage decisions and deferrals are counted separately. All 157 isolated checks pass; source remains local, with production/database acceptance still open.",
+      "summary": "Summary and console reporting observe assignment/status maps. Shared scope/order includes Groups/Spaces; hidden selections and stale batch retries are cleared. Triage decisions and deferrals are counted separately. All 157 isolated checks pass; source pushed to main at ba5f915, with production/database acceptance still open.",
       "actions": [
         {
           "text": "Make group/status maps explicit inputs to memoized calculations.",
@@ -612,6 +612,11 @@
       "date": "2026-10-10",
       "title": "Step 7 summary and workflow repairs verified locally",
       "body": "157 checks pass, zero known/TODO failures. Two C7 regressions now pass; ten new scope/order/browser checks verify map updates, Groups/Spaces filtering, hidden selections, priority ordering and triage decisions/deferrals. Build passes. No main push/live SQL/deployment; step 8 next. Original regression completion does not satisfy the production release gate."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 7 pushed to main",
+      "body": "User requested publication. Fast-forwarded main and pushed ba5f915; verified origin/main. Recorded verification: 157 checks pass without known/TODO failures; build passes. Untracked review assets preserved. No live SQL or deployment verification; step 8 remains next."
     }
   ],
   "nextStepId": 8,

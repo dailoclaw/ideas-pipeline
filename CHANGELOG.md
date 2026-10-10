@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.10 (2026-10-10) — Step 7 main publication
+### Changed
+- Tracker v1.0.13 records the requested step 7 push and verified origin/main at ba5f915
+- Retains passing regression evidence and deferred database rollout; no deployment verification claimed
+
 ## v1.9.9 (2026-10-10) — Synchronized summaries and workflow feedback
 ### Fixed
 - Assignment/status map changes invalidate summary and console rankings immediately
