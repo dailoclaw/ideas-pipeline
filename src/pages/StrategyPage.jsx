@@ -77,14 +77,7 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
                 key={idea.id}
                 className="strategy-row bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3 cursor-pointer hover:border-violet-300 dark:hover:border-violet-600 transition-colors"
                 style={{ '--v': fillFor(score) }}
-                role="button"
-                tabIndex={0}
-                aria-label={`Open #${idea.id} ${idea.name}`}
-                onClick={open}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open() }
-                  if (e.key === 'ArrowRight' && next) { e.preventDefault(); void setStatus(idea.id, next).catch(() => {}) }
-                }}
+                onClick={e => { if (!e.target.closest('button,input')) open() }}
               >
                 <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
                 <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
@@ -114,9 +107,9 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
 
                 {/* Idea name — always wraps, never truncated */}
                 <div className="strategy-row__body pl-7">
-                  <div className="text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug mb-1">
+                  <button type="button" className="card-open block text-left text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug mb-1" aria-label={`Open #${idea.id} ${idea.name}`} onClick={open} onKeyDown={e => { if (e.key === 'ArrowRight' && next) { e.preventDefault(); void setStatus(idea.id, next).catch(() => {}) } }}>
                     #{idea.id} {idea.name}
-                  </div>
+                  </button>
                   <div className="flex flex-wrap gap-1.5 items-center">
                     <TimePill time={idea.time} />
                     <span className="text-xs text-gray-400 dark:text-slate-500">{idea.pitch.slice(0, 70)}{idea.pitch.length > 70 ? '…' : ''}</span>

@@ -1,5 +1,15 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.15 (2026-10-11) — Accessible workflows and review navigation
+### Fixed
+- Native labelled forms and separate card/checkbox/advance controls, linked keyboard tabs and pressed/expanded states
+- Modal background isolation, focus restoration and Kanban remount/scope timing bugs affecting keyboard focus
+- Keyboard/touch score disclosure, narrow-screen positioning, theme muted-text contrast and reduced-motion behavior
+### Added
+- Review repair controller and separate accessible-copy generators preserve historical HTML/assets while fixing IDs, hashes, lightbox keys/focus and tall-slide tracking
+- Ten additional regressions; all 201 strict checks pass, build and four-width doubled-text QA pass
+- Tracker v1.0.18 records local step 10 completion and manual release acceptance limits; step 11 next
+
 ## v1.9.14 (2026-10-11) — Step 9 main publication
 ### Changed
 - Tracker v1.0.17 records requested step 9 publication and verified origin/main at c6f7df6

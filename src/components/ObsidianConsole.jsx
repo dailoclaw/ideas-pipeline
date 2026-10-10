@@ -191,7 +191,7 @@ function ActivityPage({ groupFilter, onOpenIdea }) {
         <div><span>Decision record</span><h1>Activity</h1><p>Decisions, status changes and next steps.</p></div>
       </header>
       <div className="obsidian-filter-row" role="group" aria-label="Filter portfolio activity">
-        {[['all', 'All activity'], ['decisions', 'Decisions'], ['status', 'Status']].map(([key, label]) => <button key={key} className={filter === key ? 'is-active' : ''} onClick={() => setFilter(key)}>{label}</button>)}
+        {[['all', 'All activity'], ['decisions', 'Decisions'], ['status', 'Status']].map(([key, label]) => <button key={key} className={filter === key ? 'is-active' : ''} aria-pressed={filter === key} onClick={() => setFilter(key)}>{label}</button>)}
       </div>
       {!events.length && <p role="status">{activityHistoryComplete ? 'No activity matches this scope and filter.' : 'Activity history is unavailable or incomplete.'}</p>}
       <ol className="obsidian-event-list">

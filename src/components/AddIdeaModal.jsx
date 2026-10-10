@@ -9,7 +9,7 @@ import { TIME_ICONS } from './Pills'
 const EMPTY = { name:'', pitch:'', target:'', pain:'', mvp:[''], win:'', time:'1-2w', plat:'html', notes:'' }
 
 export default function AddIdeaModal({ editId, onClose }) {
-  const { ideas, addIdea, editIdea } = useStore()
+  const { ideas, addIdea, editIdea, saveFeedback } = useStore()
   const existing = editId ? ideas.find(i => i.id === editId) : null
   const [form, setForm] = useState(existing ? {
     name: existing.name, pitch: existing.pitch, target: existing.target,
@@ -20,7 +20,7 @@ export default function AddIdeaModal({ editId, onClose }) {
   const [error, setError] = useState('')
   const requestId = useRef(null)
   const dialogRef = useRef(null)
-  useDialogFocus(dialogRef, onClose)
+  useDialogFocus(dialogRef, () => { if (!saving) onClose() })
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
   const setMvp = (i, val) => setForm(f => {
@@ -53,12 +53,12 @@ export default function AddIdeaModal({ editId, onClose }) {
   return (
     <div
       className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center"
-      onClick={e => { if (e.target === e.currentTarget) onClose() }}
+      onClick={e => { if (e.target === e.currentTarget && !saving) onClose() }}
     >
-      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="add-idea-title" tabIndex={-1} className="app-dialog bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] flex flex-col shadow-2xl">
+      <form noValidate onSubmit={e => { e.preventDefault(); void submit() }} ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="add-idea-title" tabIndex={-1} className="app-dialog bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] flex flex-col shadow-2xl">
         <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
           <h2 id="add-idea-title" className="text-base font-bold text-gray-900">{existing ? 'Edit idea' : 'Add new idea'}</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close idea form"><Icon name="close" size={20} /></button>
+          <button type="button" disabled={saving} onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close idea form"><Icon name="close" size={20} /></button>
         </div>
 
         <SaveFeedback onRetry={feedback => {
@@ -66,17 +66,17 @@ export default function AddIdeaModal({ editId, onClose }) {
           return feedback.retry()
         }} />
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          <Field label="Name *">
-            <input className="input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. Award Rate Monitor" />
+          <Field label="Name *" id="idea-name">
+            <input id="idea-name" required aria-invalid={!!error && !form.name.trim()} aria-describedby={error ? "idea-form-error" : undefined} className="input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. Award Rate Monitor" />
           </Field>
-          <Field label="Pitch *">
-            <textarea className="input h-16 resize-none" value={form.pitch} onChange={e => set('pitch', e.target.value)} placeholder="One sentence — what it does and why it matters" />
+          <Field label="Pitch *" id="idea-pitch">
+            <textarea id="idea-pitch" required aria-invalid={!!error && !form.pitch.trim()} aria-describedby={error ? "idea-form-error" : undefined} className="input h-16 resize-none" value={form.pitch} onChange={e => set('pitch', e.target.value)} placeholder="One sentence — what it does and why it matters" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Build time">
+            <Field label="Build time" id="idea-time">
               <div className="select-icon-field">
                 <Icon name={Object.hasOwn(TIME_ICONS, form.time) ? TIME_ICONS[form.time] : 'clock'} size={16} />
-                <select className="input" value={form.time} onChange={e => set('time', e.target.value)}>
+                <select id="idea-time" className="input" value={form.time} onChange={e => set('time', e.target.value)}>
                   {!TIMES.includes(form.time) && <option value={form.time}>Unknown — choose a build time</option>}
                   <option value="1w">1 week</option>
                   <option value="1-2w">1–2 weeks</option>
@@ -84,8 +84,8 @@ export default function AddIdeaModal({ editId, onClose }) {
                 </select>
               </div>
             </Field>
-            <Field label="Platform">
-              <select className="input" value={form.plat} onChange={e => set('plat', e.target.value)}>
+            <Field label="Platform" id="idea-plat">
+              <select id="idea-plat" className="input" value={form.plat} onChange={e => set('plat', e.target.value)}>
                 {!PLATFORMS.includes(form.plat) && <option value={form.plat}>Unknown — choose a platform</option>}
                   <option value="html">HTML tool</option>
                 <option value="hub">Awards Hub</option>
@@ -93,56 +93,55 @@ export default function AddIdeaModal({ editId, onClose }) {
               </select>
             </Field>
           </div>
-          <Field label="Who it's for">
-            <input className="input" value={form.target} onChange={e => set('target', e.target.value)} placeholder="Specific person in a specific situation" />
+          <Field label="Who it's for" id="idea-target">
+            <input id="idea-target" className="input" value={form.target} onChange={e => set('target', e.target.value)} placeholder="Specific person in a specific situation" />
           </Field>
-          <Field label="The Problem">
-            <textarea className="input h-20 resize-none" value={form.pain} onChange={e => set('pain', e.target.value)} placeholder="The exact daily problem this solves" />
+          <Field label="The Problem" id="idea-pain">
+            <textarea id="idea-pain" className="input h-20 resize-none" value={form.pain} onChange={e => set('pain', e.target.value)} placeholder="The exact daily problem this solves" />
           </Field>
           <div>
             <div className="label">MVP bullets</div>
             {form.mvp.map((m, i) => (
               <div key={i} className="flex gap-2 mb-1.5">
                 <input
-                  className="input flex-1"
+                  aria-label={`MVP step ${i + 1}`} className="input flex-1"
                   value={m}
                   onChange={e => setMvp(i, e.target.value)}
                   placeholder={`Step ${i + 1}`}
                 />
                 {form.mvp.length > 1 && (
-                  <button onClick={() => removeMvp(i)} className="text-red-400 px-2" aria-label={`Remove step ${i + 1}`}><Icon name="close" size={18} /></button>
+                  <button type="button" onClick={() => removeMvp(i)} className="text-red-400 px-2" aria-label={`Remove step ${i + 1}`}><Icon name="close" size={18} /></button>
                 )}
               </div>
             ))}
-            <button onClick={addMvp} className="inline-flex items-center gap-1 text-xs text-violet-600 font-semibold mt-1"><Icon name="plus" size={14} /> Add step</button>
+            <button type="button" onClick={addMvp} className="inline-flex items-center gap-1 text-xs text-violet-600 font-semibold mt-1"><Icon name="plus" size={14} /> Add step</button>
           </div>
-          <Field label="Why it wins">
-            <textarea className="input h-16 resize-none" value={form.win} onChange={e => set('win', e.target.value)} placeholder="One clear differentiator" />
+          <Field label="Why it wins" id="idea-win">
+            <textarea id="idea-win" className="input h-16 resize-none" value={form.win} onChange={e => set('win', e.target.value)} placeholder="One clear differentiator" />
           </Field>
-          <Field label="Notes">
-            <textarea className="input h-16 resize-none" value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Any extra context for Dailo" />
+          <Field label="Notes" id="idea-notes">
+            <textarea id="idea-notes" className="input h-16 resize-none" value={form.notes} onChange={e => set('notes', e.target.value)} placeholder="Any extra context for Dailo" />
           </Field>
         </div>
 
-        {error && <div className="px-4 py-2 text-sm text-red-600 bg-red-50">{error}</div>}
+        {error && <div id="idea-form-error" role={saveFeedback?.level === 'error' && saveFeedback.message.includes(error) ? 'note' : 'alert'} className="px-4 py-2 text-sm text-red-600 bg-red-50">{error}</div>}
 
         <div className="flex gap-3 p-4 border-t border-gray-100 flex-shrink-0">
-          <button onClick={onClose} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500">Cancel</button>
-          <button
-            onClick={submit}
+          <button type="button" disabled={saving} onClick={onClose} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500">Cancel</button>
+          <button type="submit"
             disabled={saving}
             className="flex-1 py-3 rounded-xl bg-violet-600 text-white text-sm font-bold disabled:opacity-50"
           >{saving ? 'Saving…' : (existing ? 'Save changes' : 'Add idea')}</button>
         </div>
-      </div>
+      </form>
     </div>
   )
 }
 
-function Field({ label, children }) {
+function Field({ label, id, children }) {
   return (
     <div>
-      <div className="label">{label}</div>
+      <label htmlFor={id} className="label block">{label}</label>
       {children}
     </div>
   )

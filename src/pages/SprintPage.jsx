@@ -84,25 +84,25 @@ export default function SprintPage({ groupFilter = '' }) {
         <div className="space-y-1.5">
           {unscheduled.map(idea => (
             <div key={idea.id}>
-              <div
-                className={`bg-white dark:bg-slate-800 border rounded-xl p-3 cursor-pointer transition-colors
+              <button type="button" aria-expanded={selected === idea.id} aria-controls={`sprint-assign-${idea.id}`}
+                className={`block w-full text-left bg-white dark:bg-slate-800 border rounded-xl p-3 cursor-pointer transition-colors
                   ${selected === idea.id ? 'border-violet-400 dark:border-violet-500 bg-violet-50 dark:bg-violet-900/20' : 'border-gray-200 dark:border-slate-700 hover:border-violet-300'}`}
                 onClick={() => setSelected(selected === idea.id ? null : idea.id)}
               >
-                <div className="flex items-start gap-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug">#{idea.id} {idea.name}</div>
-                    <div className="flex flex-wrap gap-1.5 mt-1.5">
+                <span className="flex items-start gap-2">
+                  <span className="flex-1 min-w-0">
+                    <span className="text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug">#{idea.id} {idea.name}</span>
+                    <span className="flex flex-wrap gap-1.5 mt-1.5">
                       <TimePill time={idea.time} />
                       <PlatPill plat={idea.plat} />
-                    </div>
-                  </div>
+                    </span>
+                  </span>
                   <Icon name={selected === idea.id ? 'chevronDown' : 'chevronRight'} size={16} className="text-gray-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
-                </div>
-              </div>
+                </span>
+              </button>
 
               {selected === idea.id && (
-                <div className="mt-1 p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl">
+                <div id={`sprint-assign-${idea.id}`} className="mt-1 p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl">
                   <div className="text-xs font-semibold text-gray-500 dark:text-slate-400 mb-2">Assign start week:</div>
                   <div className="sprint-week-grid grid grid-cols-4 gap-1.5">
                     {Array.from({ length: WEEKS }, (_, i) => i + 1).map(w => (

@@ -21,6 +21,22 @@ export function useDialogFocus(ref, onClose, active = true) {
 
     const dialog = ref.current
     const previousFocus = document.activeElement
+    const focusLabel = previousFocus?.getAttribute?.('aria-label')
+    const isolated = []
+    for (let node = dialog; node?.parentElement; node = node.parentElement) {
+      for (const sibling of node.parentElement.children) {
+        if (sibling === node || !(sibling instanceof HTMLElement)) continue
+        isolated.push([sibling, sibling.inert])
+        sibling.inert = true
+      }
+      if (node.parentElement === document.body) break
+    }
+    const oldOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const containFocus = event => {
+      if (!dialog.contains(event.target)) dialog.focus({ preventScroll: true })
+    }
+    document.addEventListener('focusin', containFocus)
     const getFocusable = () => [...dialog.querySelectorAll(FOCUSABLE)]
       .filter(element => element.getClientRects().length && element.getAttribute('aria-hidden') !== 'true')
 
@@ -59,9 +75,13 @@ export function useDialogFocus(ref, onClose, active = true) {
     return () => {
       cancelAnimationFrame(frame)
       document.removeEventListener('keydown', handleKeyDown)
-      if (previousFocus instanceof HTMLElement && previousFocus.isConnected) {
-        previousFocus.focus({ preventScroll: true })
-      }
+      document.removeEventListener('focusin', containFocus)
+      isolated.reverse().forEach(([element, inert]) => { element.inert = inert })
+      document.body.style.overflow = oldOverflow
+      const returnFocus = previousFocus instanceof HTMLElement && previousFocus.isConnected
+        ? previousFocus
+        : focusLabel && [...document.querySelectorAll('[aria-label]')].find(el => el.getAttribute('aria-label') === focusLabel && !el.closest('[inert]'))
+      returnFocus?.focus({ preventScroll: true })
     }
   }, [active, ref])
 }

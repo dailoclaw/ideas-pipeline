@@ -46,7 +46,7 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
           <div key={group.key} className="group-section bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl overflow-hidden">
             <button
               className="group-section__toggle w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
-              onClick={() => toggle(group.key)}
+              aria-expanded={isOpen} aria-controls={`workspace-${group.key}`} onClick={() => toggle(group.key)}
             >
               <div className="group-section__copy flex items-center gap-2">
                 <span className="group-icon" aria-hidden="true"><Icon name={group.icon} size={18} /></span>
@@ -66,7 +66,7 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
             </button>
 
             {isOpen && (
-              <div className="border-t border-gray-100 dark:border-slate-700 divide-y divide-gray-50 dark:divide-slate-700/50">
+              <div id={`workspace-${group.key}`} className="border-t border-gray-100 dark:border-slate-700 divide-y divide-gray-50 dark:divide-slate-700/50">
                 {groupIdeas.length === 0 ? (
                   <div className="px-4 py-3 text-xs text-gray-400">
                     No ideas assigned to this group yet. Open any idea and set its group.
@@ -76,20 +76,20 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
                     const status = getStatus(idea)
                     const faded  = ['done', 'shelved'].includes(status)
                     return (
-                      <div
+                      <button type="button"
                         key={idea.id}
-                        className={`px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors ${faded ? 'opacity-50' : ''}`}
-                        onClick={() => onOpenIdea(idea.id)}
+                        className={`block w-full text-left px-4 py-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors ${faded ? 'opacity-50' : ''}`}
+                        aria-label={`Open #${idea.id} ${idea.name}`} onClick={() => onOpenIdea(idea.id)}
                       >
-                        <div className="flex items-start gap-2">
+                        <span className="flex items-start gap-2">
                           <span className="text-xs text-gray-400 dark:text-slate-500 flex-shrink-0 mt-0.5 w-6">#{idea.id}</span>
                           <span className="text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug">{idea.name}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-1.5 pl-8 flex-wrap">
+                        </span>
+                        <span className="flex items-center gap-1.5 mt-1.5 pl-8 flex-wrap">
                           <TimePill time={idea.time} />
                           <StatusBadge status={status} />
-                        </div>
-                      </div>
+                        </span>
+                      </button>
                     )
                   })
                 )}

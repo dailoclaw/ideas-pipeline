@@ -1,8 +1,9 @@
+import { accessibleReview } from './accessible-review.mjs'
 import { readFile, writeFile } from 'node:fs/promises'
 import { extname, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
-const output = resolve(import.meta.dirname, 'idea-flow-next-5-mobile-ux-ideas-2026.html')
+const output = resolve(import.meta.dirname, 'idea-flow-next-5-mobile-ux-ideas-2026-accessible.html')
 
 const image = async path => {
   const full = resolve(root, path)
@@ -121,5 +122,5 @@ ${conceptSlides}
 const slides=[...document.querySelectorAll('.slide')],rail=document.querySelector('.rail'),bar=document.querySelector('.progress i'),counter=document.querySelector('#counter');slides.forEach(slide=>{const link=document.createElement('a');link.href='#'+slide.id;link.textContent=slide.dataset.label;link.title=slide.dataset.label;rail.appendChild(link)});const dots=[...rail.children];let current=0;function sync(){const middle=scrollY+innerHeight*.48;let best=0;slides.forEach((slide,index)=>{if(slide.offsetTop<=middle)best=index});current=best;dots.forEach((dot,index)=>dot.classList.toggle('active',index===current));counter.textContent=String(current+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');bar.style.width=((current+1)/slides.length*100)+'%'}addEventListener('scroll',sync,{passive:true});addEventListener('resize',sync);sync();const go=index=>slides[Math.max(0,Math.min(slides.length-1,index))].scrollIntoView({behavior:'smooth'});document.querySelector('#prev').onclick=()=>go(current-1);document.querySelector('#next').onclick=()=>go(current+1);addEventListener('keydown',event=>{if(['ArrowDown','ArrowRight','PageDown'].includes(event.key))go(current+1);if(['ArrowUp','ArrowLeft','PageUp'].includes(event.key))go(current-1);if(event.key==='Escape')closeLightbox()});const root=document.documentElement,theme=document.querySelector('#theme');theme.onclick=()=>{root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem('ideaflow-next-ideas-theme',root.dataset.theme)};const stored=localStorage.getItem('ideaflow-next-ideas-theme');if(stored)root.dataset.theme=stored;else if(matchMedia('(prefers-color-scheme:light)').matches)root.dataset.theme='light';const lightbox=document.querySelector('.lightbox'),large=lightbox.querySelector('img');function closeLightbox(){lightbox.classList.remove('open');large.removeAttribute('src')}document.querySelectorAll('.zoom').forEach(button=>button.onclick=()=>{large.src=button.querySelector('img').src;large.alt=button.querySelector('img').alt;lightbox.classList.add('open')});lightbox.querySelector('button').onclick=closeLightbox;lightbox.onclick=event=>{if(event.target===lightbox)closeLightbox()};
 </script></body></html>`
 
-await writeFile(output, html)
+await writeFile(output, accessibleReview(html))
 console.log(output)

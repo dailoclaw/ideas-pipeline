@@ -152,7 +152,7 @@ Migration 003 executes in local PGlite only; real JWT/RLS, independent-session
 contention and Supabase installation remain deferred. See
 [history/export guarantees and rollout](../docs/HISTORY_EXPORTS.md).
 
-## Step 9 additions — v1.9.13 (current)
+## Step 9 additions — v1.9.13
 
 **191 ordinary passing checks; zero known/TODO failures in strict mode.** Eleven
 additional store/scoring/PostgreSQL/browser checks cover trimming, type/range
@@ -161,3 +161,14 @@ unknown classifications and invalid sprint recovery. Existing unknown-workspace
 browser coverage now also exercises the repair section. SQL 004 is tested only
 in PGlite; real data preflight, legacy repair and Supabase rollout are deferred.
 See [validation/planning rules](../docs/VALIDATION_RULES.md).
+
+## Step 10 additions — v1.9.15 (current)
+
+**201 ordinary passing checks; zero known/TODO failures in strict mode.** Six
+application keyboard/contrast and four isolated review checks cover separate
+controls, Enter form submission, tab semantics, modal isolation/restoration,
+score disclosure, native advancement, supported-theme text, unique IDs, unsafe
+hashes, tall slides, lightbox focus and blocked storage. Review fixtures use the
+same controller as generators and do not require ignored HTML/assets. Real
+screen-reader/browser-release acceptance remains release-gate work. See
+[accessibility guarantees and review generation](../docs/ACCESSIBILITY.md).

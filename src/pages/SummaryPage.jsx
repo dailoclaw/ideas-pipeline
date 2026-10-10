@@ -172,12 +172,18 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
         <button className="pulse-icon-button" onClick={exportMd} aria-label="Export portfolio as Markdown"><Icon name="download" size={18} /></button>
       </header>
 
-      <div ref={switcherRef} className="pulse-view-switcher" role="tablist" aria-label="Portfolio views">
-        <button role="tab" aria-selected={view === 'pulse'} className={view === 'pulse' ? 'is-active' : ''} onClick={() => { setView('pulse'); setDrillStatus('') }}><Icon name="activity" size={16} /> Pulse</button>
-        <button role="tab" aria-selected={view === 'compare'} className={view === 'compare' ? 'is-active' : ''} onClick={() => { setView('compare'); setDrillStatus('') }}><Icon name="groups" size={16} /> Workspaces</button>
-        <button role="tab" aria-selected={view === 'ideas'} className={view === 'ideas' ? 'is-active' : ''} onClick={() => { setView('ideas'); setDrillStatus('') }}><Icon name="list" size={16} /> Ideas</button>
+      <div ref={switcherRef} className="pulse-view-switcher" role="tablist" aria-label="Portfolio views" onKeyDown={e => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return
+        e.preventDefault(); const views = ['pulse', 'compare', 'ideas']; const index = views.indexOf(view)
+        const next = e.key === 'Home' ? 'pulse' : e.key === 'End' ? 'ideas' : views[(index + (e.key === 'ArrowRight' ? 1 : 2)) % 3]
+        setView(next); setDrillStatus(''); document.getElementById(`portfolio-tab-${next}`)?.focus()
+      }}>
+        <button id="portfolio-tab-pulse" role="tab" aria-controls="portfolio-panel" tabIndex={view === 'pulse' ? 0 : -1} aria-selected={view === 'pulse'} className={view === 'pulse' ? 'is-active' : ''} onClick={() => { setView('pulse'); setDrillStatus('') }}><Icon name="activity" size={16} /> Pulse</button>
+        <button id="portfolio-tab-compare" role="tab" aria-controls="portfolio-panel" tabIndex={view === 'compare' ? 0 : -1} aria-selected={view === 'compare'} className={view === 'compare' ? 'is-active' : ''} onClick={() => { setView('compare'); setDrillStatus('') }}><Icon name="groups" size={16} /> Workspaces</button>
+        <button id="portfolio-tab-ideas" role="tab" aria-controls="portfolio-panel" tabIndex={view === 'ideas' ? 0 : -1} aria-selected={view === 'ideas'} className={view === 'ideas' ? 'is-active' : ''} onClick={() => { setView('ideas'); setDrillStatus('') }}><Icon name="list" size={16} /> Ideas</button>
       </div>
 
+      <div id="portfolio-panel" role="tabpanel" aria-labelledby={`portfolio-tab-${view}`} tabIndex={0}>
       {view === 'pulse' && !drillStatus && (
         <div className="portfolio-pulse__content">
           <section className="pulse-hero">
@@ -268,13 +274,14 @@ export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
 
       {view === 'ideas' && (
         <div className="portfolio-pulse__content pulse-all-ideas">
-          <label className="pulse-search"><Icon name="search" size={17} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search every idea" aria-label="Search every idea" />{search && <button onClick={() => setSearch('')} aria-label="Clear search"><Icon name="close" size={15} /></button>}</label>
+          <div className="pulse-search"><Icon name="search" size={17} /><input value={search} onChange={event => setSearch(event.target.value)} placeholder="Search every idea" aria-label="Search every idea" />{search && <button onClick={() => setSearch('')} aria-label="Clear search"><Icon name="close" size={15} /></button>}</div>
           <div className="pulse-list-heading"><span>{listIdeas.length} ideas</span><strong>Priority first · then strategic score</strong></div>
           <div className="pulse-list-panel">
             {listIdeas.length ? listIdeas.map(idea => <IdeaRow key={idea.id} idea={idea} status={getStatus(idea)} groupKey={getGroup(idea.id)} onOpen={onOpenIdea} />) : <div className="pulse-empty"><Icon name="search" size={24} /><strong>No matching ideas</strong><span>Try a different name, ID or phrase.</span></div>}
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

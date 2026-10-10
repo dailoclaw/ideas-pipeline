@@ -86,10 +86,16 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           <button disabled={closing} onClick={() => { void leave() }} className="text-gray-400 hover:text-gray-600 text-xl p-1 -mt-1" aria-label="Close idea details"><Icon name="close" size={20} /></button>
         </div>
 
-        <div className="idea-detail-tabs" role="tablist" aria-label="Idea detail sections">
+        <div className="idea-detail-tabs" role="tablist" aria-label="Idea detail sections" onKeyDown={e => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return
+          e.preventDefault()
+          const next = e.key === 'Home' ? 'overview' : e.key === 'End' ? 'activity' : activeTab === 'overview' ? 'activity' : 'overview'
+          setActiveTab(next); document.getElementById(`idea-tab-${next}`)?.focus()
+        }}>
           <button
             type="button"
             role="tab"
+            id="idea-tab-overview" aria-controls="idea-panel-overview" tabIndex={activeTab === 'overview' ? 0 : -1}
             aria-selected={activeTab === 'overview'}
             className={activeTab === 'overview' ? 'is-active' : ''}
             onClick={() => setActiveTab('overview')}
@@ -97,6 +103,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           <button
             type="button"
             role="tab"
+            id="idea-tab-activity" aria-controls="idea-panel-activity" tabIndex={activeTab === 'activity' ? 0 : -1}
             aria-selected={activeTab === 'activity'}
             className={activeTab === 'activity' ? 'is-active' : ''}
             onClick={() => setActiveTab('activity')}
@@ -118,13 +125,14 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
         {draftStorageError && Object.values(draft).some(d => d.dirty) && <p role="status" className="px-4 text-xs text-amber-700">Browser storage is unavailable. Keep this page open to preserve the draft.</p>}
         {/* Body */}
         {activeTab === 'overview' ? (
-        <div className="idea-detail-overview flex-1 overflow-y-auto p-4 space-y-4" role="tabpanel">
+        <div className="idea-detail-overview flex-1 overflow-y-auto p-4 space-y-4" role="tabpanel" id="idea-panel-overview" aria-labelledby="idea-tab-overview" tabIndex={0}>
           {/* Priority flag */}
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Priority</span>
             <button
               disabled={!!pendingSaves[idea.id]}
               onClick={() => { void setPriority(idea.id, !idea.isPriority).catch(() => {}) }}
+              aria-pressed={idea.isPriority}
               className={`idea-priority-toggle flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
                 ${idea.isPriority
                   ? 'bg-amber-50 border-amber-300 text-amber-700'
@@ -191,7 +199,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Status</span>
             <div className="select-icon-field relative flex-1">
-              <Icon name={STATUS_ICONS[status] || 'circleCheck'} size={16} />
+              <Icon name={Object.hasOwn(STATUS_ICONS, status) ? STATUS_ICONS[status] : 'circleCheck'} size={16} />
               <select
                 value={status}
                 aria-label="Idea status"
@@ -229,7 +237,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
             </div>
           )}
           <div>
-            <div className="flex items-center justify-between mb-1">
+            <div id="notes-save-state" role="status" aria-live="polite" className="flex items-center justify-between mb-1">
               <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400">Notes</div>
               {['pending', 'saving'].includes(saveState) && <span className="text-[0.625rem] text-gray-400">Saving…</span>}
               {saveState === 'error' && <span className="text-xs text-red-600">Not saved</span>}
@@ -238,7 +246,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
             <textarea
               className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 placeholder-gray-300"
               rows={3}
-              placeholder="Add notes…"
+              aria-label="Idea notes" aria-describedby="notes-save-state" placeholder="Add notes…"
               value={localNotes}
               disabled={closing}
               onChange={e => changeDraft(idea.id, 'notes', e.target.value)}
@@ -254,7 +262,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           </div>
         </div>
         ) : (
-          <div className="idea-detail-activity flex-1 overflow-y-auto" role="tabpanel">
+          <div className="idea-detail-activity flex-1 overflow-y-auto" role="tabpanel" id="idea-panel-activity" aria-labelledby="idea-tab-activity" tabIndex={0}>
             <ActivityTimeline idea={idea} activity={activity} statusHistory={history} complete={activityHistoryComplete} />
           </div>
         )}

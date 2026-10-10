@@ -564,3 +564,82 @@ test('invalid sprint starts remain recoverable and score range is explained',asy
  assert.ok((await page.locator('main').innerText()).includes('Manual adjustment: −99 to +99'))
  assert.deepEqual(runtimeErrors,[])
 })
+
+test('keyboard checkbox selection never opens a card and native open buttons restore focus',async()=>{
+ await openApp()
+ const box=page.getByRole('checkbox',{name:'Select #101 Fixture intake',exact:true})
+ await box.focus();await page.keyboard.press('Space')
+ assert.equal(await box.isChecked(),true);assert.equal(await page.getByRole('dialog').count(),0)
+ const open=page.getByRole('button',{name:'Open #101 Fixture intake',exact:true})
+ await open.focus();await page.keyboard.press('Enter');await page.getByRole('dialog').waitFor()
+ assert.equal(await page.getByRole('navigation',{name:'Primary navigation',exact:true}).evaluate(el=>!!el.closest('[inert]')),true)
+ await page.getByRole('tab',{name:'Overview',exact:true}).focus();await page.keyboard.press('ArrowRight')
+ assert.equal(await page.getByRole('tab',{name:/Activity/}).getAttribute('aria-selected'),'true')
+ assert.equal(await page.getByRole('tabpanel').getAttribute('aria-labelledby'),'idea-tab-activity')
+ await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'detached'})
+ assert.equal(await open.evaluate(el=>el===document.activeElement),true)
+ assert.equal(await page.getByRole('navigation',{name:'Primary navigation',exact:true}).evaluate(el=>!!el.closest('[inert]')),false)
+})
+test('labelled native form submits with Enter and announces whitespace validation',async()=>{
+ await openApp();await page.getByRole('button',{name:'New idea',exact:true}).click()
+ await page.getByLabel('Name *',{exact:true}).fill('Keyboard fixture')
+ await page.getByLabel('Pitch *',{exact:true}).fill('   ')
+ await page.getByLabel('Name *',{exact:true}).press('Enter')
+ await page.getByRole('alert').getByText('Pitch is required',{exact:true}).waitFor()
+ assert.equal(await page.getByLabel('Pitch *',{exact:true}).getAttribute('aria-invalid'),'true')
+ await page.getByLabel('Pitch *',{exact:true}).fill('Keyboard pitch')
+ await page.getByLabel('Name *',{exact:true}).press('Enter')
+ await page.getByRole('dialog').waitFor({state:'detached'})
+ assert.ok(await page.evaluate(()=>window.__baseline.backend.tables.ideas.some(i=>i.name==='Keyboard fixture')))
+})
+test('score explanation supports keyboard and touch without opening the idea',async()=>{
+ await openApp();const trigger=page.getByRole('button',{name:/Explain score/}).first()
+ await trigger.focus();await page.keyboard.press('Enter')
+ assert.equal(await trigger.getAttribute('aria-expanded'),'true')
+ const tipId=await trigger.getAttribute('aria-controls')
+ assert.ok((await page.locator(`[id="${tipId}"]`).innerText()).includes('Manual adjustment'))
+ const bounds=await page.locator(`[id="${tipId}"]`).boundingBox();assert.ok(bounds.x>=0 && bounds.x+bounds.width<=1280)
+ await page.setViewportSize({width:320,height:900});assert.equal(await trigger.getAttribute('aria-expanded'),'false')
+ await trigger.click()
+ assert.equal(await page.getByRole('dialog').count(),0)
+ await page.keyboard.press('Escape');assert.equal(await trigger.getAttribute('aria-expanded'),'false')
+ await trigger.click();assert.equal(await trigger.getAttribute('aria-expanded'),'true')
+})
+test('strategy advance keyboard action changes status without opening its card',async()=>{
+ await openApp();await navigate('Strategy')
+ const row=page.locator('.strategy-row').filter({has:page.getByRole('button',{name:'Open #101 Fixture intake',exact:true})})
+ await row.locator('.au-advance').focus();await page.keyboard.press('Space')
+ await page.waitForFunction(()=>window.__baseline.store.getState().getStatus(window.__baseline.store.getState().ideas.find(i=>i.id===101))==='researching')
+ assert.equal(await page.getByRole('dialog').count(),0)
+ assert.deepEqual(runtimeErrors,[])
+})
+
+test('portfolio tabs expose linked panels and roving keyboard selection',async()=>{
+ await openApp();await navigate('Summary')
+ await page.getByRole('tab',{name:'Pulse',exact:true}).focus();await page.keyboard.press('ArrowRight')
+ const tab=page.getByRole('tab',{name:'Workspaces',exact:true})
+ assert.equal(await tab.getAttribute('aria-selected'),'true');assert.equal(await tab.getAttribute('tabindex'),'0')
+ assert.equal(await page.getByRole('tabpanel').getAttribute('aria-labelledby'),'portfolio-tab-compare')
+ await page.keyboard.press('End');assert.equal(await page.getByRole('tab',{name:'Ideas',exact:true}).getAttribute('aria-selected'),'true')
+})
+test('supported theme body text meets contrast floor and disclosure targets are usable',async()=>{
+ await openApp();await page.getByRole('button',{name:'New idea',exact:true}).click()
+ const ratios=await page.evaluate(()=>{
+  function rgb(value){value=value.trim();return value.startsWith('#')?value.slice(1).match(/../g).map(v=>parseInt(v,16)):value.match(/[\d.]+/g).map(Number)}
+  function luminance(value,canvas='#ffffff'){let c=rgb(value);if(c.length===4){const base=rgb(canvas);c=c.slice(0,3).map((v,i)=>v*c[3]+base[i]*(1-c[3]))}const linear=c.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return linear[0]*.2126+linear[1]*.7152+linear[2]*.0722}
+  const results=[]
+  for(const theme of ['calm','glass','aurora','obsidian'])for(const dark of [false,true]) {
+   document.documentElement.dataset.uiTheme=theme;document.documentElement.classList.toggle('dark',dark)
+   const style=getComputedStyle(document.documentElement), bg=luminance(style.getPropertyValue('--ui-surface'),style.getPropertyValue('--ui-canvas'))
+   const label=getComputedStyle(document.querySelector('.app-dialog .label')),surface=getComputedStyle(document.querySelector('.app-dialog'));const labelFg=luminance(label.color),labelBg=luminance(surface.backgroundColor);results.push({theme,dark,token:'form-label',ratio:(Math.max(labelFg,labelBg)+.05)/(Math.min(labelFg,labelBg)+.05)})
+   for(const token of ['--ui-text','--ui-text-muted']) {
+    const fg=luminance(style.getPropertyValue(token));results.push({theme,dark,token,ratio:(Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05)})
+   }
+  }
+  return results
+ })
+ for(const entry of ratios)assert.ok(entry.ratio>=4.5,JSON.stringify(entry))
+ await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'detached'})
+ const rect=await page.getByRole('button',{name:/Explain score/}).first().boundingBox()
+ assert.ok(rect.width>=24 && rect.height>=24)
+})

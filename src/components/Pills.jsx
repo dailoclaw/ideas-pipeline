@@ -1,3 +1,4 @@
+import { useEffect, useId, useState } from 'react'
 import { scoreDimensions, scoreIdea, gradeFromScore, STATUS_LABELS } from '../lib/scoring'
 import Icon from './Icon'
 
@@ -82,6 +83,16 @@ export function StatusRail({ status }) {
 }
 
 export function ScoreBadge({ idea }) {
+  const [expanded, setExpanded] = useState(false)
+  const tipId = useId()
+  const [tipPosition, setTipPosition] = useState({})
+  useEffect(() => {
+    if (!expanded) return
+    const close = event => { if (!(event.target instanceof Node && document.getElementById(tipId)?.contains(event.target))) setExpanded(false) }
+    document.addEventListener('scroll', close, true)
+    window.addEventListener('resize', close)
+    return () => { document.removeEventListener('scroll', close, true); window.removeEventListener('resize', close) }
+  }, [expanded, tipId])
   const score = scoreIdea(idea)
   const grade = gradeFromScore(score)
   const d = scoreDimensions(idea)
@@ -90,22 +101,24 @@ export function ScoreBadge({ idea }) {
       className="score-badge relative inline-block text-[0.625rem] font-bold px-1.5 py-0.5 rounded-full bg-violet-50 text-violet-600 border border-violet-200 cursor-default ml-1 align-middle"
       data-grade={grade}
     >
+      <button type="button" className="score-explanation-trigger" aria-label={`Explain score ${score}`} aria-expanded={expanded} aria-controls={tipId} aria-describedby={expanded ? tipId : undefined} onClick={e => { e.stopPropagation(); const rect = e.currentTarget.getBoundingClientRect(); const width = Math.min(260, innerWidth - 16); setTipPosition({ position: 'fixed', left: Math.max(8, Math.min(rect.left, innerWidth - width - 8)), top: Math.max(8, Math.min(rect.bottom + 6, innerHeight - 260)), width }); setExpanded(!expanded) }} onKeyDown={e => { if (e.key === 'Escape' && expanded) { e.preventDefault(); e.stopPropagation(); setExpanded(false) } }}>
       {/* Drawn only where the theme opts in; the flat pill below is the default. */}
       <span className="au-donut" style={{ '--dp': Math.min(100, score) }} aria-hidden="true">
         <i className="au-donut__ring" />
         <b>{score}</b>
       </span>
       <span className="score-badge__flat">S:{score}</span>
-      <span className="score-tip">
-        <div className="flex justify-between gap-3"><span>Effort</span><span>{d.effort}</span></div>
-        <div className="flex justify-between gap-3"><span>Platform</span><span>{d.platform}</span></div>
-        <div className="flex justify-between gap-3"><span>MVP depth</span><span>{d.mvp}</span></div>
-        <div className="flex justify-between gap-3"><span>Novelty</span><span>{d.novelty}</span></div>
-        <div className="flex justify-between gap-3"><span>Pain</span><span>{d.pain}</span></div>
-        <div className="flex justify-between gap-3"><span>Rounded base</span><span>{d.base}</span></div>
-        <div className="flex justify-between gap-3"><span>Manual adjustment</span><span>{d.adjustment}</span></div>
-        {d.floor > 0 && <div className="flex justify-between gap-3"><span>Minimum score correction</span><span>{d.floor}</span></div>}
-        <div className="flex justify-between gap-3 border-t border-white/20 mt-1 pt-1 font-bold text-white"><span>Total</span><span>{score}</span></div>
+      </button>
+      <span id={tipId} className="score-tip" style={tipPosition} hidden={!expanded}>
+        <span className="flex justify-between gap-3"><span>Effort</span><span>{d.effort}</span></span>
+        <span className="flex justify-between gap-3"><span>Platform</span><span>{d.platform}</span></span>
+        <span className="flex justify-between gap-3"><span>MVP depth</span><span>{d.mvp}</span></span>
+        <span className="flex justify-between gap-3"><span>Novelty</span><span>{d.novelty}</span></span>
+        <span className="flex justify-between gap-3"><span>Pain</span><span>{d.pain}</span></span>
+        <span className="flex justify-between gap-3"><span>Rounded base</span><span>{d.base}</span></span>
+        <span className="flex justify-between gap-3"><span>Manual adjustment</span><span>{d.adjustment}</span></span>
+        {d.floor > 0 && <span className="flex justify-between gap-3"><span>Minimum score correction</span><span>{d.floor}</span></span>}
+        <span className="flex justify-between gap-3 border-t border-white/20 mt-1 pt-1 font-bold text-white"><span>Total</span><span>{score}</span></span>
       </span>
     </span>
   )

@@ -1,8 +1,9 @@
+import { accessibleReview } from './accessible-review.mjs'
 import { readFile, writeFile } from 'node:fs/promises'
 import { extname, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
-const out = resolve(import.meta.dirname, 'idea-flow-visual-audit-2026.html')
+const out = resolve(import.meta.dirname, 'idea-flow-visual-audit-2026-accessible.html')
 
 const img = async path => {
   const full = resolve(root, path)
@@ -175,5 +176,5 @@ const rootEl=document.documentElement,toggle=document.querySelector('#themeToggl
 </script>
 </body></html>`
 
-await writeFile(out, html)
+await writeFile(out, accessibleReview(html))
 console.log(out)

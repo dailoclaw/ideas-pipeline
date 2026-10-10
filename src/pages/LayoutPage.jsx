@@ -1,5 +1,5 @@
 import { matrixQuadrant } from '../lib/scoring'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea, scopeIdeas, sortIdeas, getBuildNext, isStale, daysOld } from '../lib/scoring'
 import { TimePill, PlatPill, ScoreBadge, StatusRail } from '../components/Pills'
@@ -29,7 +29,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   currentScope.current = scopeVersion
   const visibleIds = new Set(view === 'kanban' ? filteredIdeas.filter(idea => getStatus(idea) === 'done' || getStatus(idea) !== 'shelved').map(idea => idea.id) : [])
   const visibleSelected = new Set([...selected].filter(id => visibleIds.has(id)))
-  useEffect(() => {
+  useLayoutEffect(() => {
     setSelected(new Set())
     if (useStore.getState().saveFeedback?.method === 'batchSetStatus') useStore.getState().clearSaveFeedback()
   }, [groupFilter, view])
@@ -62,6 +62,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
         {VIEWS.map(v => (
           <button
             key={v}
+            aria-pressed={view === v}
             onClick={() => setView(v)}
             className={`view-switcher__button px-3.5 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all
               ${view === v ? 'is-active bg-violet-600 text-white' : 'border border-gray-200 text-gray-500 hover:bg-gray-50'}`}
@@ -120,28 +121,22 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
         className={`kb-card idea-card bg-white border rounded-xl p-2.5 cursor-pointer
           ${sel ? 'border-violet-400 bg-violet-50 shadow-sm shadow-violet-100' : 'border-gray-200 hover:border-violet-300'}`}
         style={{ '--v': Math.min(100, scoreIdea(i)) }}
-        role="button"
-        tabIndex={0}
-        aria-label={`Open #${i.id} ${i.name}`}
-        onClick={() => onOpen(i.id)}
-        onKeyDown={e => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(i.id) }
-          if (e.key === 'x' || e.key === 'X') { e.preventDefault(); toggleSelect(i.id, e) }
-        }}
+        onClick={e => { if (!e.target.closest('button,input')) onOpen(i.id) }}
       >
         <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
         <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
         <StatusRail status={status} />
         <div className="flex items-start justify-between gap-1 mb-1">
           <div className="text-xs font-semibold text-gray-800 leading-snug flex-1">
-            {i.isPriority && <Icon name="starFilled" size={12} className="inline mr-1 text-amber-500" />}#{i.id} {i.name}
+            <button type="button" className="card-open text-left" aria-label={`Open #${i.id} ${i.name}`} onClick={() => onOpen(i.id)} onKeyDown={e => { if (e.key.toLowerCase() === 'x') { e.preventDefault(); toggleSelect(i.id, e) } }}>
+              {i.isPriority && <Icon name="starFilled" size={12} className="inline mr-1 text-amber-500" />}#{i.id} {i.name}</button>
           </div>
           <input
             aria-label={`Select #${i.id} ${i.name}`}
             type="checkbox"
             checked={sel}
-            onChange={() => {}}
-            onClick={e => toggleSelect(i.id, e)}
+            onChange={e => toggleSelect(i.id, e)}
+            onClick={e => e.stopPropagation()}
             className="mt-0.5 flex-shrink-0 accent-violet-600"
           />
         </div>
@@ -157,7 +152,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
 
   const SortSelect = ({ col }) => (
     <select
-      value={ks[col] || 'score'}
+      aria-label={`Sort ${col} ideas`} value={ks[col] || 'score'}
       onChange={e => setKanbanSort(col, e.target.value)}
       onClick={e => e.stopPropagation()}
       className="text-[0.625rem] border border-gray-200 rounded-md px-1 py-0.5 bg-gray-50 text-gray-500 outline-none"
@@ -168,11 +163,11 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
     </select>
   )
 
-  const Col = ({ ideas, label, icon, color, col }) => (
+  const renderColumn = ({ ideas, label, icon, color, col }) => (
     <div className="kanban-column min-w-0">
       <div className="kanban-column__header flex items-center justify-between mb-2 pb-1.5 border-b border-gray-100">
         <span className="inline-flex items-center gap-1.5 text-[0.6875rem] font-bold uppercase tracking-wider" style={{ color }}><Icon name={icon} size={13} /> {label} ({ideas.length})</span>
-        {col && <SortSelect col={col} />}
+        {col && SortSelect({ col })}
       </div>
       <div className="kb-cards">{ideas.map(card)}</div>
     </div>
@@ -202,11 +197,11 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <Col ideas={quick}   label="Quick — 1 wk"       icon="bolt"  color="#059669" col="quick" />
-        <Col ideas={medium}  label="Medium — 1–2 wks"   icon="clock" color="#2563eb" col="medium" />
-        <Col ideas={project} label="Project — 2–4 wks"  icon="blocks" color="#d97706" col="project" />
-        {unknown.length > 0 && <Col ideas={unknown} label="Unknown build time — edit to classify" icon="clock" color="#9090b8" col={null} />}
-        {done.length > 0 && <Col ideas={done} label="Done" icon="circleCheck" color="#5254d6" col={null} />}
+        {renderColumn({ ideas: quick, label: 'Quick — 1 wk', icon: 'bolt', color: '#059669', col: 'quick' })}
+        {renderColumn({ ideas: medium, label: 'Medium — 1–2 wks', icon: 'clock', color: '#2563eb', col: 'medium' })}
+        {renderColumn({ ideas: project, label: 'Project — 2–4 wks', icon: 'blocks', color: '#d97706', col: 'project' })}
+        {unknown.length > 0 && renderColumn({ ideas: unknown, label: 'Unknown build time — edit to classify', icon: 'clock', color: '#9090b8', col: null })}
+        {done.length > 0 && renderColumn({ ideas: done, label: 'Done', icon: 'circleCheck', color: '#5254d6', col: null })}
       </div>
     </div>
   )
@@ -223,10 +218,10 @@ function MatrixView({ ideas, getStatus, onOpen }) {
     <div className={`rounded-xl p-3 ${bg} border ${border}`}>
       <div className="text-[0.625rem] font-bold uppercase tracking-wide mb-2" style={{ color }}>{label}</div>
       {ideas.map(i => (
-        <div key={i.id} className="text-xs text-gray-600 py-0.5 cursor-pointer hover:text-violet-600" onClick={() => onOpen(i.id)}>
+        <button type="button" aria-label={`Open #${i.id} ${i.name}`} key={i.id} className="block text-left text-xs text-gray-600 py-0.5 cursor-pointer hover:text-violet-600" onClick={() => onOpen(i.id)}>
           <span className="font-semibold text-gray-800">#{i.id}</span> {i.name}
           {i.isNew && <span className="ml-1 text-[0.5625rem] font-bold bg-violet-100 text-violet-600 px-1 py-0.5 rounded">NEW</span>}
-        </div>
+        </button>
       ))}
     </div>
   )
@@ -255,10 +250,10 @@ function FeaturesView({ ideas, getStatus, onOpen }) {
         <div
           key={i.id}
           className="idea-card bg-white border border-gray-200 rounded-2xl p-4 cursor-pointer hover:border-violet-300"
-          onClick={() => onOpen(i.id)}
+          onClick={e => { if (!e.target.closest('button,input')) onOpen(i.id) }}
         >
           <div className="flex items-start justify-between gap-2 mb-2">
-            <div className="text-sm font-bold text-gray-900">#{i.id} {i.name}</div>
+            <button type="button" className="card-open text-left text-sm font-bold text-gray-900" aria-label={`Open #${i.id} ${i.name}`} onClick={() => onOpen(i.id)}>#{i.id} {i.name}</button>
             <TimePill time={i.time} />
           </div>
           <p className="text-xs text-gray-500 leading-relaxed mb-3">{i.pitch}</p>

@@ -45,7 +45,7 @@ export default function SettingsDrawer({ onSignOut, open, onClose, dark, toggleD
               ].map(opt => {
                 const active = appLayout === opt.key
                 return (
-                  <button key={opt.key} onClick={() => setAppLayout(opt.key)} className={`layout-choice w-full flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 transition-all text-left ${active ? 'layout-choice--active' : ''}`}>
+                  <button key={opt.key} aria-pressed={active} onClick={() => setAppLayout(opt.key)} className={`layout-choice w-full flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 transition-all text-left ${active ? 'layout-choice--active' : ''}`}>
                     <span className="layout-choice__icon"><Icon name={opt.icon} size={20} /></span>
                     <span className="min-w-0"><span className="block font-bold text-gray-800 dark:text-slate-200">{opt.label}</span><span className="block text-xs text-gray-400 dark:text-slate-500 mt-0.5">{opt.desc}</span></span>
                     <span className={`theme-choice__check ml-auto ${active ? 'theme-choice__check--active' : ''}`} aria-hidden="true"><Icon name="check" size={17} /></span>
@@ -65,7 +65,7 @@ export default function SettingsDrawer({ onSignOut, open, onClose, dark, toggleD
                 return (
                   <button
                     key={opt.key}
-                    onClick={() => setTheme(opt.key)}
+                    aria-pressed={active} onClick={() => setTheme(opt.key)}
                     className={`theme-choice w-full flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 transition-all text-left ${active ? 'theme-choice--active' : ''}`}
                   >
                     <span className="theme-choice__swatches" aria-hidden="true">
@@ -94,7 +94,7 @@ export default function SettingsDrawer({ onSignOut, open, onClose, dark, toggleD
                 return (
                   <button
                     key={opt.key}
-                    onClick={() => { if (!active) toggleDark() }}
+                    aria-pressed={active} onClick={() => { if (!active) toggleDark() }}
                     className={`flex-1 flex flex-col items-center gap-1.5 py-3 rounded-xl border-2 text-sm font-semibold transition-all
                       ${active
                         ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300'
@@ -118,7 +118,7 @@ export default function SettingsDrawer({ onSignOut, open, onClose, dark, toggleD
                 return (
                   <button
                     key={opt.key}
-                    onClick={() => setFontSizeKey(opt.key)}
+                    aria-pressed={active} onClick={() => setFontSizeKey(opt.key)}
                     className={`w-full flex items-center justify-between px-4 py-3 rounded-xl border-2 transition-all text-left
                       ${active
                         ? 'border-violet-500 bg-violet-50 dark:bg-violet-900/30'

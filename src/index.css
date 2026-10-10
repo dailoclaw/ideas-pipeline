@@ -3406,3 +3406,31 @@ html.dark[data-ui-theme="aurora"] .obsidian-main {
 /* Confirmed-save failures and secondary synchronization warnings. */
 .save-feedback{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:8px 12px;padding:12px;border:1px solid #f0a0a0;border-radius:10px;background:#fff1f2;color:#8b2534;font-size:13px;line-height:1.5}.save-feedback--warning{border-color:#dfb45a;background:#fff7e0;color:#71500f}.save-feedback p{margin:0;overflow-wrap:anywhere}.save-feedback>div{display:flex;gap:8px;flex-shrink:0}.save-feedback button{padding:7px 10px;border:1px solid currentColor;border-radius:6px;font:inherit;background:transparent;color:inherit;cursor:pointer;min-height:36px}.save-feedback button:disabled{opacity:.6;cursor:wait}.save-feedback button:focus-visible{outline:2px solid currentColor;outline-offset:2px}@media(max-width:600px){.save-feedback{flex-direction:column;align-items:stretch}.save-feedback>div{flex-wrap:wrap}}
 .draft-notice{max-height:160px;overflow-y:auto}.draft-notice>div{flex-shrink:1;flex-wrap:wrap}
+
+/* Accessible controls: explicit score disclosure, visible focus and touch targets. */
+.score-explanation-trigger { color: inherit; font: inherit; background: none; border: 0; padding: 0; cursor: pointer; min-width: 24px; min-height: 24px; }
+.score-tip { visibility: visible; white-space: normal; width: min(260px, 75vw); }
+.score-tip[hidden] { display: none; }
+:where(button, a, input, select, textarea, [tabindex]):focus-visible { outline: 3px solid #6d28d9 !important; outline-offset: 3px !important; }
+html.dark :where(button, a, input, select, textarea, [tabindex]):focus-visible { outline-color: #c4b5fd !important; }
+:where(.app-dialog, .settings-drawer, .layout-page, .strategy-page, .groups-page, .sprint-page) button { min-height: 24px; min-width: 24px; }
+.app-dialog [aria-label^="Close"], .settings-drawer [aria-label^="Close"] { min-height: 44px; min-width: 44px; }
+.card-open { max-width: 100%; overflow-wrap: anywhere; }
+/* Readable muted copy in all supported surface themes. */
+html:not(.dark) { --ui-text-muted: #526074; --ui-text-dim: #526074; }
+html.dark { --ui-text-muted: #b4bed0; --ui-text-dim: #b4bed0; }
+html:not(.dark) :where(.app-dialog, .layout-page, .strategy-page, .groups-page, .sprint-page) :is(.text-gray-300, .text-gray-400) { color: #526074 !important; }
+html.dark :where(.app-dialog, .layout-page, .strategy-page, .groups-page, .sprint-page) :is(.text-gray-300, .text-gray-400) { color: #b4bed0 !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+.au-advance { display: inline-flex !important; align-items: center; gap: 4px; min-height: 24px; min-width: 24px; opacity: 1; }
+.view-switcher__button:not(.is-active) { color: var(--ui-text) !important; }
+html.dark[data-ui-theme] { --ui-text-muted: #b4bed0; --ui-text-dim: #b4bed0; }
+.layout-page input[type="checkbox"] { width: 24px; height: 24px; }
+.score-tip { bottom: auto; right: auto; max-height: calc(100vh - 16px); overflow: auto; z-index: 60; }
+/* Opaque dialogs keep text contrast independent of the dimmed page behind them. */
+html[data-ui-theme] .app-dialog { background: #fff !important; }
+html.dark[data-ui-theme] .app-dialog { background: #141d30 !important; }
+.app-dialog .label { color: #526074 !important; }
+html.dark .app-dialog .label { color: #b4bed0 !important; }

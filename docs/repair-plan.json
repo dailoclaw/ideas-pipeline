@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.17",
+  "planVersion": "1.0.18",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "main",
+  "branch": "codex/accessibility-review",
   "readiness": "Not production-ready",
-  "scopeNote": "Steps 1, 3, 5, 6 & 7 complete locally; database rollout remains open",
+  "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 9 source pushed to main at c6f7df6 by request; origin/main verified. Recorded local evidence: all 191 strict checks pass and build passes. SQL 004 remains a locally tested constraint candidate; live backup/staging, legacy repair and database rollout remain deferred. No deployment verification claimed; step 10 is next.",
+  "progressNote": "Step 10 accessibility and review repairs verified locally: all 201 strict checks pass, build passes, core pages/forms work at four widths with doubled root text, and six preserved-content review copies pass navigation checks. Live database rollout and release screen-reader/Chrome/Edge acceptance remain open. No main push or deployment; step 11 is next.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -497,23 +497,33 @@
       "title": "Fix accessibility and review-document defects",
       "short": "Accessible controls",
       "priority": "High \u00b7 easy wins",
-      "status": "pending",
-      "summary": "Make core workflows usable by keyboard, touch and assistive technology, and repair standalone review navigation.",
+      "status": "local-complete",
+      "summary": "Core keyboard controls, labels, modal focus and responsive disclosure verified locally. Six separately named accessible review copies preserve originals. Manual assistive-technology and release-browser acceptance remain release-gate work.",
       "actions": [
         {
-          "text": "Add associated labels, native forms/buttons and accessible error messages."
+          "text": "Add associated labels, native forms/buttons and accessible error messages.",
+          "status": "complete",
+          "note": "Native capture/edit form with explicit labels, error associations and Enter submission; named notes/status feedback and native matrix/feature/Groups/sprint controls. Save failures retain one live alert and retry behavior."
         },
         {
-          "text": "Separate card-opening actions from checkboxes/advance controls; complete tabs and expanded/pressed states."
+          "text": "Separate card-opening actions from checkboxes/advance controls; complete tabs and expanded/pressed states.",
+          "status": "complete",
+          "note": "Separated opening, checkbox selection, score and advancement; native Space no longer opens cards. Detail/portfolio tab links and roving arrow/Home/End focus, expanded groups/sprint and pressed settings/view/filter/priority states verified."
         },
         {
-          "text": "Improve modal isolation/focus restoration and score explanations for keyboard/touch."
+          "text": "Improve modal isolation/focus restoration and score explanations for keyboard/touch.",
+          "status": "complete",
+          "note": "Background inert isolation, focus containment, scroll lock and restoration verified. Stable Kanban DOM and before-paint scope clearing preserve focus/selection. Touch/keyboard score disclosure clamps to viewport and dismisses on Escape/scroll/resize."
         },
         {
-          "text": "Fix duplicate review IDs, unsafe hash lookup, lightbox keys and tall-slide tracking."
+          "text": "Fix duplicate review IDs, unsafe hash lookup, lightbox keys and tall-slide tracking.",
+          "status": "complete",
+          "note": "Reusable repair controller/generators create new accessible copies without changing existing review assets. All six copies verified for unique IDs, malformed hashes, lightbox keys/focus and tall-slide navigation. Generated HTML remains local/ignored; generator instructions recorded."
         },
         {
-          "text": "Check contrast, scalable text, target sizes and reduced-motion behavior."
+          "text": "Check contrast, scalable text, target sizes and reduced-motion behavior.",
+          "status": "complete",
+          "note": "Measured normal/muted theme text against composed surfaces at 4.5 minimum; corrected dark muted contrast and light view labels. Visible focus, 24px control/checkbox minimums, 44px close targets and reduced-motion overrides. Four widths at 100%/200% root text verified; manual screen-reader/browser zoom and exhaustive state contrast remain release checks."
         }
       ],
       "verify": [
@@ -521,7 +531,25 @@
         "Screen readers announce controls, errors and states; focus returns correctly.",
         "200% zoom and narrow screens remain usable; review links/lightboxes and reduced motion work."
       ],
-      "issues": "Accessibility \u00b7 review HTML"
+      "issues": "Accessibility \u00b7 review HTML",
+      "evidence": [
+        {
+          "label": "Accessibility guarantees, review generators & release limits",
+          "href": "ACCESSIBILITY.md"
+        },
+        {
+          "label": "Keyboard and contrast regressions",
+          "href": "../tests/browser.test.mjs"
+        },
+        {
+          "label": "Review navigation/lightbox regressions",
+          "href": "../tests/review.test.mjs"
+        },
+        {
+          "label": "Generated accessible mobile review (local copy)",
+          "href": "../ui-review/idea-flow-next-5-mobile-ux-ideas-2026-accessible.html"
+        }
+      ]
     },
     {
       "id": 11,
@@ -681,12 +709,17 @@
       "date": "2026-10-11",
       "title": "Step 9 published to main",
       "body": "User requested publication. Fast-forwarded main and pushed c6f7df6; verified origin/main. Recorded verification: all 191 strict checks pass, build and responsive planning QA pass. Existing untracked review assets preserved. No live SQL or deployment verification; step 10 remains next."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Step 10 accessibility verified locally",
+      "body": "201 strict checks pass without known/TODO failures, including ten new keyboard/contrast/review checks. Build and four-width doubled-text/reduced-motion QA pass. Six generated review copies preserve existing assets and pass navigation checks. Manual assistive-technology/browser release acceptance remains open; no main push, deployment or live database changes. Step 11 is next."
     }
   ],
-  "nextStepId": 10,
+  "nextStepId": 11,
   "verification": {
-    "tests": 191,
-    "passing": 191,
+    "tests": 201,
+    "passing": 201,
     "knownFailures": 0,
     "unexpectedFailures": 0
   }

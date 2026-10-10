@@ -1,8 +1,9 @@
+import { accessibleReview } from './accessible-review.mjs'
 import { readFile, writeFile } from 'node:fs/promises'
 import { extname, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
-const out = resolve(import.meta.dirname, 'idea-flow-mobile-ux-innovation-2026.html')
+const out = resolve(import.meta.dirname, 'idea-flow-mobile-ux-innovation-2026-accessible.html')
 
 const img = async path => {
   const full = resolve(root, path)
@@ -65,5 +66,5 @@ ${ideaSlides}
 const slides=[...document.querySelectorAll('.slide')],rail=document.querySelector('.rail'),bar=document.querySelector('.progress i'),count=document.querySelector('#count');slides.forEach(s=>{const a=document.createElement('a');a.href='#'+s.id;a.textContent=s.dataset.title;a.title=s.dataset.title;rail.appendChild(a)});const dots=[...rail.children];let current=0;function sync(){const mid=scrollY+innerHeight*.48;let best=0;slides.forEach((s,i)=>{if(s.offsetTop<=mid)best=i});current=best;dots.forEach((d,i)=>d.classList.toggle('active',i===current));count.textContent=String(current+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');bar.style.width=((current+1)/slides.length*100)+'%'}addEventListener('scroll',sync,{passive:true});addEventListener('resize',sync);sync();const go=n=>slides[Math.max(0,Math.min(slides.length-1,n))].scrollIntoView({behavior:'smooth'});document.querySelector('#prev').onclick=()=>go(current-1);document.querySelector('#next').onclick=()=>go(current+1);addEventListener('keydown',e=>{if(['ArrowDown','ArrowRight','PageDown'].includes(e.key))go(current+1);if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key))go(current-1)});const root=document.documentElement;document.querySelector('#theme').onclick=()=>{root.dataset.theme=root.dataset.theme==='dark'?'light':'dark';localStorage.setItem('idea-mobile-ux-theme',root.dataset.theme)};const saved=localStorage.getItem('idea-mobile-ux-theme');if(saved)root.dataset.theme=saved;else if(matchMedia('(prefers-color-scheme:light)').matches)root.dataset.theme='light';
 </script></body></html>`
 
-await writeFile(out, html)
+await writeFile(out, accessibleReview(html))
 console.log(out)
