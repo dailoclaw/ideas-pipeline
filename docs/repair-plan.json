@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.15",
+  "planVersion": "1.0.16",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "main",
+  "branch": "codex/validation-rules",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6 & 7 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 8 source pushed to main at ff1c366 by request; origin/main verified. Recorded checks: all 180 pass, zero known/TODO failures. Live RPC migration 003, backup/staging and database authorization/transaction rollout remain deferred; no deployment verification claimed. Next local work is step 9 validation/business rules.",
+  "progressNote": "Step 9 validation and business rules implemented and verified locally; 191 checks pass with zero known/TODO failures. Unknown classifications remain visible, score range/breakdown reconcile, and matrix/sprint rules are explicit. SQL 004 is a locally tested candidate; live backup/staging and database rollout remain deferred. No main push or deployment verification; step 10 is next.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -116,7 +116,7 @@
         "The authorized user can complete intended workflows.",
         "Forged audit actors and event edits are rejected."
       ],
-      "issues": "C1 · authorization and audit trust",
+      "issues": "C1 \u00b7 authorization and audit trust",
       "evidence": [
         {
           "label": "Database access implementation plan",
@@ -166,7 +166,7 @@
         "Denied writes preserve prior client state.",
         "Reloaded state agrees with the save result."
       ],
-      "issues": "C2 · mutation error handling",
+      "issues": "C2 \u00b7 mutation error handling",
       "evidence": [
         {
           "label": "Save reliability verification and limits",
@@ -221,7 +221,7 @@
         "Simultaneous changes retain both overrides.",
         "Failures leave no partial status/history or destructive child-only changes."
       ],
-      "issues": "C4 · C5 · C8",
+      "issues": "C4 \u00b7 C5 \u00b7 C8",
       "evidence": [
         {
           "label": "Transaction guarantees, limits & deferred rollout",
@@ -276,7 +276,7 @@
         "Reversed network response timing preserves the latest value.",
         "Failed saves retain the draft with Retry; page reload uses a recoverable local draft."
       ],
-      "issues": "C3 · M4",
+      "issues": "C3 \u00b7 M4",
       "evidence": [
         {
           "label": "Autosave behavior, verification and limits",
@@ -296,7 +296,7 @@
       "id": 6,
       "title": "Harden configuration and storage",
       "short": "Storage resilience",
-      "priority": "High · easy wins",
+      "priority": "High \u00b7 easy wins",
       "status": "local-complete",
       "summary": "Guarded account-scoped storage and configuration handling verified locally; source pushed to main at d50ea20. Denied/quota storage, malformed caches and reload preferences pass. Deleted-idea and sign-out caches are cleaned up where storage permits. No live SQL or deployment; Chrome/Edge release acceptance remains open.",
       "actions": [
@@ -376,7 +376,7 @@
         "Failed triage actions recover and completed/deferred counts are accurate.",
         "Action buttons return to idle in StrictMode; filters do not cause undisclosed hidden mutations."
       ],
-      "issues": "C7 · M5 · M6 · M9",
+      "issues": "C7 \u00b7 M5 \u00b7 M6 \u00b7 M9",
       "evidence": [
         {
           "label": "Workflow behavior, verification & limits",
@@ -426,7 +426,7 @@
         "Offline events synchronize exactly once; repeated transitions remain visible.",
         "More than 1,000 records export completely; Adelaide midnight/DST fixtures give correct counts."
       ],
-      "issues": "M3 · M7 · M8 · M13",
+      "issues": "M3 \u00b7 M7 \u00b7 M8 \u00b7 M13",
       "evidence": [
         {
           "label": "History/export guarantees & deferred rollout",
@@ -447,20 +447,28 @@
       "title": "Resolve validation and business-rule inconsistencies",
       "short": "Validation & rules",
       "priority": "High",
-      "status": "pending",
-      "summary": "Make validation, scores, ranking and planning behavior match what the interface promises.",
+      "status": "in-progress",
+      "summary": "Application validation and planning rules verified locally. Database constraints are tested candidates; live rollout and legacy-row repair remain deferred.",
       "actions": [
         {
-          "text": "Trim and validate values at the application boundary; add appropriate database constraints."
+          "text": "Trim and validate values at the application boundary; add appropriate database constraints.",
+          "status": "in-progress",
+          "note": "Create/edit trim and validate an explicit allowlist; typed status, notes, score, priority, workspace and sprint boundaries reject before requests. SQL 004 preserves legacy reads and checks future writes in local PostgreSQL. Live rollout, preflight/legacy repair and constraint validation remain deferred."
         },
         {
-          "text": "Keep unknown classifications visible instead of silently dropping ideas."
+          "text": "Keep unknown classifications visible instead of silently dropping ideas.",
+          "status": "complete",
+          "note": "Unknown time stays in Kanban; unknown time/platform has a matrix recovery section; Groups/Console Spaces keep unknown workspaces visible and CSV labels them explicitly."
         },
         {
-          "text": "Document score range; show pain and manual adjustment in the breakdown; apply promised priority ordering."
+          "text": "Document score range; show pain and manual adjustment in the breakdown; apply promised priority ordering.",
+          "status": "complete",
+          "note": "Preserved valid scores with documented range 1\u2013204, rounded base/pain/manual/minimum explanation, safe legacy values and deterministic ID ties after priority."
         },
         {
-          "text": "Make matrix placement rules explicit and clarify sprint duration/scheduling semantics."
+          "text": "Make matrix placement rules explicit and clarify sprint duration/scheduling semantics.",
+          "status": "complete",
+          "note": "Removed fixed seed-ID placement in favor of explicit effort/impact heuristic. Preserved buffered 2/3/5-week estimates, described start-slot semantics and restored invalid sprint assignments to backlog."
         }
       ],
       "verify": [
@@ -468,13 +476,27 @@
         "Score explanation reconciles with the computed value.",
         "Priority ties and planning rules are consistent across views."
       ],
-      "issues": "M10 · M11 · M12 · M14"
+      "issues": "M10 \u00b7 M11 \u00b7 M12 \u00b7 M14",
+      "evidence": [
+        {
+          "label": "Validation, score/planning rules & deferred rollout",
+          "href": "VALIDATION_RULES.md"
+        },
+        {
+          "label": "Locally tested constraint candidate",
+          "href": "../database/validation/004-input-constraints.sql"
+        },
+        {
+          "label": "Boundary and ranking regressions",
+          "href": "../tests/scoring.test.mjs"
+        }
+      ]
     },
     {
       "id": 10,
       "title": "Fix accessibility and review-document defects",
       "short": "Accessible controls",
-      "priority": "High · easy wins",
+      "priority": "High \u00b7 easy wins",
       "status": "pending",
       "summary": "Make core workflows usable by keyboard, touch and assistive technology, and repair standalone review navigation.",
       "actions": [
@@ -499,7 +521,7 @@
         "Screen readers announce controls, errors and states; focus returns correctly.",
         "200% zoom and narrow screens remain usable; review links/lightboxes and reduced motion work."
       ],
-      "issues": "Accessibility · review HTML"
+      "issues": "Accessibility \u00b7 review HTML"
     },
     {
       "id": 11,
@@ -530,7 +552,7 @@
         "Initial bundle decreases and requests remain bounded.",
         "Regression checks pass on supported Chrome/Edge versions; advisory exposure is assessed."
       ],
-      "issues": "Maintainability · performance · dependency baseline"
+      "issues": "Maintainability \u00b7 performance \u00b7 dependency baseline"
     },
     {
       "id": 12,
@@ -649,12 +671,17 @@
       "date": "2026-10-10",
       "title": "Step 8 pushed to main",
       "body": "User requested publication. Fast-forwarded main and pushed ff1c366; verified origin/main. Recorded verification: all 180 checks pass and build passes. Existing untracked review assets preserved. RPC 003 remains a locally tested rollout candidate; no live SQL or deployment verification. Step 9 remains next local work."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 9 validation and planning verified locally",
+      "body": "191 strict checks pass; build passes. Added 11 client/scoring/PostgreSQL/browser regressions plus desktop/mobile planning QA. Tracker v1.0.16 records verified local behavior and deferred SQL 004 rollout/legacy repair. No main push or live database changes; step 10 is next."
     }
   ],
-  "nextStepId": 9,
+  "nextStepId": 10,
   "verification": {
-    "tests": 180,
-    "passing": 180,
+    "tests": 191,
+    "passing": 191,
     "knownFailures": 0,
     "unexpectedFailures": 0
   }

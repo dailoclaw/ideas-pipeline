@@ -1,3 +1,4 @@
+import { validateIdeaFields, TIMES, PLATFORMS } from '../lib/validation.js'
 import { useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { useDialogFocus } from '../hooks/useDialogFocus'
@@ -35,7 +36,7 @@ export default function AddIdeaModal({ editId, onClose }) {
     setSaving(true)
     setError('')
     try {
-      const data = { ...form, mvp: form.mvp.filter(Boolean) }
+      const data = validateIdeaFields(form)
       if (existing) {
         await editIdea(existing.id, data)
       } else {
@@ -74,8 +75,9 @@ export default function AddIdeaModal({ editId, onClose }) {
           <div className="grid grid-cols-2 gap-3">
             <Field label="Build time">
               <div className="select-icon-field">
-                <Icon name={TIME_ICONS[form.time]} size={16} />
+                <Icon name={Object.hasOwn(TIME_ICONS, form.time) ? TIME_ICONS[form.time] : 'clock'} size={16} />
                 <select className="input" value={form.time} onChange={e => set('time', e.target.value)}>
+                  {!TIMES.includes(form.time) && <option value={form.time}>Unknown — choose a build time</option>}
                   <option value="1w">1 week</option>
                   <option value="1-2w">1–2 weeks</option>
                   <option value="2-4w">2–4 weeks</option>
@@ -84,7 +86,8 @@ export default function AddIdeaModal({ editId, onClose }) {
             </Field>
             <Field label="Platform">
               <select className="input" value={form.plat} onChange={e => set('plat', e.target.value)}>
-                <option value="html">HTML tool</option>
+                {!PLATFORMS.includes(form.plat) && <option value={form.plat}>Unknown — choose a platform</option>}
+                  <option value="html">HTML tool</option>
                 <option value="hub">Awards Hub</option>
                 <option value="pay">Pay Modeller</option>
               </select>

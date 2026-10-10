@@ -237,3 +237,14 @@ test('activity payload validation rejects malformed fields before inserting anyt
  for(const payload of [{},{fromLength:'0',toLength:3},{fromLength:-1,toLength:3},{fromLength:0,toLength:1.5}])await assert.rejects(record(randomUUID(),payload),/Invalid activity payload/)
  assert.equal(await count('public.idea_activity'),before)
 })
+
+test('input constraint candidate preserves legacy reads and checks subsequent writes',async()=>{
+  await db.exec(await readFile(new URL('../database/validation/004-input-constraints.sql',import.meta.url),'utf8'))
+  assert.equal((await query('SELECT name FROM public.ideas WHERE id=101'))[0].name,'Seed')
+  await assert.rejects(query("UPDATE public.ideas SET notes='legacy edit' WHERE id=101"),/ideas_valid_/)
+  const item=await create();assert.ok(item.idea.id)
+  for(const fields of [{name:'x'.repeat(201),pitch:'ok'},{name:'ok',pitch:'ok',mvp:[' ']},{name:'ok',pitch:'ok',time:'unknown'},{name:'ok',pitch:'ok',notes:'x'.repeat(100001)}])await assert.rejects(create(randomUUID(),fields))
+  await assert.rejects(query('UPDATE public.ideas SET score_adjust=100 WHERE id=$1',[item.idea.id]),/ideas_valid_adjustment/)
+  await assert.rejects(query("INSERT INTO public.idea_group_assignments(idea_id,group_key) VALUES ($1,'constructor')",[item.idea.id]),/groups_valid_key/)
+  await assert.rejects(query("INSERT INTO public.sprint_assignments(idea_id,week_num) VALUES ($1,9)",[item.idea.id]),/check constraint/)
+})

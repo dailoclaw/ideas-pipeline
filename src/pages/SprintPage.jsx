@@ -1,3 +1,4 @@
+import { validSprintWeek } from '../lib/validation.js'
 import { useState } from 'react'
 import { useStore } from '../lib/store'
 import { sortIdeas, scopeIdeas } from '../lib/scoring'
@@ -12,8 +13,8 @@ export default function SprintPage({ groupFilter = '' }) {
 
   const groupIdeas = scopeIdeas(ideas, groupAssignments, groupFilter)
   const active = sortIdeas(groupIdeas.filter(i => !['done','shelved'].includes(getStatus(i))), 'score')
-  const scheduled   = active.filter(i => plan[i.id])
-  const unscheduled = active.filter(i => !plan[i.id])
+  const scheduled   = active.filter(i => validSprintWeek(plan[i.id]))
+  const unscheduled = active.filter(i => !validSprintWeek(plan[i.id]))
   const totalWeeks  = scheduled.reduce((sum, i) => sum + (getSprintWeeks(i.id, i) || 1), 0)
 
   const assignToWeek = async (ideaId, week) => {
@@ -29,11 +30,13 @@ export default function SprintPage({ groupFilter = '' }) {
   return (
     <div className="sprint-page h-full overflow-auto p-3 space-y-4">
 
+      <p className="text-xs text-gray-500">Weeks are start slots, not reserved capacity or completion dates. Buffered estimates: 1 week → 2 weeks, 1–2 → 3, 2–4 → 5; unknown → 2. Local duration overrides take precedence. Work can overlap or finish beyond week 8.</p>
+      {active.some(i => plan[i.id] != null && !validSprintWeek(plan[i.id])) && <p role="status" className="text-xs text-amber-600">Invalid start weeks are shown in the backlog. Reassign them to a week from 1 to 8.</p>}
       {/* Stats */}
       <div className="flex gap-3 flex-wrap">
         <StatPill label="Scheduled" value={scheduled.length} color="text-violet-600" />
         <StatPill label="Unscheduled" value={unscheduled.length} color="text-gray-500" />
-        <StatPill label="Total weeks" value={totalWeeks} color="text-blue-600" />
+        <StatPill label="Estimated effort (weeks)" value={totalWeeks} color="text-blue-600" />
       </div>
 
       <div className="sprint-workspace">
@@ -100,7 +103,7 @@ export default function SprintPage({ groupFilter = '' }) {
 
               {selected === idea.id && (
                 <div className="mt-1 p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl">
-                  <div className="text-xs font-semibold text-gray-500 dark:text-slate-400 mb-2">Assign to week:</div>
+                  <div className="text-xs font-semibold text-gray-500 dark:text-slate-400 mb-2">Assign start week:</div>
                   <div className="sprint-week-grid grid grid-cols-4 gap-1.5">
                     {Array.from({ length: WEEKS }, (_, i) => i + 1).map(w => (
                       <button

@@ -11,6 +11,7 @@ const PLAT_STYLES = {
   pay:  'bg-pink-100 text-pink-700 border border-pink-300',
   hub:  'bg-cyan-100 text-cyan-700 border border-cyan-300',
 }
+const own = (table, key, fallback) => Object.hasOwn(table, key) ? table[key] : fallback
 const TIME_LABELS = { '1w': '1 wk', '1-2w': '1–2 wks', '2-4w': '2–4 wks' }
 export const TIME_ICONS = { '1w': 'bolt', '1-2w': 'clock', '2-4w': 'blocks' }
 export const STATUS_ICONS = { idea: 'lightbulb', researching: 'search', ready: 'circleCheck', building: 'hammer', done: 'check', shelved: 'archive' }
@@ -21,17 +22,17 @@ export const RAIL_STAGES = ['idea', 'researching', 'ready', 'building', 'done']
 
 export function TimePill({ time }) {
   return (
-    <span className={`icon-pill inline-flex items-center gap-1 text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${TIME_STYLES[time] || ''}`}>
-      <Icon name={TIME_ICONS[time] || 'clock'} size={11} />
-      {TIME_LABELS[time] || time}
+    <span className={`icon-pill inline-flex items-center gap-1 text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${own(TIME_STYLES, time, 'bg-gray-100 text-gray-600')}`}>
+      <Icon name={own(TIME_ICONS, time, 'clock')} size={11} />
+      {Object.hasOwn(TIME_LABELS, time) ? TIME_LABELS[time] : `Unknown time: ${time || 'missing'}`}
     </span>
   )
 }
 
 export function PlatPill({ plat }) {
   return (
-    <span className={`inline-block text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${PLAT_STYLES[plat] || 'bg-gray-100 text-gray-600'}`}>
-      {PLAT_LABELS[plat] || plat}
+    <span className={`inline-block text-[0.625rem] font-bold px-2 py-0.5 rounded-full ${own(PLAT_STYLES, plat, 'bg-gray-100 text-gray-600')}`}>
+      {Object.hasOwn(PLAT_LABELS, plat) ? PLAT_LABELS[plat] : `Unknown platform: ${plat || 'missing'}`}
     </span>
   )
 }
@@ -49,9 +50,9 @@ export function StatusBadge({ status }) {
     idea: 'Idea', researching: 'Researching', ready: 'Ready', building: 'Building', done: 'Done', shelved: 'Shelved'
   }
   return (
-    <span className={`icon-pill inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full ${styles[status] || ''}`}>
-      <Icon name={STATUS_ICONS[status] || 'circleCheck'} size={11} />
-      {labels[status] || status}
+    <span className={`icon-pill inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full ${own(styles, status, 'bg-gray-100 text-gray-600')}`}>
+      <Icon name={own(STATUS_ICONS, status, 'circleCheck')} size={11} />
+      {own(labels, status, `Unknown status: ${status || 'missing'}`)}
     </span>
   )
 }
@@ -66,7 +67,7 @@ export function StatusRail({ status }) {
   const shelved = status === 'shelved'
   const label = shelved
     ? 'Shelved'
-    : `Stage ${index + 1} of ${RAIL_STAGES.length}: ${STATUS_LABELS[status] || status}`
+    : index < 0 ? `Unknown status: ${status || 'missing'}` : `Stage ${index + 1} of ${RAIL_STAGES.length}: ${STATUS_LABELS[status]}`
 
   return (
     <span className="au-rail" data-status={status} role="img" aria-label={label}>
@@ -101,6 +102,9 @@ export function ScoreBadge({ idea }) {
         <div className="flex justify-between gap-3"><span>MVP depth</span><span>{d.mvp}</span></div>
         <div className="flex justify-between gap-3"><span>Novelty</span><span>{d.novelty}</span></div>
         <div className="flex justify-between gap-3"><span>Pain</span><span>{d.pain}</span></div>
+        <div className="flex justify-between gap-3"><span>Rounded base</span><span>{d.base}</span></div>
+        <div className="flex justify-between gap-3"><span>Manual adjustment</span><span>{d.adjustment}</span></div>
+        {d.floor > 0 && <div className="flex justify-between gap-3"><span>Minimum score correction</span><span>{d.floor}</span></div>}
         <div className="flex justify-between gap-3 border-t border-white/20 mt-1 pt-1 font-bold text-white"><span>Total</span><span>{score}</span></div>
       </span>
     </span>

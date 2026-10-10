@@ -13,6 +13,7 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
   const scoped = scopeIdeas(ideas, groupAssignments, groupFilter)
   const visibleGroups = groupFilter ? GROUPS.filter(group => group.key === groupFilter) : GROUPS
   const ungrouped = sortIdeas(scoped.filter(idea => !groupAssignments[idea.id]), 'score')
+  const unknown = sortIdeas(scoped.filter(idea => groupAssignments[idea.id] && !GROUPS.some(group => group.key === groupAssignments[idea.id])), 'score')
   const toggle = key => setCollapsed(s => ({ ...s, [key]: !s[key] }))
 
   return (
@@ -27,6 +28,11 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
           ))}
         </section>
       )}
+      {unknown.length > 0 && <section className="group-section bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-2xl p-4">
+        <h2 className="font-bold">Unknown workspace · {unknown.length}</h2>
+        <p className="text-xs text-gray-500">Open an idea to assign a supported workspace.</p>
+        {unknown.map(idea => <button key={idea.id} className="block text-left py-2" onClick={() => onOpenIdea(idea.id)}>#{idea.id} {idea.name} <StatusBadge status={getStatus(idea)} /></button>)}
+      </section>}
       {visibleGroups.map(group => {
         const groupIdeas = sortIdeas(scopeIdeas(scoped, groupAssignments, group.key), 'score')
           .sort((a, b) =>

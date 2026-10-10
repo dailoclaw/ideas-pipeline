@@ -1,5 +1,15 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.13 (2026-10-10) — Validation and explicit planning rules
+### Fixed
+- Trimmed required/descriptive inputs, removed blank MVP steps and rejected unsupported fields/types/ranges before writes
+- Retained unknown classifications and invalid sprint assignments in visible repair sections
+- Reconciled score range (1–204), breakdown and deterministic priority ties; replaced seed-ID matrix pins with an explicit attribute heuristic
+### Added
+- Local SQL 004 constraint candidate and rollout/legacy repair instructions; no live SQL executed
+- 11 regression checks; all 191 pass in strict mode, production build and four-width planning QA pass
+- Tracker v1.0.16 records local step 9 work and deferred constraint rollout; step 10 next
+
 ## v1.9.12 (2026-10-10) — Step 8 main publication
 ### Changed
 - Tracker v1.0.15 records the requested step 8 push and verified origin/main at ff1c366

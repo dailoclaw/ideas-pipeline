@@ -1,3 +1,4 @@
+import { validateIdeaFields, validateText, validateChoice, STATUSES, GROUP_KEYS, validSprintWeek } from './validation.js'
 import { readAll } from './pagination.js'
 import { isPastEvent } from './history.js'
 import { create } from 'zustand'
@@ -22,24 +23,24 @@ const normaliseActivity = row => ({
 
 const normaliseIdea = r => ({
   id: r.id,
-  name: r.name,
+  name: typeof r.name === 'string' ? r.name : '',
   status: r.status,
   time: r.time,
   plat: r.plat,
-  pitch: r.pitch || '',
-  target: r.target || '',
-  pain: r.pain || '',
-  mvp: r.mvp || [],
-  win: r.win || '',
-  notes: r.notes || '',
+  pitch: typeof r.pitch === 'string' ? r.pitch : '',
+  target: typeof r.target === 'string' ? r.target : '',
+  pain: typeof r.pain === 'string' ? r.pain : '',
+  mvp: Array.isArray(r.mvp) ? r.mvp.filter(item => typeof item === 'string') : [],
+  win: typeof r.win === 'string' ? r.win : '',
+  notes: typeof r.notes === 'string' ? r.notes : '',
   addedAt: r.added_at,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
   isNew: !r.is_seed,
   isV2: r.is_v2 || false,
   originalId: r.original_id,
-  scoreAdjust: r.score_adjust || 0,
-  isPriority: r.is_priority || false,
+  scoreAdjust: Number.isInteger(r.score_adjust) ? Math.max(-99, Math.min(99, r.score_adjust)) : 0,
+  isPriority: r.is_priority === true,
 })
 
 // Returned rows distinguish a confirmed write from an RLS-filtered no-op.
@@ -284,9 +285,8 @@ export const useStore = create((set, get) => {
 
   // Requires the matching transaction migration; never fall back to browser IDs.
   async addIdea(fields, requestId = crypto.randomUUID()) {
-    const payload = Object.fromEntries(['name', 'time', 'plat', 'pitch', 'target', 'pain', 'mvp', 'win', 'notes']
-      .filter(key => fields[key] !== undefined).map(key => [key, fields[key]]))
     return mutate(set, get, 'addIdea', 'create', [fields, requestId], async () => {
+      const payload = validateIdeaFields(fields)
       let result
       try { result = await confirmMutation('create_idea', { p_request_id: requestId, p_fields: payload }) }
       catch (error) {
@@ -300,6 +300,7 @@ export const useStore = create((set, get) => {
   },
   async editIdea(id, fields) {
     return mutate(set, get, 'editIdea', id, [id, fields], async () => {
+      fields = validateIdeaFields(fields, true)
       const before = requireIdea(get, id)
       const row = await confirmRow(supabase.from('ideas').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
       set(state => ({ ideas: state.ideas.map(idea => idea.id === id ? normaliseIdea(row) : idea) }))
@@ -332,6 +333,7 @@ export const useStore = create((set, get) => {
   async setStatus(id, status, request) {
     return mutate(set, get, 'setStatus', id, [id, status, request], async () => {
       const idea = requireIdea(get, id)
+      if (status !== null) validateChoice(status, STATUSES, 'status')
       if (idea.isNew && status === null) throw new Error('Choose a status for this idea.')
       const operation = request || { id: crypto.randomUUID(), expectedStatus: get().getStatus(idea) }
       // Preserve the token/expected status if transport fails after server commit.
@@ -352,6 +354,7 @@ export const useStore = create((set, get) => {
   },
   async updateNotes(id, notes) {
     return mutate(set, get, 'updateNotes', id, [id, notes], async () => {
+      notes = validateText(notes, 'notes', false)
       const before = requireIdea(get, id).notes || ''
       const row = await confirmRow(supabase.from('ideas').update({ notes, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
       const savedNotes = row.notes || ''
@@ -375,7 +378,8 @@ export const useStore = create((set, get) => {
   // ── Sprint weeks (localStorage — not critical for cross-device) ───────────
   getSprintWeeks(id, idea) {
     const map = safeStorage.readJSON(accountKey('ideas-webapp-sprint-weeks'), {}, sanitizeWeeks)
-    return map[id] ?? ({ '1w': 2, '1-2w': 3, '2-4w': 5 }[idea?.time] || 2)
+    const estimates = { '1w': 2, '1-2w': 3, '2-4w': 5 }
+    return map[id] ?? (Object.hasOwn(estimates, idea?.time) ? estimates[idea.time] : 2)
   },
   getSprintAssignment(id) {
     return get().sprintAssignments[id] || null
@@ -383,6 +387,7 @@ export const useStore = create((set, get) => {
   async setSprintAssignment(id, week) {
     return mutate(set, get, 'setSprintAssignment', id, [id, week], async () => {
       requireIdea(get, id)
+      if (week !== null && !validSprintWeek(week)) throw new Error('Start week must be an integer from 1 to 8.')
       const previous = get().getSprintAssignment(id)
       let savedWeek = week
       if (week === null) await confirmDelete(supabase.from('sprint_assignments').delete().eq('idea_id', id), 'idea_id', id, previous === null)
@@ -397,7 +402,8 @@ export const useStore = create((set, get) => {
   async setScoreAdjust(id, scoreAdjust) {
     return mutate(set, get, 'setScoreAdjust', id, [id, scoreAdjust], async () => {
       const previous = requireIdea(get, id).scoreAdjust || 0
-      const adj = Math.max(-99, Math.min(99, parseInt(scoreAdjust) || 0))
+      if (!Number.isInteger(scoreAdjust) || Math.abs(scoreAdjust) > 99) throw new Error('Score adjustment must be an integer from −99 to 99.')
+      const adj = scoreAdjust
       const row = await confirmRow(supabase.from('ideas').update({ score_adjust: adj, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
       set(state => ({ ideas: state.ideas.map(i => i.id === id ? { ...i, scoreAdjust: row.score_adjust } : i) }))
       if (previous !== row.score_adjust) await followUp(set, get, `Score for #${id}`, [['activity synchronization', recordActivity(get, id, 'score_adjusted', { from: previous, to: row.score_adjust })]])
@@ -405,6 +411,7 @@ export const useStore = create((set, get) => {
   },
   async setPriority(id, isPriority) {
     return mutate(set, get, 'setPriority', id, [id, isPriority], async () => {
+      if (typeof isPriority !== 'boolean') throw new Error('Priority must be true or false.')
       const previous = Boolean(requireIdea(get, id).isPriority)
       const row = await confirmRow(supabase.from('ideas').update({ is_priority: isPriority, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
       set(state => ({ ideas: state.ideas.map(i => i.id === id ? { ...i, isPriority: row.is_priority } : i) }))
@@ -415,6 +422,7 @@ export const useStore = create((set, get) => {
   async setGroupAssignment(id, groupKey) {
     return mutate(set, get, 'setGroupAssignment', id, [id, groupKey], async () => {
       requireIdea(get, id)
+      if (groupKey !== '') validateChoice(groupKey, GROUP_KEYS, 'workspace')
       const previous = get().getGroup(id)
       let savedGroup = groupKey
       if (groupKey) {

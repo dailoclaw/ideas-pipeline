@@ -10,6 +10,7 @@ export async function loadFixtureStore() {
   try {
     let source = await readFile(resolve(root, 'src/lib/store.js'), 'utf8')
     const replacements = [
+      ["from './validation.js'", `from '${pathToFileURL(resolve(root, 'src/lib/validation.js')).href}'`],
       ["from './pagination.js'", `from '${pathToFileURL(resolve(root, 'src/lib/pagination.js')).href}'`],
       ["from './history.js'", `from '${pathToFileURL(resolve(root, 'src/lib/history.js')).href}'`],
       ["from './storage.js'", `from '${pathToFileURL(resolve(root, 'src/lib/storage.js')).href}'`],

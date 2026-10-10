@@ -97,7 +97,7 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
                   {/* Score bar */}
                   <div className="strategy-row__bar flex items-center gap-1.5 flex-1">
                     <div className="strategy-row__track flex-1 h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                      <div className="h-full bg-violet-500 rounded-full" style={{ width: `${score}%` }} />
+                      <div className="h-full bg-violet-500 rounded-full" style={{ width: `${Math.min(100, score / 204 * 100)}%` }} />
                     </div>
                     <span className="strategy-row__score text-xs font-bold text-violet-600 dark:text-violet-400 flex-shrink-0">{score}</span>
                   </div>
@@ -133,12 +133,14 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
 
       {/* Formula legend */}
       <div className="bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl p-3">
-        <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-2">Score formula (0–100)</div>
+        <div className="text-xs font-bold uppercase tracking-widest text-gray-400 dark:text-slate-500 mb-2">Score formula (1–204)</div>
         <div className="score-formula-grid grid grid-cols-2 gap-y-1 text-xs text-gray-500 dark:text-slate-400">
           <span><Icon name="bolt" size={13} /> Quick build: up to 40</span>
           <span><Icon name="building" size={13} /> Platform fit: up to 25</span>
           <span><Icon name="clipboard" size={13} /> MVP depth: up to 20</span>
           <span><Icon name="lightbulb" size={13} /> Novelty: up to 15</span>
+          <span>Pain: up to 5</span><span>Manual adjustment: −99 to +99</span>
+          <span className="col-span-2">Round the base (up to 105), add adjustment, then apply a minimum of 1. Priority comes first; ties use ID. Bars show score / 204.</span>
         </div>
       </div>
     </div>

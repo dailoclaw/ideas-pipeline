@@ -143,7 +143,7 @@ the baseline suite does not approve production; the remaining audit steps and
 deferred real database acceptance still apply. See
 [summary/workflow guarantees](../docs/SUMMARY_WORKFLOWS.md).
 
-## Step 8 additions — v1.9.11 (current)
+## Step 8 additions — v1.9.11
 
 **180 ordinary passing checks; zero known/TODO failures.** Eight history/paging,
 six store, five PostgreSQL and four browser checks cover complete paginated
@@ -151,3 +151,13 @@ exports, date boundaries, honest history, outbox replay and visible failure stat
 Migration 003 executes in local PGlite only; real JWT/RLS, independent-session
 contention and Supabase installation remain deferred. See
 [history/export guarantees and rollout](../docs/HISTORY_EXPORTS.md).
+
+## Step 9 additions — v1.9.13 (current)
+
+**191 ordinary passing checks; zero known/TODO failures in strict mode.** Eleven
+additional store/scoring/PostgreSQL/browser checks cover trimming, type/range
+rejection, score reconciliation, prototype keys, ID ties, attribute placement,
+unknown classifications and invalid sprint recovery. Existing unknown-workspace
+browser coverage now also exercises the repair section. SQL 004 is tested only
+in PGlite; real data preflight, legacy repair and Supabase rollout are deferred.
+See [validation/planning rules](../docs/VALIDATION_RULES.md).

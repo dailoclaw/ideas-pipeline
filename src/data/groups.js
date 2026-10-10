@@ -8,4 +8,4 @@ export const GROUPS = [
   { key: 'infra',     icon: 'wrench',      label: 'Infrastructure & Utility',   desc: 'Shared patterns & tools' },
 ]
 
-export const GROUP_MAP = Object.fromEntries(GROUPS.map(g => [g.key, g]))
+export const GROUP_MAP = Object.freeze(Object.assign(Object.create(null), Object.fromEntries(GROUPS.map(g => [g.key, g]))))

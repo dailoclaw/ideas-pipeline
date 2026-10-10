@@ -377,3 +377,20 @@ test('legacy token migration cannot replace a token whose response was lost',asy
  const recovered=JSON.parse(useStore.getState().exportPendingActivity())
  assert.equal(recovered[0].requestId,token);assert.notEqual(recovered[1].requestId,token)
 })
+
+test('application boundary trims required text and removes empty MVP steps',async()=>{
+  const id=await useStore.getState().addIdea({name:'  Clean name  ',pitch:'  Clear pitch  ',mvp:[' ','  First step  ']})
+  const idea=useStore.getState().ideas.find(i=>i.id===id)
+  assert.equal(idea.name,'Clean name');assert.equal(idea.pitch,'Clear pitch');assert.deepEqual(idea.mvp,['First step'])
+})
+test('malformed create/edit inputs reject without mutating confirmed state',async()=>{
+  for(const fields of [{name:'  ',pitch:'pitch'},{name:'name',pitch:'\n\t'},{name:'name',pitch:'pitch',time:'constructor'},{name:'name',pitch:'pitch',mvp:[42]}]) await assert.rejects(useStore.getState().addIdea(fields))
+  for(const fields of [{id:123},{is_seed:true},{name:'x'.repeat(201)},{mvp:'text'},{plat:'obsolete'}])await assert.rejects(useStore.getState().editIdea(101,fields))
+  assert.equal(useStore.getState().ideas.length,5);assert.equal(useStore.getState().ideas[0].name,'Fixture intake')
+})
+test('status, score, priority, workspace, notes and sprint boundaries reject bad types/ranges',async()=>{
+  const state=useStore.getState()
+  for(const [method,value] of [['setStatus','obsolete'],['setScoreAdjust','5x'],['setScoreAdjust',1.5],['setScoreAdjust',100],['setPriority','false'],['setGroupAssignment','constructor'],['updateNotes',42],['setSprintAssignment','1'],['setSprintAssignment',9],['setSprintAssignment',NaN]])await assert.rejects(state[method](101,value))
+  assert.equal(useStore.getState().ideas[0].scoreAdjust,0)
+  assert.deepEqual(useStore.getState().sprintAssignments,{})
+})

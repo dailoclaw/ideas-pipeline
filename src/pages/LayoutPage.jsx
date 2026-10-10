@@ -1,3 +1,4 @@
+import { matrixQuadrant } from '../lib/scoring'
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { scoreIdea, scopeIdeas, sortIdeas, getBuildNext, isStale, daysOld } from '../lib/scoring'
@@ -26,7 +27,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   const scopeVersion = `${groupFilter}:${view}`
   const currentScope = useRef(scopeVersion)
   currentScope.current = scopeVersion
-  const visibleIds = new Set(view === 'kanban' ? filteredIdeas.filter(idea => getStatus(idea) === 'done' || getStatus(idea) !== 'shelved' && ['1w', '1-2w', '2-4w'].includes(idea.time)).map(idea => idea.id) : [])
+  const visibleIds = new Set(view === 'kanban' ? filteredIdeas.filter(idea => getStatus(idea) === 'done' || getStatus(idea) !== 'shelved').map(idea => idea.id) : [])
   const visibleSelected = new Set([...selected].filter(id => visibleIds.has(id)))
   useEffect(() => {
     setSelected(new Set())
@@ -105,6 +106,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
   const quick   = sortIdeas(ideas.filter(i => i.time === '1w'   && activeFilter(i)), ks.quick   || 'score')
   const medium  = sortIdeas(ideas.filter(i => i.time === '1-2w' && activeFilter(i)), ks.medium  || 'score')
   const project = sortIdeas(ideas.filter(i => i.time === '2-4w' && activeFilter(i)), ks.project || 'score')
+  const unknown = sortIdeas(ideas.filter(i => !['1w', '1-2w', '2-4w'].includes(i.time) && activeFilter(i)), 'score')
   const done    = ideas.filter(i => getStatus(i) === 'done')
   const recommend = getBuildNext(ideas, getStatus)
 
@@ -203,6 +205,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
         <Col ideas={quick}   label="Quick — 1 wk"       icon="bolt"  color="#059669" col="quick" />
         <Col ideas={medium}  label="Medium — 1–2 wks"   icon="clock" color="#2563eb" col="medium" />
         <Col ideas={project} label="Project — 2–4 wks"  icon="blocks" color="#d97706" col="project" />
+        {unknown.length > 0 && <Col ideas={unknown} label="Unknown build time — edit to classify" icon="clock" color="#9090b8" col={null} />}
         {done.length > 0 && <Col ideas={done} label="Done" icon="circleCheck" color="#5254d6" col={null} />}
       </div>
     </div>
@@ -212,17 +215,9 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
 // ── Effort × Impact Matrix ───────────────────────────────────────────────────
 function MatrixView({ ideas, getStatus, onOpen }) {
   const active = i => !['done','shelved'].includes(getStatus(i))
-  const PLACED = new Set([23,25,50,74,58,60,52,6,65,57,73,51,18])
-  const q1 = [23,25,50,74,58].map(id => ideas.find(i=>i.id===id)).filter(Boolean).filter(active)
-  const q2 = [60,52,6].map(id => ideas.find(i=>i.id===id)).filter(Boolean).filter(active)
-  const q3 = [65,57,73].map(id => ideas.find(i=>i.id===id)).filter(Boolean).filter(active)
-  const q4 = [51,18].map(id => ideas.find(i=>i.id===id)).filter(Boolean).filter(active)
-  ideas.filter(i => !PLACED.has(i.id) && active(i)).forEach(i => {
-    if      (i.time === '1w')                          q1.push(i)
-    else if (i.time === '1-2w' && i.plat === 'hub')   q2.push(i)
-    else if (i.time === '2-4w')                        q2.push(i)
-    else                                               q3.push(i)
-  })
+  const quadrants = { q1: [], q2: [], q3: [], q4: [], unknown: [] }
+  sortIdeas(ideas.filter(active), 'score').forEach(idea => quadrants[matrixQuadrant(idea)].push(idea))
+  const { q1, q2, q3, q4, unknown } = quadrants
 
   const Quad = ({ ideas, label, color, bg, border }) => (
     <div className={`rounded-xl p-3 ${bg} border ${border}`}>
@@ -238,6 +233,8 @@ function MatrixView({ ideas, getStatus, onOpen }) {
 
   return (
     <div className="space-y-1.5">
+      <p className="text-xs text-gray-500">Heuristic: high impact = platform + MVP + novelty + pain ≥ 40 / 65. Low effort = 1–2 weeks; high effort = 2–4 weeks. Manual adjustment affects ranking only. Placement updates with idea attributes.</p>
+      {unknown.length > 0 && <Quad ideas={unknown} label="Unknown classification — edit to classify" color="#9090b8" bg="bg-gray-50/50" border="border-gray-200" />}
       <div className="flex justify-between text-[0.625rem] text-gray-400 px-1"><span>← High effort</span><span>Low effort →</span></div>
       <div className="grid grid-cols-2 gap-2">
         <Quad ideas={q2} label="High impact · High effort — Build next quarter"   color="#d97706" bg="bg-amber-50/50" border="border-amber-200" />
