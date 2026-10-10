@@ -31,8 +31,12 @@ afterEach(async () => {
 const openApp = async () => {
   await page.goto(url)
   await page.getByRole('navigation', { name: 'Primary navigation', exact: true }).waitFor()
+  await page.locator('.layout-page').waitFor()
 }
-const navigate = name => page.getByRole('navigation', { name: 'Primary navigation', exact: true }).getByRole('button', { name, exact: true }).click()
+const navigate = async name => {
+  await page.getByRole('navigation', { name: 'Primary navigation', exact: true }).getByRole('button', { name, exact: true }).click()
+  await page.getByRole('status').filter({ hasText: 'Loading view…' }).waitFor({ state: 'detached' })
+}
 
 test('isolated fixture app renders every primary page without runtime errors', async () => {
   await openApp()
@@ -599,7 +603,7 @@ test('score explanation supports keyboard and touch without opening the idea',as
  const tipId=await trigger.getAttribute('aria-controls')
  assert.ok((await page.locator(`[id="${tipId}"]`).innerText()).includes('Manual adjustment'))
  const bounds=await page.locator(`[id="${tipId}"]`).boundingBox();assert.ok(bounds.x>=0 && bounds.x+bounds.width<=1280)
- await page.setViewportSize({width:320,height:900});assert.equal(await trigger.getAttribute('aria-expanded'),'false')
+ await page.setViewportSize({width:320,height:900});await page.waitForFunction(id => document.getElementById(id)?.hidden, tipId);assert.equal(await trigger.getAttribute('aria-expanded'),'false')
  await trigger.click()
  assert.equal(await page.getByRole('dialog').count(),0)
  await page.keyboard.press('Escape');assert.equal(await trigger.getAttribute('aria-expanded'),'false')
@@ -624,6 +628,7 @@ test('portfolio tabs expose linked panels and roving keyboard selection',async()
 })
 test('supported theme body text meets contrast floor and disclosure targets are usable',async()=>{
  await openApp();await page.getByRole('button',{name:'New idea',exact:true}).click()
+ await page.getByRole('dialog').waitFor()
  const ratios=await page.evaluate(()=>{
   function rgb(value){value=value.trim();return value.startsWith('#')?value.slice(1).match(/../g).map(v=>parseInt(v,16)):value.match(/[\d.]+/g).map(Number)}
   function luminance(value,canvas='#ffffff'){let c=rgb(value);if(c.length===4){const base=rgb(canvas);c=c.slice(0,3).map((v,i)=>v*c[3]+base[i]*(1-c[3]))}const linear=c.map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return linear[0]*.2126+linear[1]*.7152+linear[2]*.0722}
@@ -642,4 +647,43 @@ test('supported theme body text meets contrast floor and disclosure targets are 
  await page.keyboard.press('Escape');await page.getByRole('dialog').waitFor({state:'detached'})
  const rect=await page.getByRole('button',{name:/Explain score/}).first().boundingBox()
  assert.ok(rect.width>=24 && rect.height>=24)
+})
+
+test('inactive pages and dialogs load only when requested and reuse their module', async () => {
+  const modules = []
+  page.on('request', request => modules.push(new URL(request.url()).pathname))
+  await openApp()
+  assert.ok(modules.some(path => path.endsWith('/LayoutPage.jsx')))
+  for (const name of ['StrategyPage', 'SummaryPage', 'AddIdeaModal', 'ObsidianConsole']) {
+    assert.equal(modules.filter(path => path.endsWith(`/${name}.jsx`)).length, 0, name)
+  }
+  await navigate('Strategy'); await navigate('Layout'); await navigate('Strategy')
+  assert.equal(modules.filter(path => path.endsWith('/StrategyPage.jsx')).length, 1)
+  await page.getByRole('button', { name: 'New idea', exact: true }).click()
+  await page.getByRole('dialog').waitFor()
+  assert.equal(modules.filter(path => path.endsWith('/AddIdeaModal.jsx')).length, 1)
+  assert.deepEqual(runtimeErrors, [])
+})
+
+test('matrix focused idea survives a dataset rerender', async () => {
+  await openApp()
+  await page.getByRole('button', { name: 'Matrix', exact: true }).click()
+  const idea = page.getByRole('button', { name: 'Open #101 Fixture intake', exact: true })
+  await idea.focus()
+  await page.evaluate(() => window.__baseline.store.setState(state => ({ ideas: state.ideas.map(idea => ({ ...idea })) })))
+  assert.equal(await idea.evaluate(element => element === document.activeElement), true)
+  assert.deepEqual(runtimeErrors, [])
+})
+
+test('failed dialog module keeps navigation available and offers keyboard dismissal', async () => {
+  await page.route('**/src/components/AddIdeaModal.jsx*', route => route.abort())
+  await openApp()
+  await page.getByRole('button', { name: 'New idea', exact: true }).click()
+  const failure = page.getByRole('dialog', { name: 'View unavailable' })
+  await failure.waitFor()
+  assert.match(await failure.innerText(), /Unable to open this view/)
+  await page.keyboard.press('Escape')
+  await failure.waitFor({ state: 'detached' })
+  await navigate('Strategy')
+  await page.getByRole('button', { name: /Open #/ }).first().waitFor()
 })

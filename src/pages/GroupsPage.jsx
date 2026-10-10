@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow'
 import { useState } from 'react'
 import { useStore } from '../lib/store'
 import { sortIdeas, scopeIdeas } from '../lib/scoring'
@@ -8,7 +9,12 @@ import Icon from '../components/Icon'
 const STATUS_ORDER = { building: 0, ready: 1, researching: 2, idea: 3, done: 4, shelved: 5 }
 
 export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
-  const { ideas, getStatus, groupAssignments } = useStore()
+  const { ideas, getStatus, groupAssignments } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    getStatus: state.getStatus,
+    groupAssignments: state.groupAssignments,
+    statusOverrides: state.statusOverrides,
+  })))
   const [collapsed, setCollapsed] = useState({})
   const scoped = scopeIdeas(ideas, groupAssignments, groupFilter)
   const visibleGroups = groupFilter ? GROUPS.filter(group => group.key === groupFilter) : GROUPS

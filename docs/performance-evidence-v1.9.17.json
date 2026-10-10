@@ -1,0 +1,51 @@
+{
+  "login": {
+    "chunks": 1,
+    "bytes": 373243,
+    "gzipBytes": 107244,
+    "files": [
+      {
+        "file": "assets/index-B3mAvdsP.js",
+        "bytes": 373243,
+        "gzipBytes": 107244
+      }
+    ]
+  },
+  "authorizedLayout": {
+    "chunks": 5,
+    "bytes": 453400,
+    "gzipBytes": 134415,
+    "files": [
+      {
+        "file": "assets/LayoutPage-Bj-8RCsk.js",
+        "bytes": 12785,
+        "gzipBytes": 4108
+      },
+      {
+        "file": "assets/index-B3mAvdsP.js",
+        "bytes": 373243,
+        "gzipBytes": 107244
+      },
+      {
+        "file": "assets/App-DmRqiMBg.js",
+        "bytes": 61664,
+        "gzipBytes": 20931
+      },
+      {
+        "file": "assets/Pills-C8bFLDmF.js",
+        "bytes": 5021,
+        "gzipBytes": 1752
+      },
+      {
+        "file": "assets/useMorphPill-D-0S9Aqq.js",
+        "bytes": 687,
+        "gzipBytes": 380
+      }
+    ]
+  },
+  "baseline": {
+    "loginBytes": 359949,
+    "authorizedLayoutBytes": 520551,
+    "authorizedLayoutGzipBytes": 147477
+  }
+}

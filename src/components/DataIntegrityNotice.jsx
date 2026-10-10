@@ -1,6 +1,17 @@
+import { useShallow } from 'zustand/react/shallow'
 import { useStore } from '../lib/store'
 export default function DataIntegrityNotice() {
-  const { datasetComplete, activityHistoryComplete, outboxCount, outboxError, outboxStorageError, outboxSyncing, load, syncActivity, exportPendingActivity } = useStore()
+  const { datasetComplete, activityHistoryComplete, outboxCount, outboxError, outboxStorageError, outboxSyncing, load, syncActivity, exportPendingActivity } = useStore(useShallow(state => ({
+    datasetComplete: state.datasetComplete,
+    activityHistoryComplete: state.activityHistoryComplete,
+    outboxCount: state.outboxCount,
+    outboxError: state.outboxError,
+    outboxStorageError: state.outboxStorageError,
+    outboxSyncing: state.outboxSyncing,
+    load: state.load,
+    syncActivity: state.syncActivity,
+    exportPendingActivity: state.exportPendingActivity,
+  })))
   const exportPending = () => {
     const url=URL.createObjectURL(new Blob([exportPendingActivity()],{type:'application/json'}))
     const link=document.createElement('a');link.href=url;link.download='ideaflow-pending-activity.json';link.click()

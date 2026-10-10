@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow'
 import { useStore } from '../lib/store'
 import { scoreIdea, scopeIdeas, sortIdeas, gradeFromScore, getBuildNext } from '../lib/scoring'
 import { TimePill, StatusBadge, StatusRail } from '../components/Pills'
@@ -15,7 +16,14 @@ const NEXT_STATUS = { idea: 'researching', researching: 'ready', ready: 'buildin
 const NEXT_LABEL = { idea: 'To discovery', researching: 'To ready', ready: 'Start build' }
 
 export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
-  const { ideas, getStatus, setStatus, groupAssignments, pendingSaves } = useStore()
+  const { ideas, getStatus, setStatus, groupAssignments, pendingSaves } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    getStatus: state.getStatus,
+    setStatus: state.setStatus,
+    groupAssignments: state.groupAssignments,
+    pendingSaves: state.pendingSaves,
+    statusOverrides: state.statusOverrides,
+  })))
 
   const groupIdeas = scopeIdeas(ideas, groupAssignments, groupFilter)
 

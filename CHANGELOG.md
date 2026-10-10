@@ -1,5 +1,12 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.17 (2026-10-11) — Step 11 cleanup and performance
+### Changed
+- Deferred inactive pages/dialogs, bounded concurrent dataset reads and shallow store selectors; stable matrix focus and before-paint hidden selection pruning
+- Consolidated canonical status metadata, removed confirmed unused code and split CSS without changing compiled cascade
+- Updated Vite/dependency lockfile, added maintained ESLint 10, Node 24 CI, explicit Chrome/Edge build targets and bundle budgets
+- Tracker v1.0.20 records 205 passing strict checks, measured payload reduction and seven assessed remaining development advisories; step 12 remains the release gate
+
 ## v1.9.16 (2026-10-11) — Step 10 main publication
 ### Changed
 - Tracker v1.0.19 records requested step 10 publication and verified origin/main at 7afd9c5

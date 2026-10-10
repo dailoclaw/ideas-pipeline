@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow'
 import { useCallback, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { useDialogFocus } from '../hooks/useDialogFocus'
@@ -10,7 +11,14 @@ import Icon from './Icon'
 const THROW_MS = 240
 
 export default function TriageModal({ onClose, groupFilter = '' }) {
-  const { ideas, groupAssignments, getStatus, setStatus, pendingSaves } = useStore()
+  const { ideas, groupAssignments, getStatus, setStatus, pendingSaves } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    groupAssignments: state.groupAssignments,
+    getStatus: state.getStatus,
+    setStatus: state.setStatus,
+    pendingSaves: state.pendingSaves,
+    statusOverrides: state.statusOverrides,
+  })))
   const [sessionIds] = useState(() => sortIdeas(scopeIdeas(ideas, groupAssignments, groupFilter).filter(i => getStatus(i) === 'idea'), 'score').map(i => i.id))
   const [decided, setDecided] = useState(new Set())
   const [skipped, setSkipped] = useState(new Set())

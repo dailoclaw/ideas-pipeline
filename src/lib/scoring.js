@@ -64,4 +64,4 @@ export function sortIdeas(ideas, sort) {
   return ideas
 }
 
-export const STATUS_LABELS = { idea: 'Idea', researching: 'Researching', ready: 'Ready', building: 'Building', done: 'Done', shelved: 'Shelved' }
+export { STATUS_LABELS } from '../data/metadata.js'

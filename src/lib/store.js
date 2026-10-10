@@ -7,7 +7,6 @@ import { createDraftController } from './drafts.js'
 import { safeStorage, scopedKey, sanitizeActivity, sanitizeSorts, sanitizeWeeks } from './storage.js'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
-const today = () => new Date().toISOString().slice(0, 10)
 const ACTIVITY_STORAGE_KEY = 'ideas-webapp-pending-activity'
 
 const normaliseActivity = row => ({
@@ -212,12 +211,22 @@ export const useStore = create((set, get) => {
     const ticket = ++loadTicket, revision = get().dataRevision
     if (!background) set({ loading: true, error: null })
     try {
-      const rows = await readAll(supabase, 'ideas', '*', 'id')
-      const overrides = await readAll(supabase, 'status_overrides', 'idea_id, status', 'idea_id')
+      // Settle every independent read; only activity history may be unavailable.
+      const reads = await Promise.allSettled([
+        readAll(supabase, 'ideas', '*', 'id'),
+        readAll(supabase, 'status_overrides', 'idea_id, status', 'idea_id'),
+        readAll(supabase, 'status_history', 'id, idea_id, status, changed_at', 'id'),
+        readAll(supabase, 'idea_activity', '*', 'id'),
+        readAll(supabase, 'idea_group_assignments', 'idea_id, group_key', 'idea_id'),
+        readAll(supabase, 'sprint_assignments', 'idea_id, week_num', 'idea_id'),
+      ])
+      const failed = reads.find((result, index) => index !== 3 && result.status === 'rejected')
+      if (failed) throw failed.reason
+      const [rows, overrides, history, activityRows, groupRows, sprintRows] = reads.map(result => result.status === 'fulfilled' ? result.value : [])
+      const activityError = reads[3].status === 'rejected' ? reads[3].reason : null
       const overrideMap = {}
       if (overrides) overrides.forEach(o => { overrideMap[o.idea_id] = o.status })
 
-      const history = await readAll(supabase, 'status_history', 'id, idea_id, status, changed_at', 'id')
       const historyMap = {}
       if (history) {
         [...history].sort((a,b)=>String(a.changed_at).localeCompare(String(b.changed_at)) || a.id-b.id).forEach(h => {
@@ -226,9 +235,6 @@ export const useStore = create((set, get) => {
         })
       }
 
-      let activityRows = [], activityError = null
-      try { activityRows = await readAll(supabase, 'idea_activity', '*', 'id') }
-      catch(error) { activityError = error }
       const activityMap = {}
       const combinedActivity = [
         ...(activityRows || []).map(normaliseActivity),
@@ -242,11 +248,9 @@ export const useStore = create((set, get) => {
       })
       Object.values(activityMap).forEach(events => events.sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt)))
 
-      const groupRows = await readAll(supabase, 'idea_group_assignments', 'idea_id, group_key', 'idea_id')
       const groupMap = {}
       if (groupRows) groupRows.forEach(r => { groupMap[r.idea_id] = r.group_key })
 
-      const sprintRows = await readAll(supabase, 'sprint_assignments', 'idea_id, week_num', 'idea_id')
       const sprintMap = {}
       if (sprintRows) sprintRows.forEach(r => { sprintMap[r.idea_id] = r.week_num })
 

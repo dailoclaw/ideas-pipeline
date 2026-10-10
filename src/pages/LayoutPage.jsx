@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow'
 import { matrixQuadrant } from '../lib/scoring'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
@@ -11,7 +12,17 @@ const VIEW_LABELS = { kanban: 'Kanban', matrix: 'Matrix', features: 'Feature Car
 
 export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   const [view, setView] = useState('kanban')
-  const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, groupAssignments, statusOverrides, pendingSaves } = useStore()
+  const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, groupAssignments, statusOverrides, pendingSaves } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    getStatus: state.getStatus,
+    setStatus: state.setStatus,
+    getKanbanSort: state.getKanbanSort,
+    setKanbanSort: state.setKanbanSort,
+    groupAssignments: state.groupAssignments,
+    statusOverrides: state.statusOverrides,
+    pendingSaves: state.pendingSaves,
+    preferenceRevision: state.preferenceRevision,
+  })))
   const [selected, setSelected] = useState(new Set())
   const canvasRef = useRef(null)
   const switcherRef = useRef(null)
@@ -33,7 +44,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
     setSelected(new Set())
     if (useStore.getState().saveFeedback?.method === 'batchSetStatus') useStore.getState().clearSaveFeedback()
   }, [groupFilter, view])
-  useEffect(() => {
+  useLayoutEffect(() => {
     setSelected(previous => {
       const next = new Set([...previous].filter(id => visibleIds.has(id)))
       if (next.size === previous.size) return previous
@@ -76,7 +87,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
       <div ref={canvasRef} className="layout-canvas flex-1 overflow-auto p-3 sm:p-4">
         {view === 'kanban'   && <KanbanView ideas={filteredIdeas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={visibleSelected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} pendingSaves={pendingSaves} />}
         {view === 'matrix'  && <MatrixView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
-        {view === 'features' && <FeaturesView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
+        {view === 'features' && <FeaturesView ideas={filteredIdeas} onOpen={onOpenIdea} />}
       </div>
 
       {/* Batch bar */}
@@ -207,14 +218,8 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
   )
 }
 
-// ── Effort × Impact Matrix ───────────────────────────────────────────────────
-function MatrixView({ ideas, getStatus, onOpen }) {
-  const active = i => !['done','shelved'].includes(getStatus(i))
-  const quadrants = { q1: [], q2: [], q3: [], q4: [], unknown: [] }
-  sortIdeas(ideas.filter(active), 'score').forEach(idea => quadrants[matrixQuadrant(idea)].push(idea))
-  const { q1, q2, q3, q4, unknown } = quadrants
-
-  const Quad = ({ ideas, label, color, bg, border }) => (
+function Quad({ ideas, label, color, bg, border, onOpen }) {
+  return (
     <div className={`rounded-xl p-3 ${bg} border ${border}`}>
       <div className="text-[0.625rem] font-bold uppercase tracking-wide mb-2" style={{ color }}>{label}</div>
       {ideas.map(i => (
@@ -225,17 +230,25 @@ function MatrixView({ ideas, getStatus, onOpen }) {
       ))}
     </div>
   )
+}
+
+// ── Effort × Impact Matrix ───────────────────────────────────────────────────
+function MatrixView({ ideas, getStatus, onOpen }) {
+  const active = i => !['done','shelved'].includes(getStatus(i))
+  const quadrants = { q1: [], q2: [], q3: [], q4: [], unknown: [] }
+  sortIdeas(ideas.filter(active), 'score').forEach(idea => quadrants[matrixQuadrant(idea)].push(idea))
+  const { q1, q2, q3, q4, unknown } = quadrants
 
   return (
     <div className="space-y-1.5">
       <p className="text-xs text-gray-500">Heuristic: high impact = platform + MVP + novelty + pain ≥ 40 / 65. Low effort = 1–2 weeks; high effort = 2–4 weeks. Manual adjustment affects ranking only. Placement updates with idea attributes.</p>
-      {unknown.length > 0 && <Quad ideas={unknown} label="Unknown classification — edit to classify" color="#9090b8" bg="bg-gray-50/50" border="border-gray-200" />}
+      {unknown.length > 0 && <Quad onOpen={onOpen} ideas={unknown} label="Unknown classification — edit to classify" color="#9090b8" bg="bg-gray-50/50" border="border-gray-200" />}
       <div className="flex justify-between text-[0.625rem] text-gray-400 px-1"><span>← High effort</span><span>Low effort →</span></div>
       <div className="grid grid-cols-2 gap-2">
-        <Quad ideas={q2} label="High impact · High effort — Build next quarter"   color="#d97706" bg="bg-amber-50/50" border="border-amber-200" />
-        <Quad ideas={q1} label="High impact · Low effort — Build now"            color="#059669" bg="bg-green-50/50"  border="border-green-200" />
-        <Quad ideas={q4} label="Low impact · High effort — Reconsider"            color="#9090b8" bg="bg-gray-50/50"   border="border-gray-200" />
-        <Quad ideas={q3} label="Low impact · Low effort — Fill gaps"              color="#5254d6" bg="bg-violet-50/50" border="border-violet-200" />
+        <Quad onOpen={onOpen} ideas={q2} label="High impact · High effort — Build next quarter"   color="#d97706" bg="bg-amber-50/50" border="border-amber-200" />
+        <Quad onOpen={onOpen} ideas={q1} label="High impact · Low effort — Build now"            color="#059669" bg="bg-green-50/50"  border="border-green-200" />
+        <Quad onOpen={onOpen} ideas={q4} label="Low impact · High effort — Reconsider"            color="#9090b8" bg="bg-gray-50/50"   border="border-gray-200" />
+        <Quad onOpen={onOpen} ideas={q3} label="Low impact · Low effort — Fill gaps"              color="#5254d6" bg="bg-violet-50/50" border="border-violet-200" />
       </div>
       <div className="flex justify-between text-[0.625rem] text-gray-400 px-1"><span>↑ Low impact</span><span>High impact ↑</span></div>
     </div>
@@ -243,7 +256,7 @@ function MatrixView({ ideas, getStatus, onOpen }) {
 }
 
 // ── Feature Cards ────────────────────────────────────────────────────────────
-function FeaturesView({ ideas, getStatus, onOpen }) {
+function FeaturesView({ ideas, onOpen }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {ideas.map(i => (

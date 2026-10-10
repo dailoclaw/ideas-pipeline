@@ -96,7 +96,7 @@ if (process.argv.includes('--snapshot')) {
   const snapshot = resolve(root, `docs/repair-plan-v${plan.planVersion}.html`)
   try { await writeFile(snapshot, html, { flag: 'wx' }) }
   catch (error) {
-    if (error.code !== 'EEXIST' || await readFile(snapshot, 'utf8') !== html) throw new Error('Snapshot already exists with different contents. Increment planVersion.')
+    if (error.code !== 'EEXIST' || await readFile(snapshot, 'utf8') !== html) throw new Error('Snapshot already exists with different contents. Increment planVersion.', { cause: error })
   }
 }
 await writeFile(resolve(root, 'docs/repair-plan.html'), html)

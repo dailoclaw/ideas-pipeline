@@ -1,6 +1,6 @@
 {
   "name": "ideas-webapp",
-  "version": "1.9.16",
+  "version": "1.9.17",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,7 +15,9 @@
     "test:auth": "node --test tests/auth.test.mjs",
     "test:database": "node --test tests/database.test.mjs",
     "test:drafts": "node --test tests/drafts.test.mjs",
-    "test:storage": "node --test tests/storage.test.mjs"
+    "test:storage": "node --test tests/storage.test.mjs",
+    "lint": "eslint .",
+    "check:bundle": "node scripts/check-bundle.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
@@ -25,13 +27,20 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
+    "@eslint/js": "^10.0.1",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.0",
+    "@vitejs/plugin-react": "^5.2.0",
     "autoprefixer": "^10.4.20",
+    "eslint": "^10.12.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^16.5.0",
     "playwright": "1.62.1",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
-    "vite": "^5.4.8"
+    "vite": "^7.3.7"
+  },
+  "engines": {
+    "node": ">=24 <25"
   }
 }

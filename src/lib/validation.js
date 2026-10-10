@@ -1,6 +1,7 @@
 export const TIMES = ['1w', '1-2w', '2-4w']
 export const PLATFORMS = ['html', 'pay', 'hub']
-export const STATUSES = ['idea', 'researching', 'ready', 'building', 'done', 'shelved']
+import { STATUSES } from '../data/metadata.js'
+export { STATUSES }
 export const GROUP_KEYS = ['pay', 'awards', 'registers', 'intel', 'workforce', 'lifecycle', 'infra']
 export const TEXT_LIMITS = { name: 200, pitch: 10000, target: 10000, pain: 10000, win: 10000, notes: 100000 }
 export function validateText(value, field, trim = true) {

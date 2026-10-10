@@ -1,14 +1,7 @@
 import { GROUP_MAP } from '../data/groups.js'
 import { scoreDimensions, scoreIdea } from './scoring.js'
 
-const STATUS_LABELS = {
-  idea: 'Idea',
-  researching: 'Researching',
-  ready: 'Ready',
-  building: 'Building',
-  done: 'Done',
-  shelved: 'Shelved',
-}
+import { STATUS_LABELS } from '../data/metadata.js'
 
 const TIME_LABELS = {
   '1w': '1 week',

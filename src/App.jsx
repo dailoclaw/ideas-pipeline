@@ -1,3 +1,5 @@
+import { SettingsDrawer, LayoutPage, SummaryPage, StrategyPage, GroupsPage, SprintPage, IdeaModal, AddIdeaModal, TriageModal, ObsidianConsole } from './components/LazyViews'
+import { useShallow } from 'zustand/react/shallow'
 import DataIntegrityNotice from './components/DataIntegrityNotice'
 import { scopeIdeas } from './lib/scoring'
 import { useEffect, useRef, useState } from 'react'
@@ -10,16 +12,6 @@ import { useAppLayout } from './hooks/useAppLayout'
 import { GROUPS } from './data/groups'
 import SaveFeedback from './components/SaveFeedback'
 import DraftNotice from './components/DraftNotice'
-import SettingsDrawer  from './components/SettingsDrawer'
-import LayoutPage      from './pages/LayoutPage'
-import SummaryPage     from './pages/SummaryPage'
-import StrategyPage    from './pages/StrategyPage'
-import GroupsPage      from './pages/GroupsPage'
-import SprintPage      from './pages/SprintPage'
-import IdeaModal       from './components/IdeaModal'
-import AddIdeaModal    from './components/AddIdeaModal'
-import TriageModal     from './components/TriageModal'
-import ObsidianConsole from './components/ObsidianConsole'
 import Icon            from './components/Icon'
 import { useDialogFocus } from './hooks/useDialogFocus'
 import { downloadIdeasCsv } from './lib/csvExport'
@@ -69,10 +61,15 @@ export default function App({ onSignOut, accountId }) {
   const { fontSize, setFontSizeKey }  = useSettings(accountId)
   const { appLayout, setAppLayout } = useAppLayout(accountId)
 
-  const {
-    load, loading, error, ideas, getStatus, getGroup, getSprintWeeks,
-    getSprintAssignment, statusHistory, activityLog, groupAssignments,
-  } = useStore()
+  const { load, loading, error, ideas, getStatus, groupAssignments } = useStore(useShallow(state => ({
+    load: state.load,
+    loading: state.loading,
+    error: state.error,
+    ideas: state.ideas,
+    getStatus: state.getStatus,
+    groupAssignments: state.groupAssignments,
+    statusOverrides: state.statusOverrides,
+  })))
   useDialogFocus(mobileToolsRef, () => setMobileToolsOpen(false), mobileToolsOpen)
   useSpotlight(theme === 'aurora')
 

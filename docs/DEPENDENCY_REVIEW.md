@@ -1,0 +1,43 @@
+# Dependency review — step 11
+
+Version 1.9.17 · audit date 2026-10-11. Counts describe the installed lockfile and advisory feed on this date; they can change.
+
+Historical first-step baseline: 13 findings (10 high, 3 moderate). Current full audit: **7 findings (5 high, 2 moderate)**. Production-only audit: **0 findings**. These are affected-package counts, not seven independent exploitable browser vulnerabilities. Zero findings is not proof of a secure application.
+
+Recorded [full audit](dependency-audit-v1.9.17.json), [production audit](dependency-production-audit-v1.9.17.json) and `package-lock.json` make the results reviewable.
+
+## Baseline assessment
+
+| Baseline package | Result / exposure |
+|---|---|
+| Vite | Updated 5.4.21 → 7.3.7 with React plugin 5.2.0. Recorded dev-server traversal / Windows path issues no longer reported. Local fixtures, build and explicit browser targets verified. |
+| esbuild | Resolved through Vite upgrade; recorded development-server cross-origin finding no longer reported. |
+| baseline-browser-mapping | Compatible lockfile update; recorded input denial-of-service finding no longer reported. |
+| browserslist | Compatible lockfile update; cache/statistics denial-of-service findings no longer reported. |
+| nanoid | Compatible lockfile update; recorded findings no longer reported. |
+| postcss | Compatible lockfile update; recorded parser findings no longer reported. |
+| source-map-js | Compatible lockfile update; recorded finding no longer reported. |
+| braces | High finding remains: deeply nested glob input can exhaust the stack. Installed through the Tailwind build chain. |
+| chokidar | High inherited finding from braces remains. |
+| micromatch | High inherited finding from braces remains. |
+| fast-glob | High inherited finding from micromatch remains. |
+| postcss-selector-parser | Moderate finding remains: pathological selectors can exhaust CPU. Tailwind 3 / postcss-nested require the affected parser line. |
+| tailwindcss | High inherited build-chain findings remain. npm proposes a major upgrade; this requires a CSS migration and regression review. |
+
+`postcss-nested` is additionally reported as moderately affected through selector-parser in the current dependency graph. The two underlying current advisory families are [braces stack exhaustion](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) and [selector parsing complexity](https://github.com/advisories/GHSA-rj75-hqrm-r3gf).
+
+## Exposure and controls
+
+Affected packages are development dependencies used to process repository CSS and filesystem patterns. The shipped browser does not execute this parser/watcher chain. App data is neither a Tailwind configuration nor build input. Untrusted CSS/glob configuration supplied to these tools could still cause denial of service in builds, dev servers or CI. Treat the original high advisory severity seriously; keep development servers local and build only reviewed source/configuration. CI has read-only repository permissions and no application/database secrets. Production-only audit fails CI on high findings; the seven full-audit findings remain visible here, rather than being represented as repaired.
+
+ESLint 9 was initially evaluated but is [out of maintenance](https://eslint.org/version-support/). The final configuration uses maintained ESLint 10 with native JSX analysis and the compatible Hooks plugin; no unsupported peer dependency override is used. React 18, Zustand 4 and Tailwind 3 major versions are preserved. Vite 8's bundler migration was not combined with this change; Vite 7 removed the recorded advisories with less build churn.
+
+## Planned remediation of remaining build findings
+
+1. Create an isolated Tailwind 4 migration after this behavior baseline is accepted. Keep the current stylesheet/compiled output and screenshots as comparison evidence.
+2. Follow the official [Tailwind upgrade guide](https://tailwindcss.com/docs/upgrade-guide). Update CSS entry/plugin/configuration and review defaults, borders, preflight, color/opacity and theme behavior. Do not use `npm audit fix --force` on the working application.
+3. Build every view/dialog in all four themes, both modes, 320/390/768/1440 widths and doubled text; verify contrast and keyboard focus. Run lint, all strict checks and bundle budgets.
+4. Re-run full and production audits. Confirm the actual affected chains disappeared and assess any new findings; do not substitute an arbitrary parser version under incompatible major requirements merely to silence the audit.
+5. Publish only after reviewed CSS differences and supported Chrome/Edge acceptance. If a compatible upstream patch arrives first, test that smaller change against the same evidence.
+
+This assessment completes the step's advisory review, not the outstanding dependency remediation or production release gate.

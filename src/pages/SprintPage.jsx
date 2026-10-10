@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow'
 import { validSprintWeek } from '../lib/validation.js'
 import { useState } from 'react'
 import { useStore } from '../lib/store'
@@ -8,7 +9,17 @@ import Icon from '../components/Icon'
 const WEEKS = 8
 
 export default function SprintPage({ groupFilter = '' }) {
-  const { ideas, getStatus, getSprintWeeks, groupAssignments, sprintAssignments: plan, setSprintAssignment, pendingSaves } = useStore()
+  const { ideas, getStatus, getSprintWeeks, groupAssignments, sprintAssignments: plan, setSprintAssignment, pendingSaves } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    getStatus: state.getStatus,
+    getSprintWeeks: state.getSprintWeeks,
+    groupAssignments: state.groupAssignments,
+    sprintAssignments: state.sprintAssignments,
+    setSprintAssignment: state.setSprintAssignment,
+    pendingSaves: state.pendingSaves,
+    statusOverrides: state.statusOverrides,
+    preferenceRevision: state.preferenceRevision,
+  })))
   const [selected, setSelected] = useState(null)
 
   const groupIdeas = scopeIdeas(ideas, groupAssignments, groupFilter)

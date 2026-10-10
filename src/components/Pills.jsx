@@ -47,13 +47,10 @@ export function StatusBadge({ status }) {
     done:     'bg-violet-100 text-violet-700',
     shelved:  'bg-amber-100 text-amber-700',
   }
-  const labels = {
-    idea: 'Idea', researching: 'Researching', ready: 'Ready', building: 'Building', done: 'Done', shelved: 'Shelved'
-  }
   return (
     <span className={`icon-pill inline-flex items-center gap-1 text-[0.6875rem] font-semibold px-2 py-0.5 rounded-full ${own(styles, status, 'bg-gray-100 text-gray-600')}`}>
       <Icon name={own(STATUS_ICONS, status, 'circleCheck')} size={11} />
-      {own(labels, status, `Unknown status: ${status || 'missing'}`)}
+      {own(STATUS_LABELS, status, `Unknown status: ${status || 'missing'}`)}
     </span>
   )
 }

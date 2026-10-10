@@ -1,13 +1,10 @@
+import { LayoutPage, StrategyPage, SprintPage, GroupsPage, SummaryPage } from './LazyViews'
+import { useShallow } from 'zustand/react/shallow'
 import { DECISION_TYPES as DECISION_EVENTS, isPastEvent } from '../lib/history.js'
 import { useMemo, useState } from 'react'
 import { useStore } from '../lib/store'
 import { gradeFromScore, isStale, scoreIdea, scopeIdeas, sortIdeas } from '../lib/scoring'
 import { GROUPS } from '../data/groups'
-import LayoutPage from '../pages/LayoutPage'
-import StrategyPage from '../pages/StrategyPage'
-import SprintPage from '../pages/SprintPage'
-import GroupsPage from '../pages/GroupsPage'
-import SummaryPage from '../pages/SummaryPage'
 import Icon from './Icon'
 
 const NAV_ITEMS = [
@@ -65,7 +62,15 @@ function nextStatus(status) {
 }
 
 function CommandPage({ groupFilter, onOpenIdea, onNavigate }) {
-  const { ideas, getStatus, groupAssignments, statusOverrides, setStatus, activityLog, pendingSaves } = useStore()
+  const { ideas, getStatus, groupAssignments, statusOverrides, setStatus, activityLog, pendingSaves } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    getStatus: state.getStatus,
+    groupAssignments: state.groupAssignments,
+    statusOverrides: state.statusOverrides,
+    setStatus: state.setStatus,
+    activityLog: state.activityLog,
+    pendingSaves: state.pendingSaves,
+  })))
   const scoped = scopeIdeas(ideas, groupAssignments, groupFilter)
   const ranked = useMemo(() => sortIdeas(scoped
     .filter(idea => !['done', 'shelved'].includes(getStatus(idea))), 'score'), [scoped, statusOverrides, getStatus])
@@ -174,7 +179,14 @@ function activityDate(value) {
 }
 
 function ActivityPage({ groupFilter, onOpenIdea }) {
-  const { ideas, groupAssignments, getStatus, activityLog, activityHistoryComplete } = useStore()
+  const { ideas, groupAssignments, getStatus, activityLog, activityHistoryComplete } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    groupAssignments: state.groupAssignments,
+    getStatus: state.getStatus,
+    activityLog: state.activityLog,
+    activityHistoryComplete: state.activityHistoryComplete,
+    statusOverrides: state.statusOverrides,
+  })))
   const [filter, setFilter] = useState('all')
   const scoped = scopeIdeas(ideas, groupAssignments, groupFilter)
   const allowedIds = new Set(scoped.map(idea => idea.id))

@@ -394,3 +394,20 @@ test('status, score, priority, workspace, notes and sprint boundaries reject bad
   assert.equal(useStore.getState().ideas[0].scoreAdjust,0)
   assert.deepEqual(useStore.getState().sprintAssignments,{})
 })
+
+
+test('refresh starts six independent read chains before any response and keeps pagination bounded', async () => {
+  const started = new Set()
+  let release
+  const gate = new Promise(resolve => { release = resolve })
+  backend.readGate = table => { started.add(table); return gate }
+  const before = backend.requests.length
+  const loading = useStore.getState().load({ background: true })
+  try {
+    await new Promise(setImmediate)
+    assert.equal(started.size, 6)
+    assert.equal(backend.requests.length - before, 6)
+  } finally { backend.readGate = null; release() }
+  assert.equal(await loading, true)
+  assert.equal(useStore.getState().datasetComplete, true)
+})

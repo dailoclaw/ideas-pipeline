@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow'
 import { validateIdeaFields, TIMES, PLATFORMS } from '../lib/validation.js'
 import { useRef, useState } from 'react'
 import { useStore } from '../lib/store'
@@ -9,7 +10,12 @@ import { TIME_ICONS } from './Pills'
 const EMPTY = { name:'', pitch:'', target:'', pain:'', mvp:[''], win:'', time:'1-2w', plat:'html', notes:'' }
 
 export default function AddIdeaModal({ editId, onClose }) {
-  const { ideas, addIdea, editIdea, saveFeedback } = useStore()
+  const { ideas, addIdea, editIdea, saveFeedback } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    addIdea: state.addIdea,
+    editIdea: state.editIdea,
+    saveFeedback: state.saveFeedback,
+  })))
   const existing = editId ? ideas.find(i => i.id === editId) : null
   const [form, setForm] = useState(existing ? {
     name: existing.name, pitch: existing.pitch, target: existing.target,

@@ -1,3 +1,5 @@
+import { STATUS_OPTIONS } from '../data/metadata.js'
+import { useShallow } from 'zustand/react/shallow'
 import { mergeTimeline } from '../lib/history.js'
 import { useRef, useState, useCallback } from 'react'
 import { useStore } from '../lib/store'
@@ -9,17 +11,28 @@ import SaveFeedback from './SaveFeedback'
 import Icon from './Icon'
 import { useDialogFocus } from '../hooks/useDialogFocus'
 
-const ALL_STATUSES = [
-  { value: 'idea',        label: 'Idea' },
-  { value: 'researching', label: 'Researching' },
-  { value: 'ready',       label: 'Ready' },
-  { value: 'building',    label: 'Building' },
-  { value: 'done',        label: 'Done' },
-  { value: 'shelved',     label: 'Shelved' },
-]
+const ALL_STATUSES = STATUS_OPTIONS
 
 export default function IdeaModal({ ideaId, onClose, onEdit }) {
-  const { ideas, statusHistory, activityLog, activityHistoryComplete, getStatus, setStatus, deleteIdea, getGroup, setGroupAssignment, setPriority, pendingSaves, draftValues, draftStorageError, changeDraft, flushDrafts } = useStore()
+  const { ideas, statusHistory, activityLog, activityHistoryComplete, getStatus, setStatus, deleteIdea, getGroup, setGroupAssignment, setPriority, pendingSaves, draftValues, draftStorageError, changeDraft, flushDrafts } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    statusHistory: state.statusHistory,
+    activityLog: state.activityLog,
+    activityHistoryComplete: state.activityHistoryComplete,
+    getStatus: state.getStatus,
+    setStatus: state.setStatus,
+    deleteIdea: state.deleteIdea,
+    getGroup: state.getGroup,
+    setGroupAssignment: state.setGroupAssignment,
+    setPriority: state.setPriority,
+    pendingSaves: state.pendingSaves,
+    draftValues: state.draftValues,
+    draftStorageError: state.draftStorageError,
+    changeDraft: state.changeDraft,
+    flushDrafts: state.flushDrafts,
+    statusOverrides: state.statusOverrides,
+    groupAssignments: state.groupAssignments,
+  })))
   const idea = ideas.find(i => i.id === ideaId)
   const ref = useRef()
   const [activeTab, setActiveTab] = useState('overview')

@@ -1,3 +1,4 @@
+import { useShallow } from 'zustand/react/shallow'
 import { buildMomentum, decisionPeriods, localDayKey } from '../lib/history.js'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useStore } from '../lib/store'
@@ -71,7 +72,15 @@ function IdeaRow({ idea, status, groupKey, onOpen }) {
 }
 
 export default function SummaryPage({ onOpenIdea, groupFilter = '' }) {
-  const { ideas, getStatus, getGroup, groupAssignments, statusOverrides, activityLog, activityHistoryComplete } = useStore()
+  const { ideas, getStatus, getGroup, groupAssignments, statusOverrides, activityLog, activityHistoryComplete } = useStore(useShallow(state => ({
+    ideas: state.ideas,
+    getStatus: state.getStatus,
+    getGroup: state.getGroup,
+    groupAssignments: state.groupAssignments,
+    statusOverrides: state.statusOverrides,
+    activityLog: state.activityLog,
+    activityHistoryComplete: state.activityHistoryComplete,
+  })))
   const [view, setView] = useState('pulse')
   const [drillStatus, setDrillStatus] = useState('')
   const [search, setSearch] = useState('')

@@ -7,6 +7,7 @@ const tableNames = ['ideas', 'status_overrides', 'status_history', 'idea_activit
 export const backend = {
   tables: {}, requests: [], denied: [], faults: [], nextId: 1,
   reset() {
+    this.readGate = null
     this.tables = Object.fromEntries(tableNames.map(name => [name, []]))
     this.tables.ideas = clone(fixtureIdeas)
     this.requests = []; this.denied = []; this.faults = []; this.nextId = 1
@@ -35,8 +36,9 @@ export const supabase = {
       delete() { operation = 'delete'; return this },
       single() { single = true; return this },
       then(resolve, reject) {
-        return Promise.resolve().then(() => {
+        return Promise.resolve().then(async () => {
           backend.requests.push({ table, operation, body: body === undefined ? null : clone(body) })
+          if (operation === 'select' && backend.readGate) await backend.readGate(table)
           const fault = backend.faults.find(f => f.table === table && f.operation === operation)
           if (fault?.kind === 'network') throw new TypeError('Fixture network failure')
           if (fault?.kind === 'zero') return { data: single ? null : [], error: null }
