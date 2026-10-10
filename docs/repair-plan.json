@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.20",
+  "planVersion": "1.0.21",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/cleanup-performance",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 11 verified locally: 205 strict checks, Node 24 clean install, lint/build and bundle budgets pass. Authenticated initial JavaScript decreases about 13%; CSS split preserves cascade. Full dependency audit reduced from 13 to 7 assessed build-tool findings; production audit reports zero. CI is defined but not yet run remotely. No main push or live operations. Step 12 release gate is next; deferred database and manual acceptance remain open.",
+  "progressNote": "Step 11 implementation published to main at 6c09b37; origin/main verified. Recorded local evidence: 205 strict checks, clean Node 24 install, lint/build, bundle budgets and responsive QA pass. Authenticated initial JavaScript decreases about 13%; full audit has seven assessed development findings and production audit zero. Remote CI result remains unverified. Step 12 release gate is next; live database and manual acceptance deferrals remain open.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -752,6 +752,11 @@
       "date": "2026-10-11",
       "title": "Step 11 cleanup and performance verified locally",
       "body": "Step 11 verified locally: 205 strict checks, Node 24 clean install, lint/build and bundle budgets pass. Authenticated initial JavaScript decreases about 13%; CSS split preserves cascade. Full dependency audit reduced from 13 to 7 assessed build-tool findings; production audit reports zero. CI is defined but not yet run remotely. No main push or live operations. Step 12 release gate is next; deferred database and manual acceptance remain open."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Step 11 published to main",
+      "body": "User requested publication. Fast-forwarded main and pushed 6c09b37; confirmed origin/main matches. Existing untracked review assets preserved. Tracker updated to v1.0.21 with recorded 205 passing local checks. No live SQL, deployment or remote CI acceptance verified; step 12 is next."
     }
   ],
   "nextStepId": 12,

@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.18 (2026-10-11) — Step 11 main publication
+### Changed
+- Tracker v1.0.21 records requested step 11 publication and verified origin/main at 6c09b37
+- Preserves 205 passing local checks, assessed remaining build-tool advisories and open remote CI/database/manual release checks; step 12 remains next
+
 ## v1.9.17 (2026-10-11) — Step 11 cleanup and performance
 ### Changed
 - Deferred inactive pages/dialogs, bounded concurrent dataset reads and shallow store selectors; stable matrix focus and before-paint hidden selection pruning
