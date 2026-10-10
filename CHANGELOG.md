@@ -1,5 +1,22 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.8.2 (2026-10-10) — Repair plan review tracker
+### Added
+- Self-contained HTML tracker preserving the initial 12-step repair plan, verification criteria, evidence links and completion history
+- Canonical plan data and renderer with immutable versioned snapshots; Step 1 is marked complete locally with live backup/staging explicitly deferred
+- Project instructions to update the tracker after verified repair work
+### Changed
+- Added Expand/Collapse, light/dark and Print/PDF controls to the review document; production application behavior is unchanged
+
+## v1.8.1 (2026-10-10) — Isolated regression baseline
+### Added
+- Fictional in-memory database fixtures and browser/store regression checks for audit findings
+- Expected-failure baseline mode and strict mode for tracking subsequent repairs
+- Test-only Vite configuration that replaces Supabase, skips production environment files, and blocks browser requests outside localhost
+- Baseline setup, preservation, deferred database backup/staging, and verification instructions
+### Changed
+- Added pinned Playwright development dependency and npm test commands; application behavior is unchanged
+
 ## v1.8.0 (2026-09-03) — Full-page More navigation
 ### Changed
 - The Console mobile More tab and header ellipsis now open a dedicated full page instead of a popup sheet
