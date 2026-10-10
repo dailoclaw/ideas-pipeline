@@ -1,20 +1,21 @@
 {
   "name": "ideas-webapp",
-  "version": "1.9.6",
+  "version": "1.9.7",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test tests/auth.test.mjs tests/store.test.mjs tests/drafts.test.mjs tests/database.test.mjs tests/browser.test.mjs",
+    "test": "node --test tests/auth.test.mjs tests/store.test.mjs tests/drafts.test.mjs tests/storage.test.mjs tests/database.test.mjs tests/browser.test.mjs",
     "test:store": "node --test tests/store.test.mjs",
     "test:browser": "node --test tests/browser.test.mjs",
-    "test:strict": "BASELINE_STRICT=1 node --test tests/auth.test.mjs tests/store.test.mjs tests/drafts.test.mjs tests/database.test.mjs tests/browser.test.mjs",
+    "test:strict": "BASELINE_STRICT=1 node --test tests/auth.test.mjs tests/store.test.mjs tests/drafts.test.mjs tests/storage.test.mjs tests/database.test.mjs tests/browser.test.mjs",
     "plan:render": "node scripts/render-repair-plan.mjs",
     "test:auth": "node --test tests/auth.test.mjs",
     "test:database": "node --test tests/database.test.mjs",
-    "test:drafts": "node --test tests/drafts.test.mjs"
+    "test:drafts": "node --test tests/drafts.test.mjs",
+    "test:storage": "node --test tests/storage.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

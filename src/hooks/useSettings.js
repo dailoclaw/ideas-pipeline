@@ -1,3 +1,4 @@
+import { safeStorage, scopedKey } from '../lib/storage.js'
 import { useState, useEffect } from 'react'
 
 const FONT_SIZES = {
@@ -6,9 +7,9 @@ const FONT_SIZES = {
   xl:      22,
 }
 
-export function useSettings() {
+export function useSettings(account) {
   const [fontSize, setFontSizeKey] = useState(
-    () => localStorage.getItem('ideas-font-size') || 'default'
+    () => safeStorage.readChoice(scopedKey('ideas-font-size', account), Object.keys(FONT_SIZES), safeStorage.readChoice('ideas-font-size', Object.keys(FONT_SIZES), 'default'))
   )
 
   useEffect(() => {
@@ -16,8 +17,8 @@ export function useSettings() {
     document.documentElement.style.zoom = ''
     const px = FONT_SIZES[fontSize] || 16
     document.documentElement.style.fontSize = `${px}px`
-    localStorage.setItem('ideas-font-size', fontSize)
-  }, [fontSize])
+    safeStorage.write(scopedKey('ideas-font-size', account), fontSize)
+  }, [fontSize, account])
 
   return { fontSize, setFontSizeKey }
 }

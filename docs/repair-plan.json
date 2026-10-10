@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.9",
+  "planVersion": "1.0.10",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "main",
+  "branch": "codex/storage-resilience",
   "readiness": "Not production-ready",
-  "scopeNote": "Steps 1, 3 & 5 complete locally; database rollout remains open",
+  "scopeNote": "Steps 1, 3, 5 & 6 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 5 autosave source pushed to main at 7c0cd76 by request. 131 isolated checks: 126 pass, 5 known defects remain. Notes/score draft recovery is verified locally. Live backup/staging and step 2/4 database rollout remain deferred; no deployment verification claimed. Next planned work is step 6 storage resilience.",
+  "progressNote": "Step 6 storage resilience verified locally: 147 checks, 145 pass, 2 known summary defects remain. Guarded account-scoped caches and usable appearance controls under denied/quota storage. No main push, live SQL or deployment; next work is step 7 summary/workflow accuracy.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -116,7 +116,7 @@
         "The authorized user can complete intended workflows.",
         "Forged audit actors and event edits are rejected."
       ],
-      "issues": "C1 \u00b7 authorization and audit trust",
+      "issues": "C1 · authorization and audit trust",
       "evidence": [
         {
           "label": "Database access implementation plan",
@@ -166,7 +166,7 @@
         "Denied writes preserve prior client state.",
         "Reloaded state agrees with the save result."
       ],
-      "issues": "C2 \u00b7 mutation error handling",
+      "issues": "C2 · mutation error handling",
       "evidence": [
         {
           "label": "Save reliability verification and limits",
@@ -221,7 +221,7 @@
         "Simultaneous changes retain both overrides.",
         "Failures leave no partial status/history or destructive child-only changes."
       ],
-      "issues": "C4 \u00b7 C5 \u00b7 C8",
+      "issues": "C4 · C5 · C8",
       "evidence": [
         {
           "label": "Transaction guarantees, limits & deferred rollout",
@@ -276,7 +276,7 @@
         "Reversed network response timing preserves the latest value.",
         "Failed saves retain the draft with Retry; page reload uses a recoverable local draft."
       ],
-      "issues": "C3 \u00b7 M4",
+      "issues": "C3 · M4",
       "evidence": [
         {
           "label": "Autosave behavior, verification and limits",
@@ -296,21 +296,29 @@
       "id": 6,
       "title": "Harden configuration and storage",
       "short": "Storage resilience",
-      "priority": "High \u00b7 easy wins",
-      "status": "pending",
-      "summary": "Handle missing settings, denied storage and malformed values without blanking the application.",
+      "priority": "High · easy wins",
+      "status": "local-complete",
+      "summary": "Guarded account-scoped storage and configuration handling verified locally. Denied/quota storage, malformed caches and reload preferences pass. Deleted-idea and sign-out caches are cleaned up where storage permits. No live SQL, deployment or main push; Chrome/Edge release acceptance remains open.",
       "actions": [
         {
-          "text": "Render a setup error before mounting App when connection settings are missing or invalid."
+          "text": "Render a setup error before mounting App when connection settings are missing or invalid.",
+          "status": "complete",
+          "note": "Existing authentication setup gate rejects missing/invalid settings and SDK construction errors before mounting App; authentication configuration regressions pass."
         },
         {
-          "text": "Centralize guarded reads/writes and validate JSON shapes, event fields, preferences and numeric bounds."
+          "text": "Centralize guarded reads/writes and validate JSON shapes, event fields, preferences and numeric bounds.",
+          "status": "complete",
+          "note": "One lazy guarded adapter validates cache containers, event payloads/dates, allowed choices, IDs and numeric bounds. Three original C6 failures now pass."
         },
         {
-          "text": "Use in-memory preferences when storage cannot persist."
+          "text": "Use in-memory preferences when storage cannot persist.",
+          "status": "complete",
+          "note": "Failed writes preserve current-session values in memory; required draft persistence still exposes recovery warnings. Quota/property-access denial and browser controls verified."
         },
         {
-          "text": "Namespace local data by account and clean up deleted-idea data."
+          "text": "Namespace local data by account and clean up deleted-idea data.",
+          "status": "complete",
+          "note": "Appearance, drafts, sorts, durations and pending activity are account-scoped. Confirmed deletion removes idea caches; sign-out clears drafts/pending activity. Unowned legacy activity is not imported; denied deletion remains best-effort."
         }
       ],
       "verify": [
@@ -318,7 +326,21 @@
         "Missing URL/key produces a clear configuration error.",
         "Healthy preferences still survive reload."
       ],
-      "issues": "C6"
+      "issues": "C6",
+      "evidence": [
+        {
+          "label": "Storage guarantees, verification & limits",
+          "href": "STORAGE_RESILIENCE.md"
+        },
+        {
+          "label": "Guarded storage and validators",
+          "href": "../src/lib/storage.js"
+        },
+        {
+          "label": "Storage regression checks",
+          "href": "../tests/storage.test.mjs"
+        }
+      ]
     },
     {
       "id": 7,
@@ -350,7 +372,7 @@
         "Failed triage actions recover and completed/deferred counts are accurate.",
         "Action buttons return to idle in StrictMode; filters do not cause undisclosed hidden mutations."
       ],
-      "issues": "C7 \u00b7 M5 \u00b7 M6 \u00b7 M9"
+      "issues": "C7 · M5 · M6 · M9"
     },
     {
       "id": 8,
@@ -378,7 +400,7 @@
         "Offline events synchronize exactly once; repeated transitions remain visible.",
         "More than 1,000 records export completely; Adelaide midnight/DST fixtures give correct counts."
       ],
-      "issues": "M3 \u00b7 M7 \u00b7 M8 \u00b7 M13"
+      "issues": "M3 · M7 · M8 · M13"
     },
     {
       "id": 9,
@@ -406,13 +428,13 @@
         "Score explanation reconciles with the computed value.",
         "Priority ties and planning rules are consistent across views."
       ],
-      "issues": "M10 \u00b7 M11 \u00b7 M12 \u00b7 M14"
+      "issues": "M10 · M11 · M12 · M14"
     },
     {
       "id": 10,
       "title": "Fix accessibility and review-document defects",
       "short": "Accessible controls",
-      "priority": "High \u00b7 easy wins",
+      "priority": "High · easy wins",
       "status": "pending",
       "summary": "Make core workflows usable by keyboard, touch and assistive technology, and repair standalone review navigation.",
       "actions": [
@@ -437,7 +459,7 @@
         "Screen readers announce controls, errors and states; focus returns correctly.",
         "200% zoom and narrow screens remain usable; review links/lightboxes and reduced motion work."
       ],
-      "issues": "Accessibility \u00b7 review HTML"
+      "issues": "Accessibility · review HTML"
     },
     {
       "id": 11,
@@ -468,7 +490,7 @@
         "Initial bundle decreases and requests remain bounded.",
         "Regression checks pass on supported Chrome/Edge versions; advisory exposure is assessed."
       ],
-      "issues": "Maintainability \u00b7 performance \u00b7 dependency baseline"
+      "issues": "Maintainability · performance · dependency baseline"
     },
     {
       "id": 12,
@@ -557,13 +579,18 @@
       "date": "2026-10-10",
       "title": "Step 5 pushed to main",
       "body": "User requested publication. Fast-forwarded and pushed 7c0cd76; verified origin/main. Existing untracked review assets preserved. Recorded verification: 131 checks, 126 pass, 5 known failures; build passes. No database SQL executed or deployment inspected. Step 6 remains the next planned work."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 6 storage resilience verified locally",
+      "body": "147 checks: 145 pass, 2 known C7 failures. Three C6 regressions now pass; 16 new adapter/store/browser checks cover denied/quota storage, validation, namespaces, cleanup and healthy reload. Build passes. No main push/live SQL/deployment; step 7 is next. Database rollout remains deferred."
     }
   ],
-  "nextStepId": 6,
+  "nextStepId": 7,
   "verification": {
-    "tests": 131,
-    "passing": 126,
-    "knownFailures": 5,
+    "tests": 147,
+    "passing": 145,
+    "knownFailures": 2,
     "unexpectedFailures": 0
   }
 }

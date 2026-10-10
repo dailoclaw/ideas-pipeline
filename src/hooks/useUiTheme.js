@@ -1,3 +1,4 @@
+import { safeStorage, scopedKey } from '../lib/storage.js'
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'ideas-ui-theme-v3'
@@ -48,23 +49,23 @@ export const nextUiTheme = theme => {
  * theme preference to migrate — only a layout choice that implied one. Move
  * those users onto the Obsidian theme rather than dropping them into Glass.
  */
-function readInitialTheme() {
-  const saved = localStorage.getItem(STORAGE_KEY)
-  if (saved && UI_THEMES[saved]) return saved
+function readInitialTheme(account) {
+  const saved = safeStorage.readChoice(scopedKey(STORAGE_KEY, account), UI_THEME_ORDER, safeStorage.readChoice(STORAGE_KEY, UI_THEME_ORDER, null))
+  if (UI_THEME_ORDER.includes(saved)) return saved
 
-  if (localStorage.getItem(LAYOUT_KEY) === 'obsidian') return 'obsidian'
+  if (safeStorage.readChoice(scopedKey(LAYOUT_KEY, account), ['original', 'obsidian'], safeStorage.read(LAYOUT_KEY)) === 'obsidian') return 'obsidian'
 
-  const legacy = localStorage.getItem(LEGACY_KEY)
-  return legacy && UI_THEMES[legacy] ? legacy : DEFAULT_THEME
+  const legacy = safeStorage.read(LEGACY_KEY)
+  return UI_THEME_ORDER.includes(legacy) ? legacy : DEFAULT_THEME
 }
 
-export function useUiTheme() {
-  const [theme, setTheme] = useState(readInitialTheme)
+export function useUiTheme(account) {
+  const [theme, setTheme] = useState(() => readInitialTheme(account))
 
   useEffect(() => {
     document.documentElement.dataset.uiTheme = theme
-    localStorage.setItem(STORAGE_KEY, theme)
-  }, [theme])
+    safeStorage.write(scopedKey(STORAGE_KEY, account), theme)
+  }, [theme, account])
 
   return { theme, setTheme }
 }

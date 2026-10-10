@@ -1,8 +1,9 @@
+import { safeStorage, scopedKey } from './storage.js'
 // Drafts belong to the store, not a mounted dialog. Saves for one idea run in order.
-export function createDraftController({ save, publish, storage = () => localStorage }) {
+export function createDraftController({ save, publish, storage = () => safeStorage.required }) {
   let account = null, entries = {}, storageError = false, generation = 0
   const timers = new Map(), workers = new Map()
-  const key = () => `ideas-webapp-drafts-v1:${account}`
+  const key = () => scopedKey('ideas-webapp-drafts-v1', account)
   const snapshot = () => Object.fromEntries(Object.entries(entries).map(([id, fields]) => [id,
     Object.fromEntries(Object.entries(fields).map(([field, draft]) => [field, { ...draft }]))]))
   function emit() {

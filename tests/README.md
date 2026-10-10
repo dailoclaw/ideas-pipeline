@@ -115,7 +115,7 @@ parallel request check does not simulate cross-session contention. Restored stag
 real JWT/RLS tests and multi-session acceptance remain deferred. See
 [step 4 verification and rollout](../docs/TRANSACTION_INTEGRITY.md).
 
-## Step 5 additions — v1.9.5 (current)
+## Step 5 additions — v1.9.5
 
 `npm test`: **131 checks, 126 pass, 5 known failures**. Immediate-close notes loss
 is promoted to an ordinary passing regression. `npm run test:drafts` runs nine
@@ -123,3 +123,12 @@ controller checks without a browser/database. Six additional store and eight bro
 checks cover serialization, waiting, refresh, dismissal/Edit, bounded score, failed
 close/retry, account-scoped reload recovery and logout cleanup. See
 [autosave guarantees and limits](../docs/SAFE_AUTOSAVE.md).
+
+## Step 6 additions — v1.9.7 (current)
+
+`npm test`: **147 checks, 145 pass, 2 known C7 failures**. Strict mode reports
+145 passes and the same two actual failures. Three C6 tests now pass normally.
+Ten adapter, four store and two browser checks cover blocked/quota storage,
+cache validation, memory fallback, account isolation, deletion/logout cleanup
+and healthy appearance reload. `npm run test:storage` runs the ten adapter checks.
+See [storage guarantees and limits](../docs/STORAGE_RESILIENCE.md).

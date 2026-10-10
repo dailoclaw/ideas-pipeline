@@ -1,3 +1,4 @@
+import { safeStorage, scopedKey } from '../lib/storage.js'
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'ideas-app-layout-v1'
@@ -17,16 +18,16 @@ const APP_LAYOUTS = {
   },
 }
 
-export function useAppLayout() {
+export function useAppLayout(account) {
   const [appLayout, setAppLayout] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    return saved && APP_LAYOUTS[saved] ? saved : 'original'
+    const saved = safeStorage.readChoice(scopedKey(STORAGE_KEY, account), Object.keys(APP_LAYOUTS), safeStorage.readChoice(STORAGE_KEY, Object.keys(APP_LAYOUTS), 'original'))
+    return Object.hasOwn(APP_LAYOUTS, saved) ? saved : 'original'
   })
 
   useEffect(() => {
     document.documentElement.dataset.appLayout = appLayout
-    localStorage.setItem(STORAGE_KEY, appLayout)
-  }, [appLayout])
+    safeStorage.write(scopedKey(STORAGE_KEY, account), appLayout)
+  }, [appLayout, account])
 
   return { appLayout, setAppLayout }
 }

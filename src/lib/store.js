@@ -1,20 +1,11 @@
 import { create } from 'zustand'
 import { supabase } from './supabase'
 import { createDraftController } from './drafts.js'
+import { safeStorage, scopedKey, sanitizeActivity, sanitizeSorts, sanitizeWeeks } from './storage.js'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const today = () => new Date().toISOString().slice(0, 10)
 const ACTIVITY_STORAGE_KEY = 'ideas-webapp-pending-activity'
-
-const readLocalActivity = () => {
-  try { return JSON.parse(localStorage.getItem(ACTIVITY_STORAGE_KEY) || '[]') }
-  catch { return [] }
-}
-
-const writeLocalActivity = events => {
-  try { localStorage.setItem(ACTIVITY_STORAGE_KEY, JSON.stringify(events.slice(-100))) }
-  catch { /* localStorage may be unavailable in private browsing */ }
-}
 
 const normaliseActivity = row => ({
   id: row.id,
@@ -136,6 +127,9 @@ const recordActivity = (get, id, type, payload) => async () => {
 
 export const useStore = create((set, get) => {
   let loadTicket = 0
+  const accountKey = key => scopedKey(key, get().draftAccount)
+  const readLocalActivity = () => safeStorage.readJSON(accountKey(ACTIVITY_STORAGE_KEY), [], sanitizeActivity)
+  const writeLocalActivity = events => safeStorage.writeJSON(accountKey(ACTIVITY_STORAGE_KEY), sanitizeActivity(events).slice(-100))
   const drafts = createDraftController({
     publish: (draftValues, draftStorageError) => set({ draftValues, draftStorageError }),
     save: async (id, field, value) => {
@@ -165,14 +159,21 @@ export const useStore = create((set, get) => {
   draftAccount: null,
   draftValues: {},
   draftStorageError: false,
-  configureDrafts(account) { drafts.configure(account); set({ draftAccount: account }) },
+  configureDrafts(account) {
+    drafts.configure(account); set({ draftAccount: account })
+    // Unowned legacy activity cannot be safely attributed to a signed-in account.
+    safeStorage.remove(ACTIVITY_STORAGE_KEY)
+  },
   changeDraft(id, field, value) {
     const idea = requireIdea(get, id)
     drafts.change(id, field, value, field === 'notes' ? idea.notes : idea.scoreAdjust)
   },
   flushDrafts(id) { return drafts.flush(id) },
   flushAllDrafts() { return drafts.flushAll() },
-  clearDrafts() { set({ draftAccount: null }); drafts.clear() },
+  clearDrafts() {
+    safeStorage.remove(accountKey(ACTIVITY_STORAGE_KEY))
+    set({ draftAccount: null }); drafts.clear()
+  },
   saveFeedback: null,
   clearSaveFeedback() { set({ saveFeedback: null }) },
 
@@ -323,6 +324,9 @@ export const useStore = create((set, get) => {
       // Supplied schema has cascading foreign keys. Never delete children before the parent.
       await confirmDelete(supabase.from('ideas').delete().eq('id', id), 'id', id)
       drafts.remove(id)
+      writeLocalActivity(readLocalActivity().filter(event => Number(event.ideaId) !== id))
+      const weeks = safeStorage.readJSON(accountKey('ideas-webapp-sprint-weeks'), {}, sanitizeWeeks)
+      delete weeks[id]; safeStorage.writeJSON(accountKey('ideas-webapp-sprint-weeks'), weeks)
       set(state => {
         const maps = {}
         for (const key of ['statusOverrides', 'statusHistory', 'activityLog', 'groupAssignments', 'sprintAssignments']) {
@@ -378,11 +382,8 @@ export const useStore = create((set, get) => {
 
   // ── Sprint weeks (localStorage — not critical for cross-device) ───────────
   getSprintWeeks(id, idea) {
-    try {
-      const map = JSON.parse(localStorage.getItem('ideas-webapp-sprint-weeks') || '{}')
-      if (map[id] != null) return Math.max(1, parseInt(map[id]) || 1)
-      return ({ '1w': 2, '1-2w': 3, '2-4w': 5 }[idea?.time] || 2)
-    } catch { return 2 }
+    const map = safeStorage.readJSON(accountKey('ideas-webapp-sprint-weeks'), {}, sanitizeWeeks)
+    return map[id] ?? ({ '1w': 2, '1-2w': 3, '2-4w': 5 }[idea?.time] || 2)
   },
   getSprintAssignment(id) {
     return get().sprintAssignments[id] || null
@@ -445,6 +446,7 @@ export const useStore = create((set, get) => {
       actor: 'You',
     }
 
+    if (!sanitizeActivity([localEvent]).length) throw new Error('Invalid activity event')
     const pending = [...readLocalActivity(), localEvent]
     writeLocalActivity(pending)
     set(s => ({
@@ -489,15 +491,13 @@ export const useStore = create((set, get) => {
 
   // ── Kanban sort (localStorage) ─────────────────────────────────────────────
   getKanbanSort() {
-    try { return JSON.parse(localStorage.getItem('ideas-webapp-kanban-sort') || '{}') }
-    catch { return {} }
+    return safeStorage.readJSON(accountKey('ideas-webapp-kanban-sort'), {}, sanitizeSorts)
   },
   setKanbanSort(col, sort) {
-    const s = get().getKanbanSort()
-    s[col] = sort
-    localStorage.setItem('ideas-webapp-kanban-sort', JSON.stringify(s))
-    // Trigger re-render by touching state
-    set(s => ({ ...s }))
+    if (!Object.hasOwn(sanitizeSorts({ [col]: sort }), col)) return
+    const sorts = { ...get().getKanbanSort(), [col]: sort }
+    safeStorage.writeJSON(accountKey('ideas-webapp-kanban-sort'), sorts)
+    set(state => ({ preferenceRevision: (state.preferenceRevision || 0) + 1 }))
   },
 })
 })

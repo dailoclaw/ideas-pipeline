@@ -82,13 +82,14 @@ test('workspace comparison must immediately reflect new membership', t => knownD
   assert.equal(await card.getByRole('button').count(), 1)
 }))
 
-test('storage denial must retain a usable application shell', t => knownDefect(t, 'C6: preferences throw during startup', async () => {
+test('storage denial must retain a usable application shell', async () => {
   await context.addInitScript(() => {
     Storage.prototype.getItem = () => { throw new DOMException('Fixture denied storage', 'SecurityError') }
   })
   await page.goto(url); await page.waitForTimeout(500)
-  assert.ok((await page.locator('body').innerText()).trim().length > 0, 'Storage denial left a blank page')
-}))
+  await page.getByRole('navigation', { name: 'Primary navigation', exact: true }).waitFor()
+  assert.deepEqual(runtimeErrors, [])
+})
 
 test('action button must finish and become reusable under StrictMode', async () => {
   await openApp(); await navigate('Strategy')
@@ -373,5 +374,37 @@ test('logout removes the account draft cache and stops pending timers', async ()
   await page.getByRole('heading',{name:'Sign in',exact:true}).waitFor()
   assert.equal(await page.evaluate(()=>localStorage.getItem('ideas-webapp-drafts-v1:fixture-owner')),null)
   assert.equal(await page.evaluate(()=>window.__baseline.store.getState().ideas.length),0)
+  assert.deepEqual(runtimeErrors,[])
+})
+
+test('denied reads and quota writes allow appearance changes without a blank app', async () => {
+  await page.addInitScript(() => {
+    Storage.prototype.getItem = () => { throw new DOMException('denied','SecurityError') }
+    Storage.prototype.setItem = () => { throw new DOMException('quota','QuotaExceededError') }
+  })
+  await openApp()
+  await page.getByRole('button',{name:'Customise appearance',exact:true}).click()
+  await page.getByRole('button',{name:/Aurora Mist/}).click()
+  await page.getByRole('button',{name:/XL Maximum comfort/}).click()
+  assert.equal(await page.locator('html').getAttribute('data-ui-theme'),'aurora')
+  assert.equal(await page.locator('html').evaluate(el=>el.style.fontSize),'22px')
+  await page.getByRole('button',{name:'Done',exact:true}).click()
+  await navigate('Summary')
+  assert.deepEqual(runtimeErrors,[])
+})
+test('healthy account appearance survives reload and corrupt cache shapes remain harmless', async () => {
+  await openApp()
+  await page.getByRole('button',{name:'Customise appearance',exact:true}).click()
+  await page.getByRole('button',{name:/Aurora Mist/}).click()
+  await page.getByRole('button',{name:/Large Easier to read/}).click()
+  await page.getByRole('button',{name:'Done',exact:true}).click()
+  await page.reload(); await page.getByRole('navigation',{name:'Primary navigation',exact:true}).waitFor()
+  assert.equal(await page.locator('html').getAttribute('data-ui-theme'),'aurora')
+  assert.equal(await page.locator('html').evaluate(el=>el.style.fontSize),'19px')
+  await page.evaluate(() => {
+    for (const [key,value] of Object.entries({ 'ideas-ui-theme-v3':'__proto__', 'ideas-font-size':'bogus', 'ideas-app-layout-v1':'constructor', 'ideas-webapp-kanban-sort':'null', 'ideas-webapp-pending-activity':'[null,{}, {"id":"local-bad","payload":null}]', 'ideas-webapp-sprint-weeks':'{"101":999}' })) localStorage.setItem(key+':fixture-owner',value)
+  })
+  await page.reload(); await page.getByRole('navigation',{name:'Primary navigation',exact:true}).waitFor()
+  await page.getByRole('button',{name:'Open #101 Fixture intake',exact:true}).click()
   assert.deepEqual(runtimeErrors,[])
 })

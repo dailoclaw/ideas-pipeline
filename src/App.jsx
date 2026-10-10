@@ -62,10 +62,10 @@ export default function App({ onSignOut, accountId }) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [mobileToolsOpen, setMobileToolsOpen] = useState(false)
   const mobileToolsRef = useRef(null)
-  const [dark, toggleDark]    = useDarkMode()
-  const { theme, setTheme }    = useUiTheme()
-  const { fontSize, setFontSizeKey }  = useSettings()
-  const { appLayout, setAppLayout } = useAppLayout()
+  const [dark, toggleDark]    = useDarkMode(accountId)
+  const { theme, setTheme }    = useUiTheme(accountId)
+  const { fontSize, setFontSizeKey }  = useSettings(accountId)
+  const { appLayout, setAppLayout } = useAppLayout(accountId)
 
   const {
     load, loading, error, ideas, getStatus, getGroup, getSprintWeeks,

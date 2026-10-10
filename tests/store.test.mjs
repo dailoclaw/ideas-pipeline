@@ -1,21 +1,23 @@
+import { safeStorage } from '../src/lib/storage.js'
 import test, { beforeEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { backend } from './helpers/mock-supabase.js'
 import { loadFixtureStore } from './helpers/load-store.mjs'
-import { knownDefect } from './helpers/known-defect.mjs'
 
 const values = new Map()
 globalThis.localStorage = {
   getItem: key => values.get(key) ?? null,
+  removeItem: key => values.delete(key),
   setItem: (key, value) => values.set(key, String(value)),
 }
 globalThis.fetch = () => { throw new Error('Network access is forbidden in store fixtures') }
 const { useStore } = await loadFixtureStore()
 beforeEach(async () => {
   useStore.getState().clearDrafts()
-  values.clear(); backend.reset()
+  values.clear(); safeStorage.clearMemory(); backend.reset()
   useStore.setState({ ideas: [], statusOverrides: {}, statusHistory: {}, activityLog: {},
     hasLoaded: false, dataRevision: 0, draftAccount: null, draftValues: {}, draftStorageError: false, activityPersistenceAvailable: null, groupAssignments: {}, sprintAssignments: {}, loading: true, error: null, pendingSaves: {}, saveFeedback: null })
+  useStore.getState().configureDrafts('owner')
   await useStore.getState().load()
 })
 
@@ -58,15 +60,15 @@ test('simultaneous status writes must retain both overrides', async () => {
   assert.deepEqual(useStore.getState().statusOverrides, { 101: 'ready', 102: 'ready' })
 })
 
-test('malformed activity storage must not prevent logging', t => knownDefect(t, 'C6: activity buffer lacks shape validation', async () => {
-  localStorage.setItem('ideas-webapp-pending-activity', '{}')
-  await assert.doesNotReject(useStore.getState().logActivity(101, 'notes_updated', { toLength: 1 }))
-}))
+test('malformed activity storage must not prevent logging', async () => {
+  localStorage.setItem('ideas-webapp-pending-activity:owner', '{}')
+  await assert.doesNotReject(useStore.getState().logActivity(101, 'notes_updated', { fromLength: 0, toLength: 1 }))
+})
 
-test('null Kanban storage must fall back to an empty map', t => knownDefect(t, 'C6: Kanban map lacks shape validation', () => {
-  localStorage.setItem('ideas-webapp-kanban-sort', 'null')
+test('null Kanban storage must fall back to an empty map', () => {
+  localStorage.setItem('ideas-webapp-kanban-sort:owner', 'null')
   assert.doesNotThrow(() => useStore.getState().setKanbanSort('quick', 'name'))
-}))
+})
 
 test('failed parent deletion must preserve status history', async () => {
   backend.tables.status_history.push({ id: 1, idea_id: 103, status: 'ready', changed_at: '2026-09-01' })
@@ -297,4 +299,39 @@ test('draft flush waits for another same-idea save rather than rejecting the not
   await saving;assert.equal(await flush,true)
   assert.equal(backend.tables.ideas[0].is_priority,true)
   assert.equal(backend.tables.ideas[0].notes,'After priority')
+})
+
+test('account preferences and pending activity cannot leak into another account', async () => {
+  useStore.setState({ activityPersistenceAvailable:false })
+  await useStore.getState().logActivity(101,'notes_updated',{fromLength:0,toLength:3})
+  useStore.getState().setKanbanSort('quick','name')
+  assert.equal(JSON.parse(values.get('ideas-webapp-pending-activity:owner')).length,1)
+  useStore.getState().clearDrafts()
+  useStore.getState().configureDrafts('other')
+  await useStore.getState().load()
+  assert.deepEqual(useStore.getState().getKanbanSort(),{})
+  assert.equal((useStore.getState().activityLog[101] || []).filter(e=>e.id.startsWith('local-')).length,0)
+})
+test('deleted idea removes its local activity and duration without erasing others', async () => {
+  useStore.setState({ activityPersistenceAvailable:false })
+  for(const id of [101,102]) await useStore.getState().logActivity(id,'notes_updated',{fromLength:0,toLength:3})
+  values.set('ideas-webapp-sprint-weeks:owner',JSON.stringify({101:8,102:3}))
+  await useStore.getState().deleteIdea(101)
+  assert.deepEqual(JSON.parse(values.get('ideas-webapp-sprint-weeks:owner')),{102:3})
+  assert.deepEqual(JSON.parse(values.get('ideas-webapp-pending-activity:owner')).map(e=>e.ideaId),[102])
+})
+test('sort writes remain usable under quota errors and reject invalid choices', () => {
+  const original = localStorage.setItem
+  try {
+    localStorage.setItem = () => { throw Error('quota') }
+    useStore.getState().setKanbanSort('quick','name')
+    useStore.getState().setKanbanSort('quick','bogus')
+    assert.deepEqual(useStore.getState().getKanbanSort(),{quick:'name'})
+  } finally { localStorage.setItem = original }
+})
+test('logout removes current account pending activity', async () => {
+  useStore.setState({ activityPersistenceAvailable:false })
+  await useStore.getState().logActivity(101,'notes_updated',{fromLength:0,toLength:3})
+  useStore.getState().clearDrafts()
+  assert.equal(values.has('ideas-webapp-pending-activity:owner'),false)
 })

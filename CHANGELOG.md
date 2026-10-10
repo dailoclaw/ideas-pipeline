@@ -1,5 +1,15 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.7 (2026-10-10) — Guarded account-scoped storage
+### Fixed
+- Blocked storage and quota failures retain a usable app and memory preferences; malformed caches fall back safely
+- Account-scoped cache keys, type-specific activity validation, bounded preferences and deleted-idea/logout cleanup
+- Drafts share the guarded adapter while retaining explicit durable-storage warnings
+### Added
+- 16 storage/store/browser checks; three C6 regressions promoted to passing tests
+- Tracker v1.0.10 records 145 passes and two remaining summary failures; step 6 complete locally, step 7 next
+- No live database changes, deployment or main publication performed
+
 ## v1.9.6 (2026-10-10) — Step 5 main publication
 ### Changed
 - Tracker v1.0.9 records the requested step 5 push and verified origin/main at 7c0cd76
