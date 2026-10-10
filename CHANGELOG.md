@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.4 (2026-10-10) — Steps 3 and 4 main publication
+### Changed
+- Tracker v1.0.7 records the requested main push and verified origin/main at 56f08d6
+- Database rollout stays deferred; published source still requires coordinated migration/security before create/status workflows can run on Supabase
+
 ## v1.9.3 (2026-10-10) — Local IDs and transaction integrity
 ### Fixed
 - Create/status client paths use transactional RPCs, returned database IDs, stable request tokens and read-only conflict recovery

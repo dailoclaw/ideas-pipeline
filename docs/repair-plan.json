@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.6",
+  "planVersion": "1.0.7",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "codex/transaction-integrity",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1 & 3 complete locally; Step 4 implementation verified, rollout open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 4 local SQL/client implementation is verified: database IDs, atomic create/status audit, safe request replay and stale-status conflicts. 108 isolated checks: 102 pass, 6 known defects remain. Supabase backup/staging and step 2 authorization are still deferred; no live migration or main push performed.",
+  "progressNote": "Steps 3 and 4 source changes pushed to main at 56f08d6 by request. 108 isolated checks: 102 pass, 6 known defects. Database rollout remains deferred; create/status require migration 002. Step 5 autosave and draft recovery is next.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -188,7 +188,7 @@
       "short": "IDs & concurrency",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Local SQL and frontend implementation verified: generated IDs, atomic create/status/history/activity, request deduplication and stale-status conflicts. Live migration, six-table authorization prerequisites and independent-session contention tests remain deferred. This branch requires the matching database rollout before publication.",
+      "summary": "Local SQL and frontend implementation verified: generated IDs, atomic create/status/history/activity, request deduplication and stale-status conflicts. Live migration, six-table authorization prerequisites and independent-session contention tests remain deferred. Source pushed to main at 56f08d6 by request; the frontend requires the matching database rollout to perform create/status actions.",
       "actions": [
         {
           "text": "Migrate IDs to database generation; initialize the sequence above the highest existing ID.",
@@ -520,6 +520,11 @@
       "date": "2026-10-10",
       "title": "Step 4 transaction implementation verified locally",
       "body": "108 checks: 102 pass, 6 original failures remain. Twenty PostgreSQL checks execute the actual SQL against fictional local data; ten new store and four browser checks cover request replay, rollback and conflicts. IDs and create/status audit no longer depend on browser allocation/separate writes. Build passes. No main push or live SQL; independent-session contention and coordinated security rollout remain open. Next local work is step 5 draft/autosave recovery."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Steps 3 and 4 pushed to main",
+      "body": "Fast-forwarded main and pushed 7d383ff and 56f08d6 by request; origin/main verified. No Supabase migration or deployment performed. Create/status actions on the new frontend require migration 002 and coordinated step 2 authorization. Step 5 now begins locally."
     }
   ],
   "nextStepId": 5,

@@ -1,8 +1,8 @@
 # Step 4 — local transaction integrity implementation (v1.9.3)
 
 **Local implementation verified; database rollout remains open.** No live SQL,
-backup, staging project or deployment was performed. This branch must not be
-published as a working backend integration before the coordinated migration.
+backup, staging project or deployment was performed. Source was pushed to main at `56f08d6` by user request. It is not a working
+Supabase integration until the coordinated migration is installed.
 The deferred step 2 authorization work is still required.
 
 ## Changes and guarantees
