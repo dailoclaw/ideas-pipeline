@@ -1,6 +1,6 @@
 # Step 8 — trustworthy history and exports
 
-Local implementation verified in v1.9.11. Source remains local. Migration 003 is a rollout candidate, not installed in Supabase. Live backup/staging, authorization and transaction prerequisites remain deferred by user instruction.
+Local implementation verified in v1.9.11. Source pushed to main at ff1c366 by request; remote verified. Migration 003 is a rollout candidate, not installed in Supabase. Live backup/staging, authorization and transaction prerequisites remain deferred by user instruction.
 
 ## Behavior
 

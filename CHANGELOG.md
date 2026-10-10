@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.12 (2026-10-10) — Step 8 main publication
+### Changed
+- Tracker v1.0.15 records the requested step 8 push and verified origin/main at ff1c366
+- Retains deferred RPC/database rollout and passing local evidence; no live SQL or deployment verification claimed
+
 ## v1.9.11 (2026-10-10) — Honest history and complete exports
 ### Fixed
 - Removed fabricated activity; corrected legacy predecessors, repeated transitions, counts and local decision-date boundaries

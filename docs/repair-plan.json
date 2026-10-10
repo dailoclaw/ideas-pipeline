@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.14",
+  "planVersion": "1.0.15",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "codex/history-exports",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6 & 7 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 8 local implementation verified: all 180 checks pass. Honest history, local decision dates, paginated loads/exports and an idempotent activity retry contract. Live RPC migration 003 and real API acceptance remain deferred with steps 2/4; no main push or deployment. Next local work is step 9 validation/business rules.",
+  "progressNote": "Step 8 source pushed to main at ff1c366 by request; origin/main verified. Recorded checks: all 180 pass, zero known/TODO failures. Live RPC migration 003, backup/staging and database authorization/transaction rollout remain deferred; no deployment verification claimed. Next local work is step 9 validation/business rules.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -398,7 +398,7 @@
       "short": "History & exports",
       "priority": "High",
       "status": "in-progress",
-      "summary": "History, pagination and outbox implementation verified locally: 180 passing checks. Empty history is honest, exports refresh complete reads, legacy transitions/counts are corrected, and full/unavailable queues are visible. Migration 003 provides locally tested idempotent retry; live installation and real API acceptance remain deferred. No main push or deployment.",
+      "summary": "History, pagination and outbox implementation verified locally: 180 passing checks. Empty history is honest, exports refresh complete reads, legacy transitions/counts are corrected, and full/unavailable queues are visible. Migration 003 provides locally tested idempotent retry; live installation and real API acceptance remain deferred. Source pushed to main at ff1c366; no live SQL or deployment verification.",
       "actions": [
         {
           "text": "Remove fabricated fallback activity; correct legacy predecessor calculations and displayed counts.",
@@ -644,6 +644,11 @@
       "date": "2026-10-10",
       "title": "Step 8 history/export implementation verified locally",
       "body": "180 checks pass without known/TODO failures. Added 23 history/paging/store/PostgreSQL/browser regressions for honest activity, local calendar dates, full paginated export and stable outbox retries. Build passes. RPC 003 tested locally only; live backup/staging, authorization and database rollout remain deferred. No main push/deployment; step 9 is next local work."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 8 pushed to main",
+      "body": "User requested publication. Fast-forwarded main and pushed ff1c366; verified origin/main. Recorded verification: all 180 checks pass and build passes. Existing untracked review assets preserved. RPC 003 remains a locally tested rollout candidate; no live SQL or deployment verification. Step 9 remains next local work."
     }
   ],
   "nextStepId": 9,
