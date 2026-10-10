@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.14 (2026-10-11) — Step 9 main publication
+### Changed
+- Tracker v1.0.17 records requested step 9 publication and verified origin/main at c6f7df6
+- Preserves recorded passing local evidence and deferred constraint/database rollout; step 10 remains next
+
 ## v1.9.13 (2026-10-10) — Validation and explicit planning rules
 ### Fixed
 - Trimmed required/descriptive inputs, removed blank MVP steps and rejected unsupported fields/types/ranges before writes

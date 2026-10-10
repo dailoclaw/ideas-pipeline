@@ -1,6 +1,7 @@
 # Validation and planning rules — step 9
 
-Implemented locally on `codex/validation-rules`. No live database changes.
+Step 9 source published to main at `c6f7df6` on 2026-10-11 by request;
+origin/main verified. No live database changes or deployment verification.
 
 ## Write boundary
 

@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.16",
-  "updated": "2026-10-10",
+  "planVersion": "1.0.17",
+  "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/validation-rules",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6 & 7 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 9 validation and business rules implemented and verified locally; 191 checks pass with zero known/TODO failures. Unknown classifications remain visible, score range/breakdown reconcile, and matrix/sprint rules are explicit. SQL 004 is a locally tested candidate; live backup/staging and database rollout remain deferred. No main push or deployment verification; step 10 is next.",
+  "progressNote": "Step 9 source pushed to main at c6f7df6 by request; origin/main verified. Recorded local evidence: all 191 strict checks pass and build passes. SQL 004 remains a locally tested constraint candidate; live backup/staging, legacy repair and database rollout remain deferred. No deployment verification claimed; step 10 is next.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -676,6 +676,11 @@
       "date": "2026-10-10",
       "title": "Step 9 validation and planning verified locally",
       "body": "191 strict checks pass; build passes. Added 11 client/scoring/PostgreSQL/browser regressions plus desktop/mobile planning QA. Tracker v1.0.16 records verified local behavior and deferred SQL 004 rollout/legacy repair. No main push or live database changes; step 10 is next."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Step 9 published to main",
+      "body": "User requested publication. Fast-forwarded main and pushed c6f7df6; verified origin/main. Recorded verification: all 191 strict checks pass, build and responsive planning QA pass. Existing untracked review assets preserved. No live SQL or deployment verification; step 10 remains next."
     }
   ],
   "nextStepId": 10,
