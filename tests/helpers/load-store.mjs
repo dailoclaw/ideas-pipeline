@@ -11,7 +11,6 @@ export async function loadFixtureStore() {
     let source = await readFile(resolve(root, 'src/lib/store.js'), 'utf8')
     const replacements = [
       ["from './supabase'", `from '${pathToFileURL(resolve(root, 'tests/helpers/mock-supabase.js')).href}'`],
-      ["from '../data/seedIdeas'", `from '${pathToFileURL(resolve(root, 'src/data/seedIdeas.js')).href}'`],
     ]
     for (const [before, after] of replacements) {
       if (!source.includes(before)) throw new Error(`Store test loader needs updating: ${before}`)

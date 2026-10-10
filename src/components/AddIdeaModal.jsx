@@ -17,6 +17,7 @@ export default function AddIdeaModal({ editId, onClose }) {
   } : EMPTY)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const requestId = useRef(null)
   const dialogRef = useRef(null)
   useDialogFocus(dialogRef, onClose)
 
@@ -38,7 +39,8 @@ export default function AddIdeaModal({ editId, onClose }) {
       if (existing) {
         await editIdea(existing.id, data)
       } else {
-        await addIdea(data)
+        requestId.current ||= crypto.randomUUID()
+        await addIdea(data, requestId.current)
       }
       onClose()
     } catch (e) {

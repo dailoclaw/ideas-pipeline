@@ -4,7 +4,7 @@ Status: **In progress. No deployed security fix is claimed.**
 
 Step 1 is published on main at `ab3acb1`. Step 2 implementation from `codex/database-access` is pushed to main at `7f10fe2` by user request.
 Live backup and staging remain deferred by the user's instruction. No SQL was executed
-against a database; email/password authentication is implemented locally, and no deployed policies have changed.
+against Supabase; email/password authentication is implemented locally, and no deployed policies have changed. Later step 4 tests execute local SQL in a disposable PostgreSQL WASM fixture.
 
 ## Confirmed source findings
 
@@ -104,7 +104,7 @@ until the staging matrix proves access control and coordinated login work.
 
 - The app uses `signInWithPassword`; there is no public signup or password-reset flow.
   Provision the permitted account and manage recovery through Supabase administration.
-- `database/security/001-account-allowlist.sql` is an **unexecuted draft** for the RPC.
+- `database/security/001-account-allowlist.sql` is an **local draft, not deployed to Supabase**, for the RPC.
   Its empty allowlist denies everyone. It does not install the six application table
   policies or make client-written events trustworthy. Do not deploy it alone as a fix.
 - Sessions and passwords are not persisted by this app. A refresh/closed page requires
@@ -125,3 +125,13 @@ until the staging matrix proves access control and coordinated login work.
   status has not been inspected or certified. Deploying this gate before the RPC and
   permitted account are configured would deny the legitimate user's access. Staged RLS,
   audit and authenticated workflow acceptance must still pass before release approval.
+
+## Step 4 coordination
+
+[Transaction integrity](TRANSACTION_INTEGRITY.md) now includes a PostgreSQL-tested
+local migration and coordinated client changes for create/status audit. The 001
+allowlist SQL has also been executed against a fictional local Auth schema in PGlite.
+Neither this nor fixture member-read policies verify live Supabase access. Six-table
+policy design, deployed inspection, trusted audit for other mutations, bypass-write
+restrictions and the staging matrix remain open. Migration 002 requires RLS enabled
+and cascading foreign keys; those guards alone cannot certify correct authorization.

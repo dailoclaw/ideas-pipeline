@@ -56,3 +56,12 @@ longer replace the app shell; general refresh and debounce ordering still need s
 
 The HTML tracker preserves historical baseline counts separately from current results.
 The next planned work is step 4; deferred live authorization stays visible in step 2.
+
+## Step 4 follow-up
+
+The statements above preserve the step 3 implementation at v1.9.2. Local step 4
+now moves create/status/history/activity into PostgreSQL functions with generated IDs,
+request deduplication and conflict checks. Their audit failures now reject and roll back
+rather than warn after a partial status save. Other mutation logging still uses the
+step 3 warning behavior. See [transaction integrity](TRANSACTION_INTEGRITY.md) for
+verification, migration dependencies and remaining limits. No live rollout is claimed.

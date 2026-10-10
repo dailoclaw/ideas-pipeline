@@ -1,6 +1,5 @@
 import { create } from 'zustand'
 import { supabase } from './supabase'
-import { SEED_IDEAS } from '../data/seedIdeas'
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 const today = () => new Date().toISOString().slice(0, 10)
@@ -63,6 +62,35 @@ const confirmDelete = async (query, field, expected, allowEmpty = false) => {
     throw new Error('Deletion could not be confirmed. Reload the dataset and try again.')
   }
 }
+const confirmMutation = async (name, args, expectedId) => {
+  const { data, error } = await supabase.rpc(name, args)
+  if (error) {
+    if (error.code === 'PGRST202' || error.code === '42883') {
+      throw new Error('This database needs the transaction migration before this action can be saved.')
+    }
+    throw error
+  }
+  if (!data || typeof data.replayed !== 'boolean' || !Number.isInteger(data.idea?.id)
+    || expectedId != null && data.idea.id !== expectedId
+    || data.history && (data.history.idea_id !== data.idea.id || data.history.id == null)
+    || data.activity && (data.activity.idea_id !== data.idea.id || data.activity.id == null)
+    || name === 'create_idea' && (!data.history || !data.activity)) {
+    throw new Error('The database transaction could not be confirmed. Retry to check the same request.')
+  }
+  return data
+}
+const applyMutation = (set, result) => set(state => {
+  const { idea: row, override, history, activity } = result
+  const statusOverrides = { ...state.statusOverrides }
+  if (override == null) delete statusOverrides[row.id]; else statusOverrides[row.id] = override
+  const exists = state.ideas.some(idea => idea.id === row.id)
+  return {
+    ideas: exists ? state.ideas.map(idea => idea.id === row.id ? normaliseIdea(row) : idea) : [...state.ideas, normaliseIdea(row)],
+    statusOverrides,
+    ...(history ? { statusHistory: { ...state.statusHistory, [row.id]: [...(state.statusHistory[row.id] || []), { status: history.status, date: history.changed_at }] } } : {}),
+    ...(activity ? { activityLog: { ...state.activityLog, [row.id]: [normaliseActivity(activity), ...(state.activityLog[row.id] || [])] } } : {}),
+  }
+})
 const requireIdea = (get, id) => {
   const idea = get().ideas.find(i => i.id === id)
   if (!idea) throw new Error('This idea is no longer available. Reload the dataset and try again.')
@@ -72,7 +100,7 @@ const labels = { addIdea: 'Create', editIdea: 'Edit', deleteIdea: 'Delete', setS
 async function mutate(set, get, method, id, args, work) {
   const key = String(id)
   const report = error => set({ saveFeedback: {
-    level: 'error', method, id,
+    level: 'error', method, id, retryAction: error?.retryAction,
     message: `${labels[method]}${typeof id === 'number' ? ` #${id}` : ''} failed: ${error?.message || 'The request failed. Please try again.'}`,
     retry: error?.retry || (() => get()[method](...args)),
   } })
@@ -137,11 +165,6 @@ export const useStore = create((set, get) => ({
         .order('id')
       if (error) throw error
       if (!Array.isArray(rows)) throw new Error('Ideas could not be loaded.')
-
-      // If empty → seed from bundled data
-      if (!background && (!rows || rows.length === 0)) {
-        return await get().seed()
-      }
 
       // Fetch status overrides
       const { data: overrides, error: overridesError } = await supabase
@@ -227,49 +250,20 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  // ── Seed from bundled data ────────────────────────────────────────────────
-  async seed() {
-    const rows = SEED_IDEAS.map(i => ({
-      id: i.id,
-      name: i.name,
-      status: i.status,
-      time: i.time,
-      plat: i.plat,
-      pitch: i.pitch || '',
-      target: i.target || '',
-      pain: i.pain || '',
-      mvp: i.mvp || [],
-      win: i.win || '',
-      notes: i.notes || '',
-      added_at: i.addedAt || null,
-      is_seed: true,
-    }))
-
-    const { data, error } = await supabase.from('ideas').upsert(rows).select('id')
-    if (error || !Array.isArray(data) || data.length !== rows.length || rows.some(row => !data.some(saved => saved.id === row.id))) {
-      set({ error: error?.message || 'Initial data save could not be confirmed.', loading: false }); return false
-    }
-    return await get().load()
-  },
-
-  // Primary writes commit before state changes; secondary failures never repeat the mutation.
-  async addIdea(fields) {
-    return mutate(set, get, 'addIdea', 'create', [fields], async () => {
-      const ids = get().ideas.map(i => i.id)
-      const row = await confirmRow(supabase.from('ideas').insert({
-        id: (ids.length ? Math.max(...ids) : 0) + 1,
-        name: fields.name, status: 'idea', time: fields.time || '1-2w', plat: fields.plat || 'html',
-        pitch: fields.pitch || '', target: fields.target || '', pain: fields.pain || '',
-        mvp: fields.mvp || [], win: fields.win || '', notes: fields.notes || '',
-        added_at: today(), is_seed: false,
-      }), 'id')
-      set(state => ({ ideas: [...state.ideas, normaliseIdea(row)] }))
-      await followUp(set, get, `Idea #${row.id}`, [
-        ['status history', () => confirmRow(supabase.from('status_history').insert({ idea_id: row.id, status: 'idea', changed_at: today() }), 'id')],
-        ['activity synchronization', recordActivity(get, row.id, 'created', { name: row.name })],
-        ['refresh', () => get().load({ background: true })],
-      ])
-      return row.id
+  // Requires the matching transaction migration; never fall back to browser IDs.
+  async addIdea(fields, requestId = crypto.randomUUID()) {
+    const payload = Object.fromEntries(['name', 'time', 'plat', 'pitch', 'target', 'pain', 'mvp', 'win', 'notes']
+      .filter(key => fields[key] !== undefined).map(key => [key, fields[key]]))
+    return mutate(set, get, 'addIdea', 'create', [fields, requestId], async () => {
+      let result
+      try { result = await confirmMutation('create_idea', { p_request_id: requestId, p_fields: payload }) }
+      catch (error) {
+        if (error.code === '23505') { error.retryAction = 'refresh'; error.retry = () => get().load({ background: true }) }
+        throw error
+      }
+      if (!result.replayed) applyMutation(set, result)
+      await followUp(set, get, `Idea #${result.idea.id}`, [['refresh', () => get().load({ background: true })]])
+      return result.idea.id
     })
   },
   async editIdea(id, fields) {
@@ -299,35 +293,25 @@ export const useStore = create((set, get) => ({
       await followUp(set, get, `Deletion of #${id}`, [['refresh', () => get().load({ background: true })]])
     })
   },
-  async setStatus(id, status) {
-    return mutate(set, get, 'setStatus', id, [id, status], async () => {
+  async setStatus(id, status, request) {
+    return mutate(set, get, 'setStatus', id, [id, status, request], async () => {
       const idea = requireIdea(get, id)
       if (idea.isNew && status === null) throw new Error('Choose a status for this idea.')
-      const previousStatus = get().getStatus(idea)
-      let effectiveStatus = status === null ? idea.status : status
-      if (idea.isNew) {
-        const row = await confirmRow(supabase.from('ideas').update({ status, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
-        effectiveStatus = row.status
-        set(state => ({ ideas: state.ideas.map(i => i.id === id ? normaliseIdea(row) : i) }))
-      } else {
-        if (status === null) await confirmDelete(supabase.from('status_overrides').delete().eq('idea_id', id), 'idea_id', id, !get().statusOverrides[id])
-        else {
-          const row = await confirmRow(supabase.from('status_overrides').upsert({ idea_id: id, status }), 'idea_id', id)
-          effectiveStatus = row.status
-        }
-        set(state => {
-          const statusOverrides = { ...state.statusOverrides }
-          if (status === null) delete statusOverrides[id]; else statusOverrides[id] = effectiveStatus
-          return { statusOverrides }
-        })
+      const operation = request || { id: crypto.randomUUID(), expectedStatus: get().getStatus(idea) }
+      // Preserve the token/expected status if transport fails after server commit.
+      try {
+        const result = await confirmMutation('change_idea_status', {
+          p_request_id: operation.id, p_idea_id: id, p_status: status, p_expected_status: operation.expectedStatus,
+        }, id)
+        if (result.replayed) {
+          await followUp(set, get, `Status for #${id}`, [['refresh', () => get().load({ background: true })]])
+        } else applyMutation(set, result)
+      } catch (error) {
+        // A conflict requires a refresh, rather than overwriting another client's decision.
+        if (error.code === '40001') error.retryAction = 'refresh'
+        error.retry = error.code === '40001' ? () => get().load({ background: true }) : () => get().setStatus(id, status, operation)
+        throw error
       }
-      await followUp(set, get, `Status for #${id}`, [
-        ['status history', async () => {
-          const row = await confirmRow(supabase.from('status_history').insert({ idea_id: id, status: effectiveStatus, changed_at: today() }), 'id')
-          set(state => ({ statusHistory: { ...state.statusHistory, [id]: [...(state.statusHistory[id] || []), { status: row.status, date: row.changed_at }] } }))
-        }],
-        ['activity synchronization', recordActivity(get, id, 'status_changed', { from: previousStatus, to: effectiveStatus })],
-      ])
     })
   },
   async updateNotes(id, notes) {

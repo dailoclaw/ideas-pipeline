@@ -10,6 +10,8 @@ export const backend = {
     this.tables = Object.fromEntries(tableNames.map(name => [name, []]))
     this.tables.ideas = clone(fixtureIdeas)
     this.requests = []; this.denied = []; this.faults = []; this.nextId = 1
+    this.nextIdeaId = Math.max(...this.tables.ideas.map(i => i.id)) + 1
+    this.rpcRequests = []; this.mutationRequests = new Map(); this.rpcQueue = Promise.resolve()
   },
   deny(table, operation) { this.denied.push({ table, operation }) },
   fault(table, operation, kind) { this.faults.push({ table, operation, kind }) },
@@ -46,7 +48,7 @@ export const supabase = {
             for (const value of Array.isArray(body) ? body : [body]) {
               const row = clone(value)
               const key = table === 'ideas' ? 'id' : ['status_history', 'idea_activity'].includes(table) ? 'id' : 'idea_id'
-              if (row[key] == null && key === 'id') row.id = backend.nextId++
+              if (row[key] == null && key === 'id') row.id = table === 'ideas' ? backend.nextIdeaId++ : backend.nextId++
               const existing = rows.findIndex(item => item[key] === row[key])
               if (existing >= 0 && operation === 'insert') return { data: null, error: { message: 'Fixture duplicate key', code: '23505' } }
               if (existing >= 0) rows[existing] = { ...rows[existing], ...row }
@@ -85,10 +87,67 @@ backend.emitAuth = (event, session) => {
   fixtureSession = session
   for (const listener of authListeners) listener(event, session)
 }
-supabase.rpc = async name => {
-  if (name !== 'can_access_ideas') throw new Error('Unknown fixture RPC')
-  backend.authCalls.push('access')
-  return { data: backend.authAllowed, error: backend.authError ? { message: 'Fixture RPC unavailable' } : null }
+// Isolated UI contract fixture. SQL atomicity is separately tested in PGlite.
+supabase.rpc = async (name, args) => {
+  if (name === 'can_access_ideas') {
+    backend.authCalls.push('access')
+    return { data: backend.authAllowed, error: backend.authError ? { message: 'Fixture RPC unavailable' } : null }
+  }
+  const queued = backend.rpcQueue.catch(() => {}).then(async () => {
+  backend.rpcRequests.push({ name, args: clone(args) })
+  const fault = backend.faults.find(f => f.table === name)
+  if (fault?.kind === 'unavailable') return { data: null, error: { message: 'Missing RPC', code: 'PGRST202' } }
+  if (fault?.kind === 'network') throw new TypeError('Fixture network failure')
+  if (fault?.kind === 'zero') return { data: null, error: null }
+  const saved = backend.mutationRequests.get(args.p_request_id)
+  if (saved) {
+    if (JSON.stringify(saved.args) !== JSON.stringify(args)) return { data: null, error: { message: 'This request was already saved with different values', code: '23505' } }
+    return { data: { ...clone(saved.result), replayed: true }, error: null }
+  }
+  const before = clone(backend.tables)
+  const confirmed = async query => {
+    const { data, error } = await query.select('*').single()
+    if (error) throw error
+    if (!data) throw new Error('No matching record was saved.')
+    return data
+  }
+  let result
+  try {
+    let idea, override = null, previous, effective, history = null, activity = null
+    if (name === 'create_idea') {
+      idea = await confirmed(supabase.from('ideas').insert({ ...args.p_fields, status: 'idea', is_seed: false, added_at: '2026-10-10' }))
+      effective = 'idea'
+    } else if (name === 'change_idea_status') {
+      idea = backend.tables.ideas.find(i => i.id === args.p_idea_id)
+      if (!idea) throw new Error('Idea no longer exists')
+      previous = idea.is_seed ? backend.tables.status_overrides.find(o => o.idea_id === idea.id)?.status || idea.status : idea.status
+      if (previous !== args.p_expected_status) throw { message: 'Status changed elsewhere. Refresh the dataset before retrying.', code: '40001' }
+      effective = args.p_status ?? idea.status
+      if (idea.is_seed) {
+        if (args.p_status === null) {
+          const { error } = await supabase.from('status_overrides').delete().eq('idea_id', idea.id)
+          if (error) throw error
+        } else override = (await confirmed(supabase.from('status_overrides').upsert({ idea_id: idea.id, status: args.p_status }))).status
+      } else idea = await confirmed(supabase.from('ideas').update({ status: args.p_status }).eq('id', idea.id))
+    } else throw new Error('Unknown fixture RPC')
+    if (name === 'create_idea' || previous !== effective) {
+      history = await confirmed(supabase.from('status_history').insert({ idea_id: idea.id, status: effective, changed_at: '2026-10-10' }))
+      activity = await confirmed(supabase.from('idea_activity').insert({ idea_id: idea.id,
+        event_type: name === 'create_idea' ? 'created' : 'status_changed',
+        payload: name === 'create_idea' ? { name: idea.name } : { from: previous, to: effective },
+        actor: 'fixture-owner', occurred_at: new Date().toISOString() }))
+    }
+    result = clone({ idea, override, history, activity, replayed: false })
+    backend.mutationRequests.set(args.p_request_id, { args: clone(args), result })
+  } catch (error) {
+    backend.tables = before
+    return { data: null, error }
+  }
+  if (fault?.kind === 'lost-response') throw new TypeError('Fixture response lost after commit')
+  return { data: result, error: null }
+  })
+  backend.rpcQueue = queued
+  return queued
 }
 supabase.auth = {
   onAuthStateChange(listener) {

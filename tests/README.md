@@ -87,7 +87,7 @@ The auth fixture defaults to a fictional permitted account for existing workflow
 these tests do not validate JWTs, passwords against Supabase, or PostgreSQL RLS.
 Account allowlist/RLS/audit enforcement still requires restored staging tests.
 
-## Step 3 additions — v1.9.2 (current)
+## Step 3 additions — v1.9.2
 
 `npm test` now runs **74 checks: 68 pass, 6 known failures**. Strict mode reports
 **68 passes and 6 actual failures**. Store/browser failure injection covers network
@@ -99,3 +99,18 @@ Seven baseline failures are now passing regressions: status/priority/score/group
 permission handling, concurrent override merging, safe parent deletion and StrictMode
 action reuse. The six remaining defects concern immediate-close notes, storage and
 stale summary membership. See `docs/RELIABLE_SAVES.md` for guarantees and limits.
+
+## Step 4 additions — v1.9.3 (current)
+
+`npm test`: **108 checks, 102 pass, 6 known failures**. `npm run test:database`
+executes 20 ordinary passing checks against the actual migration in a disposable
+PGlite PostgreSQL WASM instance. No real Auth identities, JWTs or Supabase database
+are used. Ten new store and four browser checks cover transactional rollback, returned
+IDs, lost-response replay, missing RPCs, conflicts and explicit empty-dataset behavior.
+The earlier status/history-warning check now requires rollback of both tables.
+
+The private RPC ledger fixture serializes mutations for UI testing; PostgreSQL tests
+independently enforce the transaction contract. PGlite has one connection, so its
+parallel request check does not simulate cross-session contention. Restored staging,
+real JWT/RLS tests and multi-session acceptance remain deferred. See
+[step 4 verification and rollout](../docs/TRANSACTION_INTEGRITY.md).

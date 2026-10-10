@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.5",
+  "planVersion": "1.0.6",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "codex/reliable-saves",
+  "branch": "codex/transaction-integrity",
   "readiness": "Not production-ready",
-  "scopeNote": "Steps 1 & 3 complete locally; Step 2 live work open",
+  "scopeNote": "Steps 1 & 3 complete locally; Step 4 implementation verified, rollout open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 3 save reliability is implemented locally: confirmed writes, recoverable errors/retry, partial-batch reporting and distinct refresh/history warnings. 74 isolated checks: 68 pass and 6 known defects remain. Seven baseline failures are now passing regressions. Step 2 live database work remains deferred; no production SQL executed.",
+  "progressNote": "Step 4 local SQL/client implementation is verified: database IDs, atomic create/status audit, safe request replay and stale-status conflicts. 108 isolated checks: 102 pass, 6 known defects remain. Supabase backup/staging and step 2 authorization are still deferred; no live migration or main push performed.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -83,7 +83,7 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Email/password authentication and a fail-closed membership gate are pushed to main and locally tested. The allowlist RPC remains an unexecuted draft. Account enrollment, six-table RLS, trusted audit and staging acceptance remain open.",
+      "summary": "Email/password authentication and membership gate are pushed to main. The allowlist RPC and step 4 transaction SQL are tested in local PostgreSQL fixtures, not installed on Supabase. Account enrollment, six-table policies, full trusted audit and staging acceptance remain open.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
@@ -98,12 +98,12 @@
         {
           "text": "Enable RLS on all six application tables, including child-record ownership or membership policies.",
           "status": "pending",
-          "note": "All six source tables disable RLS. Versioned migration and legacy-script hardening follow deployed-schema inspection and access-model confirmation."
+          "note": "All six source tables disable RLS. Step 4 migration refuses disabled RLS, but production policy/grant design and deployed inspection are still open; fixture read policies are not a rollout."
         },
         {
           "text": "Generate audit actor and timestamps server-side; restrict direct audit modification.",
-          "status": "pending",
-          "note": "Server-derived audit design and acceptance cases recorded; current client-written history remains untrusted."
+          "status": "in-progress",
+          "note": "Step 4 create/status RPCs derive actor/time on the server and commit audit atomically in local PostgreSQL tests. Other event types and direct audit bypass restrictions still need step 2 hardening."
         },
         {
           "text": "Roll out authentication and policies together so the legitimate user retains access.",
@@ -188,26 +188,32 @@
       "short": "IDs & concurrency",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Move allocation and related-record integrity into the database, while safely merging concurrent client updates.",
+      "summary": "Local SQL and frontend implementation verified: generated IDs, atomic create/status/history/activity, request deduplication and stale-status conflicts. Live migration, six-table authorization prerequisites and independent-session contention tests remain deferred. This branch requires the matching database rollout before publication.",
       "actions": [
         {
-          "text": "Migrate IDs to database generation; initialize the sequence above the highest existing ID."
+          "text": "Migrate IDs to database generation; initialize the sequence above the highest existing ID.",
+          "status": "in-progress",
+          "note": "Migration 002 preserves IDs and initializes an ALWAYS identity above the old maximum. PostgreSQL tests verify deletion/rollback nonreuse and repeat-install abort. No Supabase migration executed."
         },
         {
-          "text": "Remove browser-side maxId + 1 allocation and obtain the inserted ID from the returned row."
+          "text": "Remove browser-side maxId + 1 allocation and obtain the inserted ID from the returned row.",
+          "status": "complete",
+          "note": "Create uses the returned transactional RPC ID; maxId + 1 and automatic empty-dataset seed upsert removed. Explicit administrator seed export preserves new-install data and refuses existing/identity-enabled datasets."
         },
         {
           "text": "Use functional state updates and serialize conflicting writes to the same idea.",
           "status": "in-progress",
-          "note": "Step 3 added functional override merges and rejects conflicting same-idea saves while pending. Database transaction/serialization work remains open."
+          "note": "Functional map merges and per-idea pending guards remain. Status RPC locks parent first and checks the prior status; stale clients receive read-only Refresh. Separate-session database contention remains unverified."
         },
         {
-          "text": "Put related status/history/activity changes in database transactions."
+          "text": "Put related status/history/activity changes in database transactions.",
+          "status": "in-progress",
+          "note": "Create/status audit and private request ledger commit in one PostgreSQL transaction; history/activity failures roll everything back. Replay prevents duplicate requests. Supabase installation/real API acceptance remain open."
         },
         {
           "text": "Delete the parent once and use cascading foreign keys for child records.",
           "status": "complete",
-          "note": "Step 3 now deletes the parent only and verifies its returned ID; cascade behavior tested with fixtures matching supplied SQL. Actual deployed foreign keys remain unverified."
+          "note": "Parent-only delete retained. All five cascades now execute successfully against the supplied schema in local PostgreSQL; migration refuses missing cascade constraints. Deployed schema still requires inspection."
         }
       ],
       "verify": [
@@ -215,7 +221,21 @@
         "Simultaneous changes retain both overrides.",
         "Failures leave no partial status/history or destructive child-only changes."
       ],
-      "issues": "C4 \u00b7 C5 \u00b7 C8"
+      "issues": "C4 \u00b7 C5 \u00b7 C8",
+      "evidence": [
+        {
+          "label": "Transaction guarantees, limits & deferred rollout",
+          "href": "TRANSACTION_INTEGRITY.md"
+        },
+        {
+          "label": "Locally tested migration SQL",
+          "href": "../database/integrity/002-transaction-integrity.sql"
+        },
+        {
+          "label": "PostgreSQL regression checks",
+          "href": "../tests/database.test.mjs"
+        }
+      ]
     },
     {
       "id": 5,
@@ -495,12 +515,17 @@
       "date": "2026-10-10",
       "title": "Create/delete retry completion verified",
       "body": "Retry uses the visible create draft and closes the form only after confirmation; delete retry closes the dialog and exposes any refresh warning. Final suite: 74 checks, 68 pass, 6 known defects. Tracker v1.0.5 preserves the intermediate v1.0.4 snapshot."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 4 transaction implementation verified locally",
+      "body": "108 checks: 102 pass, 6 original failures remain. Twenty PostgreSQL checks execute the actual SQL against fictional local data; ten new store and four browser checks cover request replay, rollback and conflicts. IDs and create/status audit no longer depend on browser allocation/separate writes. Build passes. No main push or live SQL; independent-session contention and coordinated security rollout remain open. Next local work is step 5 draft/autosave recovery."
     }
   ],
-  "nextStepId": 4,
+  "nextStepId": 5,
   "verification": {
-    "tests": 74,
-    "passing": 68,
+    "tests": 108,
+    "passing": 102,
     "knownFailures": 6,
     "unexpectedFailures": 0
   }

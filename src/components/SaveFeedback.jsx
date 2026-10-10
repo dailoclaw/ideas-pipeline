@@ -10,14 +10,14 @@ export default function SaveFeedback({ onRetry }) {
     if (retrying || pending) return
     setRetrying(true)
     try {
-      await (onRetry ? onRetry(feedback) : feedback.retry())
+      await (onRetry && feedback.retryAction !== 'refresh' ? onRetry(feedback) : feedback.retry())
       if (useStore.getState().saveFeedback === feedback) useStore.getState().clearSaveFeedback()
     } catch { /* The mutation publishes its recoverable error to the store. */ }
     finally { setRetrying(false) }
   }
   return <div className={`save-feedback save-feedback--${feedback.level}`} role={feedback.level === 'error' ? 'alert' : 'status'}>
     <p>{feedback.message}</p>
-    <div><button type="button" disabled={retrying || pending} onClick={retry}>{feedback.level === 'warning' ? 'Refresh dataset' : 'Retry save'}</button>
+    <div><button type="button" disabled={retrying || pending} onClick={retry}>{feedback.level === 'warning' || feedback.retryAction === 'refresh' ? 'Refresh dataset' : 'Retry save'}</button>
     <button type="button" onClick={() => useStore.getState().clearSaveFeedback()}>Dismiss</button></div>
   </div>
 }

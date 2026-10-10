@@ -96,13 +96,13 @@ test('unknown idea rejects visibly instead of silently succeeding', async () => 
   await assert.rejects(useStore.getState().setStatus(999, 'ready'), /no longer available/)
   assert.match(useStore.getState().saveFeedback.message, /#999/)
 })
-test('a confirmed mutation and failed history return an accurate warning', async () => {
+test('failed transactional history rolls back status and publishes a save error', async () => {
   backend.deny('status_history', 'insert')
-  await useStore.getState().setStatus(101, 'ready')
-  assert.equal(useStore.getState().getStatus(useStore.getState().ideas[0]), 'ready')
-  assert.equal(backend.tables.status_overrides[0].status, 'ready')
-  assert.match(useStore.getState().saveFeedback.message, /saved, but status history/)
-  assert.equal(useStore.getState().saveFeedback.level, 'warning')
+  await assert.rejects(useStore.getState().setStatus(101, 'ready'))
+  assert.equal(useStore.getState().getStatus(useStore.getState().ideas[0]), 'idea')
+  assert.equal(backend.tables.status_overrides.length, 0)
+  assert.equal(backend.tables.idea_activity.length, 0)
+  assert.equal(useStore.getState().saveFeedback.level, 'error')
 })
 test('activity transport failure cannot turn persisted notes into a failed save', async () => {
   backend.fault('idea_activity', 'insert', 'network')
@@ -168,4 +168,82 @@ test('clearing a seed override records its effective status instead of null', as
   await useStore.getState().setStatus(101, null)
   assert.equal(useStore.getState().getStatus(useStore.getState().ideas[0]), 'idea')
   assert.equal(backend.tables.status_history.at(-1).status, 'idea')
+})
+
+// Step 4: the fixture tests the client contract; database.test.mjs executes the SQL.
+test('create omits a client ID even when a higher idea is absent from loaded state', async () => {
+  backend.nextIdeaId = 9001
+  const id = await useStore.getState().addIdea({ name: 'Server allocated', pitch: 'Fixture pitch' })
+  assert.equal(id, 9001)
+  assert.equal(backend.requests.find(r => r.table === 'ideas' && r.operation === 'insert').body.id, undefined)
+  assert.equal(backend.rpcRequests[0].name, 'create_idea')
+})
+test('lost create response retries the same request without duplicate rows', async () => {
+  backend.fault('create_idea', 'rpc', 'lost-response')
+  await assert.rejects(useStore.getState().addIdea({ name: 'Exactly one', pitch: 'Fixture pitch' }))
+  const retry = useStore.getState().saveFeedback.retry
+  backend.faults = []
+  await retry()
+  assert.equal(backend.tables.ideas.filter(i => i.name === 'Exactly one').length, 1)
+  assert.equal(backend.tables.idea_activity.length, 1)
+  assert.equal(backend.tables.status_history.length, 1)
+  assert.equal(backend.rpcRequests[0].args.p_request_id, backend.rpcRequests[1].args.p_request_id)
+})
+test('lost status response retries without duplicate history or stale overwrite', async () => {
+  backend.fault('change_idea_status', 'rpc', 'lost-response')
+  await assert.rejects(useStore.getState().setStatus(101, 'ready'))
+  const retry = useStore.getState().saveFeedback.retry
+  backend.tables.status_overrides[0].status = 'done' // Another client changed it after the commit.
+  backend.faults = []
+  await retry()
+  assert.equal(useStore.getState().getStatus(useStore.getState().ideas[0]), 'done')
+  assert.equal(backend.tables.status_history.length, 1)
+  assert.equal(backend.tables.idea_activity.length, 1)
+})
+test('stale status requires read-only refresh and cannot overwrite another client', async () => {
+  backend.tables.status_overrides.push({ idea_id: 101, status: 'done' })
+  await assert.rejects(useStore.getState().setStatus(101, 'ready'), { code: '40001' })
+  assert.equal(useStore.getState().saveFeedback.retryAction, 'refresh')
+  await useStore.getState().saveFeedback.retry()
+  assert.equal(useStore.getState().getStatus(useStore.getState().ideas[0]), 'done')
+  assert.equal(backend.tables.status_history.length, 0)
+})
+test('transactional activity failure preserves the previous status and history', async () => {
+  backend.deny('idea_activity', 'insert')
+  await assert.rejects(useStore.getState().setStatus(101, 'ready'))
+  assert.equal(backend.tables.status_overrides.length, 0)
+  assert.equal(backend.tables.status_history.length, 0)
+  assert.equal(useStore.getState().statusOverrides[101], undefined)
+})
+test('missing transaction RPC rejects visibly with no legacy write fallback', async () => {
+  backend.fault('create_idea', 'rpc', 'unavailable')
+  await assert.rejects(useStore.getState().addIdea({ name: 'Not created', pitch: 'Text' }), /transaction migration/)
+  assert.equal(backend.requests.filter(r => r.operation !== 'select').length, 0)
+})
+test('malformed transaction confirmation retains client state', async () => {
+  backend.fault('change_idea_status', 'rpc', 'zero')
+  await assert.rejects(useStore.getState().setStatus(101, 'ready'), /could not be confirmed/)
+  assert.deepEqual(useStore.getState().statusOverrides, {})
+})
+test('empty reads remain empty and never automatically reinsert deleted seeds', async () => {
+  backend.tables.ideas = []
+  assert.equal(await useStore.getState().load(), true)
+  assert.equal(useStore.getState().ideas.length, 0)
+  assert.equal(backend.requests.filter(r => r.operation !== 'select').length, 0)
+})
+test('deleted highest ID is not reused for a subsequent create', async () => {
+  const first = await useStore.getState().addIdea({ name: 'Delete me', pitch: 'Text' })
+  await useStore.getState().deleteIdea(first)
+  const next = await useStore.getState().addIdea({ name: 'After deletion', pitch: 'Text' })
+  assert.ok(next > first)
+})
+test('create history failure leaves no idea or activity and can retry the request', async () => {
+  backend.deny('status_history','insert')
+  await assert.rejects(useStore.getState().addIdea({ name:'Rollback create',pitch:'Text' }))
+  assert.equal(backend.tables.ideas.length,5)
+  const retry = useStore.getState().saveFeedback.retry
+  backend.denied = []
+  await retry()
+  assert.equal(backend.tables.ideas.length,6)
+  assert.equal(backend.tables.idea_activity.length,1)
 })

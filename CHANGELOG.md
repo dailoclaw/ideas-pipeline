@@ -1,5 +1,16 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.3 (2026-10-10) — Local IDs and transaction integrity
+### Fixed
+- Create/status client paths use transactional RPCs, returned database IDs, stable request tokens and read-only conflict recovery
+- Removed automatic empty-dataset reseeding and browser ID allocation; initial seeds remain available through an explicit guarded administrator SQL export
+### Added
+- Local-only migration for identity IDs, atomic create/status/history/activity and a private account-scoped retry ledger
+- 20 PostgreSQL, 10 store and 4 Chromium checks for migration guards, rollback, replay, deletion, conflicts and visible recovery
+- Tracker v1.0.6 records 102 passing checks and six known failures; step 4 stays open for deferred security/database rollout and separate-session acceptance
+### Rollout prerequisites
+- Frontend requires migration 002 and step 2 authorization; no main push, Supabase changes or production deployment performed
+
 ## v1.9.2 (2026-10-10) — Confirmed saves and recoverable failures
 ### Fixed
 - Status, priority, score, group and other primary writes require confirmed returned records before changing client state or success activity
