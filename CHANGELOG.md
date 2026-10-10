@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.8 (2026-10-10) — Step 6 main publication
+### Changed
+- Tracker v1.0.11 records the requested step 6 push and verified origin/main at d50ea20
+- Retains two known summary failures and deferred database rollout; no deployment verification claimed
+
 ## v1.9.7 (2026-10-10) — Guarded account-scoped storage
 ### Fixed
 - Blocked storage and quota failures retain a usable app and memory preferences; malformed caches fall back safely

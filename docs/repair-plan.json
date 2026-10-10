@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.10",
+  "planVersion": "1.0.11",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "codex/storage-resilience",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5 & 6 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 6 storage resilience verified locally: 147 checks, 145 pass, 2 known summary defects remain. Guarded account-scoped caches and usable appearance controls under denied/quota storage. No main push, live SQL or deployment; next work is step 7 summary/workflow accuracy.",
+  "progressNote": "Step 6 source pushed to main at d50ea20 by request; origin/main verified. Recorded checks: 147 total, 145 pass, 2 known summary defects remain. Live backup/staging and database rollout stay deferred; no deployment verification claimed. Next planned work is step 7 summary/workflow accuracy.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -298,7 +298,7 @@
       "short": "Storage resilience",
       "priority": "High · easy wins",
       "status": "local-complete",
-      "summary": "Guarded account-scoped storage and configuration handling verified locally. Denied/quota storage, malformed caches and reload preferences pass. Deleted-idea and sign-out caches are cleaned up where storage permits. No live SQL, deployment or main push; Chrome/Edge release acceptance remains open.",
+      "summary": "Guarded account-scoped storage and configuration handling verified locally; source pushed to main at d50ea20. Denied/quota storage, malformed caches and reload preferences pass. Deleted-idea and sign-out caches are cleaned up where storage permits. No live SQL or deployment; Chrome/Edge release acceptance remains open.",
       "actions": [
         {
           "text": "Render a setup error before mounting App when connection settings are missing or invalid.",
@@ -584,6 +584,11 @@
       "date": "2026-10-10",
       "title": "Step 6 storage resilience verified locally",
       "body": "147 checks: 145 pass, 2 known C7 failures. Three C6 regressions now pass; 16 new adapter/store/browser checks cover denied/quota storage, validation, namespaces, cleanup and healthy reload. Build passes. No main push/live SQL/deployment; step 7 is next. Database rollout remains deferred."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 6 pushed to main",
+      "body": "User requested publication. Fast-forwarded main and pushed d50ea20; verified origin/main. Recorded verification: 147 checks, 145 pass, 2 known C7 failures; build passes. Untracked review assets preserved. No live SQL or deployment verification; step 7 remains next."
     }
   ],
   "nextStepId": 7,
