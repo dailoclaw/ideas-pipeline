@@ -1,5 +1,10 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.16 (2026-10-11) — Step 10 main publication
+### Changed
+- Tracker v1.0.19 records requested step 10 publication and verified origin/main at 7afd9c5
+- Retains passing local evidence and open database/manual release checks; step 11 remains next
+
 ## v1.9.15 (2026-10-11) — Accessible workflows and review navigation
 ### Fixed
 - Native labelled forms and separate card/checkbox/advance controls, linked keyboard tabs and pressed/expanded states

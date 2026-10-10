@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.18",
+  "planVersion": "1.0.19",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/accessibility-review",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 10 accessibility and review repairs verified locally: all 201 strict checks pass, build passes, core pages/forms work at four widths with doubled root text, and six preserved-content review copies pass navigation checks. Live database rollout and release screen-reader/Chrome/Edge acceptance remain open. No main push or deployment; step 11 is next.",
+  "progressNote": "Step 10 source pushed to main at 7afd9c5 by request; origin/main verified. Recorded local evidence: all 201 strict checks pass, build and four-width doubled-text/review QA pass. Live database rollout and manual screen-reader/Chrome/Edge release acceptance remain open; no deployment verification claimed. Step 11 is next.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -714,6 +714,11 @@
       "date": "2026-10-11",
       "title": "Step 10 accessibility verified locally",
       "body": "201 strict checks pass without known/TODO failures, including ten new keyboard/contrast/review checks. Build and four-width doubled-text/reduced-motion QA pass. Six generated review copies preserve existing assets and pass navigation checks. Manual assistive-technology/browser release acceptance remains open; no main push, deployment or live database changes. Step 11 is next."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Step 10 published to main",
+      "body": "User requested publication. Fast-forwarded main and pushed 7afd9c5; verified origin/main. Recorded verification: all 201 strict checks pass, build and responsive accessibility/review QA pass. Existing untracked review assets preserved. No live SQL or deployment verification; step 11 remains next."
     }
   ],
   "nextStepId": 11,

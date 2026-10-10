@@ -1,6 +1,7 @@
 # Accessibility and review repairs — step 10
 
-Implemented locally on `codex/accessibility-review`. No deployment or live SQL.
+Step 10 source published to main at `7afd9c5` on 2026-10-11 by request;
+origin/main verified. No deployment verification or live SQL.
 
 ## Core controls
 
