@@ -22,7 +22,10 @@ export default function LedgeButton({
   const timer = useRef(null)
   const alive = useRef(true)
 
-  useEffect(() => () => { alive.current = false; clearTimeout(timer.current) }, [])
+  useEffect(() => {
+    alive.current = true
+    return () => { alive.current = false; clearTimeout(timer.current) }
+  }, [])
 
   const click = async event => {
     if (state !== 'idle') return
@@ -42,11 +45,12 @@ export default function LedgeButton({
     <button
       {...rest}
       onClick={click}
+      disabled={state !== 'idle' || rest.disabled}
       data-ledge={state}
       className={`au-ledge ${className}`}
       aria-live="polite"
     >
-      <span className="au-ledge__face" data-face="idle">
+      <span className="au-ledge__face" data-face="idle" aria-hidden={state !== 'idle'}>
         {icon && <Icon name={icon} size={16} />}{children}
       </span>
       <span className="au-ledge__face" data-face="run" aria-hidden={state !== 'run'}>

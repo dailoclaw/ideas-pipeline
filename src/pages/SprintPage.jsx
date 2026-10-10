@@ -7,7 +7,7 @@ import Icon from '../components/Icon'
 const WEEKS = 8
 
 export default function SprintPage({ groupFilter = '' }) {
-  const { ideas, getStatus, getSprintWeeks, getGroup, sprintAssignments: plan, setSprintAssignment } = useStore()
+  const { ideas, getStatus, getSprintWeeks, getGroup, sprintAssignments: plan, setSprintAssignment, pendingSaves } = useStore()
   const [selected, setSelected] = useState(null)
 
   const groupIdeas  = groupFilter === '__none__' ? ideas.filter(i => !getGroup(i.id)) : groupFilter ? ideas.filter(i => getGroup(i.id) === groupFilter) : ideas
@@ -17,8 +17,8 @@ export default function SprintPage({ groupFilter = '' }) {
   const totalWeeks  = scheduled.reduce((sum, i) => sum + (getSprintWeeks(i.id, i) || 1), 0)
 
   const assignToWeek = async (ideaId, week) => {
-    await setSprintAssignment(ideaId, week)
-    setSelected(null)
+    try { await setSprintAssignment(ideaId, week); setSelected(null) }
+    catch { /* Preserve the selection for retry. */ }
   }
 
   // Build week grid
@@ -63,7 +63,7 @@ export default function SprintPage({ groupFilter = '' }) {
                           <span className="text-xs text-gray-400">{getSprintWeeks(idea.id, idea)} wks</span>
                         </div>
                       </div>
-                      <button onClick={() => assignToWeek(idea.id, null)} className="text-gray-400 hover:text-red-500 flex-shrink-0 px-1 text-sm" title="Remove" aria-label={`Remove ${idea.name} from sprint`}><Icon name="close" size={17} /></button>
+                      <button disabled={!!pendingSaves[idea.id]} onClick={() => assignToWeek(idea.id, null)} className="text-gray-400 hover:text-red-500 flex-shrink-0 px-1 text-sm" title="Remove" aria-label={`Remove ${idea.name} from sprint`}><Icon name="close" size={17} /></button>
                     </div>
                   ))}
                 </div>
@@ -105,6 +105,7 @@ export default function SprintPage({ groupFilter = '' }) {
                     {Array.from({ length: WEEKS }, (_, i) => i + 1).map(w => (
                       <button
                         key={w}
+                        disabled={!!pendingSaves[idea.id]}
                         onClick={() => assignToWeek(idea.id, w)}
                         className="py-2 rounded-lg border text-xs font-bold border-gray-200 dark:border-slate-700 hover:bg-violet-600 hover:text-white hover:border-violet-600 transition-colors"
                       >Wk {w}</button>

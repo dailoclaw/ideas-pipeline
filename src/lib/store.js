@@ -25,6 +25,86 @@ const normaliseActivity = row => ({
   actor: row.actor || 'You',
 })
 
+const normaliseIdea = r => ({
+  id: r.id,
+  name: r.name,
+  status: r.status,
+  time: r.time,
+  plat: r.plat,
+  pitch: r.pitch || '',
+  target: r.target || '',
+  pain: r.pain || '',
+  mvp: r.mvp || [],
+  win: r.win || '',
+  notes: r.notes || '',
+  addedAt: r.added_at,
+  createdAt: r.created_at,
+  updatedAt: r.updated_at,
+  isNew: !r.is_seed,
+  isV2: r.is_v2 || false,
+  originalId: r.original_id,
+  scoreAdjust: r.score_adjust || 0,
+  isPriority: r.is_priority || false,
+})
+
+// Returned rows distinguish a confirmed write from an RLS-filtered no-op.
+const confirmRow = async (query, field, expected) => {
+  const { data, error } = await query.select('*').single()
+  if (error) throw error
+  if (!data || Array.isArray(data) || data[field] == null || (expected != null && data[field] !== expected)) {
+    throw new Error('No matching record was saved. Reload the dataset and try again.')
+  }
+  return data
+}
+const confirmDelete = async (query, field, expected, allowEmpty = false) => {
+  const { data, error } = await query.select(field)
+  if (error) throw error
+  if (!Array.isArray(data) || !(data.length === 1 && data[0]?.[field] === expected || allowEmpty && data.length === 0)) {
+    throw new Error('Deletion could not be confirmed. Reload the dataset and try again.')
+  }
+}
+const requireIdea = (get, id) => {
+  const idea = get().ideas.find(i => i.id === id)
+  if (!idea) throw new Error('This idea is no longer available. Reload the dataset and try again.')
+  return idea
+}
+const labels = { addIdea: 'Create', editIdea: 'Edit', deleteIdea: 'Delete', setStatus: 'Status', updateNotes: 'Notes', setSprintAssignment: 'Sprint', setScoreAdjust: 'Score', setPriority: 'Priority', setGroupAssignment: 'Group', batchSetStatus: 'Batch status' }
+async function mutate(set, get, method, id, args, work) {
+  const key = String(id)
+  const report = error => set({ saveFeedback: {
+    level: 'error', method, id,
+    message: `${labels[method]}${typeof id === 'number' ? ` #${id}` : ''} failed: ${error?.message || 'The request failed. Please try again.'}`,
+    retry: error?.retry || (() => get()[method](...args)),
+  } })
+  if (get().pendingSaves[key]) {
+    const error = new Error('A save for this idea is already in progress. Wait for it to finish, then retry.')
+    report(error)
+    throw error
+  }
+  set(state => ({ pendingSaves: { ...state.pendingSaves, [key]: true }, saveFeedback: null }))
+  try { return await work() }
+  catch (error) { report(error); throw error }
+  finally {
+    set(state => {
+      const pendingSaves = { ...state.pendingSaves }
+      delete pendingSaves[key]
+      return { pendingSaves }
+    })
+  }
+}
+async function followUp(set, get, description, tasks) {
+  const failed = []
+  for (const [name, task] of tasks) {
+    try { if (await task() === false) failed.push(name) }
+    catch { failed.push(name) }
+  }
+  if (failed.length) set({ saveFeedback: { level: 'warning', message: `${description} saved, but ${failed.join(' and ')} could not be completed. The saved change has been kept.`, retry: () => get().load({ background: true }) } })
+}
+const recordActivity = (get, id, type, payload) => async () => {
+  await get().logActivity(id, type, payload)
+  return get().activityPersistenceAvailable !== false
+}
+
 export const useStore = create((set, get) => ({
   ideas: [],
   statusOverrides: {},   // { [id]: 'done' | 'shelved' | null }
@@ -35,6 +115,9 @@ export const useStore = create((set, get) => ({
   sprintAssignments: {}, // { [id]: weekNum }
   loading: true,
   error: null,
+  pendingSaves: {},
+  saveFeedback: null,
+  clearSaveFeedback() { set({ saveFeedback: null }) },
 
   // ── Derived helpers ──────────────────────────────────────────────────────
   getStatus(idea) {
@@ -44,8 +127,8 @@ export const useStore = create((set, get) => ({
   },
 
   // ── Load ─────────────────────────────────────────────────────────────────
-  async load() {
-    set({ loading: true, error: null })
+  async load({ background = false } = {}) {
+    if (!background) set({ loading: true, error: null })
     try {
       // Fetch ideas
       const { data: rows, error } = await supabase
@@ -53,25 +136,29 @@ export const useStore = create((set, get) => ({
         .select('*')
         .order('id')
       if (error) throw error
+      if (!Array.isArray(rows)) throw new Error('Ideas could not be loaded.')
 
       // If empty → seed from bundled data
-      if (!rows || rows.length === 0) {
-        await get().seed()
-        return
+      if (!background && (!rows || rows.length === 0)) {
+        return await get().seed()
       }
 
       // Fetch status overrides
-      const { data: overrides } = await supabase
+      const { data: overrides, error: overridesError } = await supabase
         .from('status_overrides')
         .select('idea_id, status')
+      if (overridesError) throw overridesError
+      if (!Array.isArray(overrides)) throw new Error('Status data could not be loaded.')
       const overrideMap = {}
       if (overrides) overrides.forEach(o => { overrideMap[o.idea_id] = o.status })
 
       // Fetch status history
-      const { data: history } = await supabase
+      const { data: history, error: historyError } = await supabase
         .from('status_history')
         .select('idea_id, status, changed_at')
         .order('changed_at')
+      if (historyError) throw historyError
+      if (!Array.isArray(history)) throw new Error('History data could not be loaded.')
       const historyMap = {}
       if (history) {
         history.forEach(h => {
@@ -100,41 +187,25 @@ export const useStore = create((set, get) => ({
       Object.values(activityMap).forEach(events => events.sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt)))
 
       // Fetch group assignments
-      const { data: groupRows } = await supabase
+      const { data: groupRows, error: groupError } = await supabase
         .from('idea_group_assignments')
         .select('idea_id, group_key')
+      if (groupError) throw groupError
+      if (!Array.isArray(groupRows)) throw new Error('Group data could not be loaded.')
       const groupMap = {}
       if (groupRows) groupRows.forEach(r => { groupMap[r.idea_id] = r.group_key })
 
       // Fetch sprint assignments so exports include the current plan.
-      const { data: sprintRows } = await supabase
+      const { data: sprintRows, error: sprintError } = await supabase
         .from('sprint_assignments')
         .select('idea_id, week_num')
+      if (sprintError) throw sprintError
+      if (!Array.isArray(sprintRows)) throw new Error('Sprint data could not be loaded.')
       const sprintMap = {}
       if (sprintRows) sprintRows.forEach(r => { sprintMap[r.idea_id] = r.week_num })
 
       // Normalise: Supabase uses snake_case, app uses camelCase
-      const ideas = rows.map(r => ({
-        id: r.id,
-        name: r.name,
-        status: r.status,
-        time: r.time,
-        plat: r.plat,
-        pitch: r.pitch || '',
-        target: r.target || '',
-        pain: r.pain || '',
-        mvp: r.mvp || [],
-        win: r.win || '',
-        notes: r.notes || '',
-        addedAt: r.added_at,
-        createdAt: r.created_at,
-        updatedAt: r.updated_at,
-        isNew: !r.is_seed,
-        isV2: r.is_v2 || false,
-        originalId: r.original_id,
-        scoreAdjust: r.score_adjust || 0,
-        isPriority: r.is_priority || false,
-      }))
+      const ideas = (rows || []).map(normaliseIdea)
 
       set({
         ideas,
@@ -145,10 +216,14 @@ export const useStore = create((set, get) => ({
         groupAssignments: groupMap,
         sprintAssignments: sprintMap,
         loading: false,
+        error: null,
       })
+      return true
     } catch (err) {
       console.error('Load error:', err)
-      set({ error: err.message, loading: false })
+      if (background) set({ saveFeedback: { level: 'warning', message: 'Refresh failed. Your last confirmed changes are still shown.', retry: () => get().load({ background: true }) } })
+      else set({ error: err.message, loading: false })
+      return false
     }
   },
 
@@ -170,133 +245,111 @@ export const useStore = create((set, get) => ({
       is_seed: true,
     }))
 
-    const { error } = await supabase.from('ideas').upsert(rows)
-    if (error) { set({ error: error.message, loading: false }); return }
-    await get().load()
+    const { data, error } = await supabase.from('ideas').upsert(rows).select('id')
+    if (error || !Array.isArray(data) || data.length !== rows.length || rows.some(row => !data.some(saved => saved.id === row.id))) {
+      set({ error: error?.message || 'Initial data save could not be confirmed.', loading: false }); return false
+    }
+    return await get().load()
   },
 
-  // ── Add idea ──────────────────────────────────────────────────────────────
+  // Primary writes commit before state changes; secondary failures never repeat the mutation.
   async addIdea(fields) {
-    const { ideas } = get()
-    const maxId = ideas.length > 0 ? Math.max(...ideas.map(i => i.id)) : 0
-    const newRow = {
-      id: maxId + 1,
-      name: fields.name,
-      status: 'idea',
-      time: fields.time || '1-2w',
-      plat: fields.plat || 'html',
-      pitch: fields.pitch || '',
-      target: fields.target || '',
-      pain: fields.pain || '',
-      mvp: fields.mvp || [],
-      win: fields.win || '',
-      notes: fields.notes || '',
-      added_at: today(),
-      is_seed: false,
-    }
-    const { data, error } = await supabase
-      .from('ideas')
-      .insert(newRow)
-      .select()
-      .single()
-    if (error) throw error
-
-    // Log initial status
-    await supabase.from('status_history').insert({
-      idea_id: data.id, status: 'idea', changed_at: today()
+    return mutate(set, get, 'addIdea', 'create', [fields], async () => {
+      const ids = get().ideas.map(i => i.id)
+      const row = await confirmRow(supabase.from('ideas').insert({
+        id: (ids.length ? Math.max(...ids) : 0) + 1,
+        name: fields.name, status: 'idea', time: fields.time || '1-2w', plat: fields.plat || 'html',
+        pitch: fields.pitch || '', target: fields.target || '', pain: fields.pain || '',
+        mvp: fields.mvp || [], win: fields.win || '', notes: fields.notes || '',
+        added_at: today(), is_seed: false,
+      }), 'id')
+      set(state => ({ ideas: [...state.ideas, normaliseIdea(row)] }))
+      await followUp(set, get, `Idea #${row.id}`, [
+        ['status history', () => confirmRow(supabase.from('status_history').insert({ idea_id: row.id, status: 'idea', changed_at: today() }), 'id')],
+        ['activity synchronization', recordActivity(get, row.id, 'created', { name: row.name })],
+        ['refresh', () => get().load({ background: true })],
+      ])
+      return row.id
     })
-
-    await get().logActivity(data.id, 'created', { name: data.name })
-
-    await get().load()
-    return data.id
   },
-
-  // ── Edit idea ──────────────────────────────────────────────────────────────
   async editIdea(id, fields) {
-    const before = get().ideas.find(i => i.id === id)
-    const { error } = await supabase
-      .from('ideas')
-      .update({ ...fields, updated_at: new Date().toISOString() })
-      .eq('id', id)
-    if (error) throw error
-    const changedFields = before
-      ? Object.keys(fields).filter(key => JSON.stringify(before[key]) !== JSON.stringify(fields[key]))
-      : []
-    await get().logActivity(id, 'idea_updated', { changedFields })
-    await get().load()
-  },
-
-  // ── Delete idea ───────────────────────────────────────────────────────────
-  async deleteIdea(id) {
-    await supabase.from('status_history').delete().eq('idea_id', id)
-    await supabase.from('status_overrides').delete().eq('idea_id', id)
-    const { error } = await supabase.from('ideas').delete().eq('id', id)
-    if (error) throw error
-    await get().load()
-  },
-
-  // ── Set status (works for both seed and user ideas) ───────────────────────
-  async setStatus(id, status) {
-    const { ideas } = get()
-    const idea = ideas.find(i => i.id === id)
-    if (!idea) return
-    const previousStatus = get().getStatus(idea)
-
-    // Log history
-    await supabase.from('status_history').insert({
-      idea_id: id, status, changed_at: today()
+    return mutate(set, get, 'editIdea', id, [id, fields], async () => {
+      const before = requireIdea(get, id)
+      const row = await confirmRow(supabase.from('ideas').update({ ...fields, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
+      set(state => ({ ideas: state.ideas.map(idea => idea.id === id ? normaliseIdea(row) : idea) }))
+      const changedFields = Object.keys(fields).filter(key => JSON.stringify(before[key]) !== JSON.stringify(fields[key]))
+      await followUp(set, get, `Idea #${id}`, [
+        ['activity synchronization', recordActivity(get, id, 'idea_updated', { changedFields })],
+        ['refresh', () => get().load({ background: true })],
+      ])
     })
-
-    if (idea.isNew) {
-      // User-added idea — update directly
-      await supabase.from('ideas').update({ status, updated_at: new Date().toISOString() }).eq('id', id)
-    } else {
-      // Seed idea — use overrides table
-      const { statusOverrides } = get()
-      if (status === null) {
-        await supabase.from('status_overrides').delete().eq('idea_id', id)
-        const newOverrides = { ...statusOverrides }
-        delete newOverrides[id]
-        set({ statusOverrides: newOverrides })
-      } else {
-        await supabase.from('status_overrides').upsert({ idea_id: id, status })
-        set({ statusOverrides: { ...statusOverrides, [id]: status } })
-      }
-    }
-
-    // Optimistic update for ideas array
-    set(s => ({
-      ideas: s.ideas.map(i =>
-        i.id === id ? { ...i, status: idea.isNew ? status : i.status } : i
-      )
-    }))
-    await get().logActivity(id, 'status_changed', { from: previousStatus, to: status })
   },
-
-  // ── Update notes (any idea — seed or user-added) ───────────────────────────
-  async updateNotes(id, notes) {
-    const before = get().ideas.find(i => i.id === id)?.notes || ''
-    const { error } = await supabase
-      .from('ideas')
-      .update({ notes, updated_at: new Date().toISOString() })
-      .eq('id', id)
-    if (error) throw error
-    set(s => ({
-      ideas: s.ideas.map(i => i.id === id ? { ...i, notes } : i)
-    }))
-    if (before !== notes) {
-      await get().logActivity(id, 'notes_updated', {
-        fromLength: before.length,
-        toLength: notes.length,
+  async deleteIdea(id) {
+    return mutate(set, get, 'deleteIdea', id, [id], async () => {
+      requireIdea(get, id)
+      // Supplied schema has cascading foreign keys. Never delete children before the parent.
+      await confirmDelete(supabase.from('ideas').delete().eq('id', id), 'id', id)
+      set(state => {
+        const maps = {}
+        for (const key of ['statusOverrides', 'statusHistory', 'activityLog', 'groupAssignments', 'sprintAssignments']) {
+          maps[key] = { ...state[key] }; delete maps[key][id]
+        }
+        return { ideas: state.ideas.filter(idea => idea.id !== id), ...maps }
       })
-    }
+      await followUp(set, get, `Deletion of #${id}`, [['refresh', () => get().load({ background: true })]])
+    })
   },
-
-  // ── Batch set status ──────────────────────────────────────────────────────
+  async setStatus(id, status) {
+    return mutate(set, get, 'setStatus', id, [id, status], async () => {
+      const idea = requireIdea(get, id)
+      if (idea.isNew && status === null) throw new Error('Choose a status for this idea.')
+      const previousStatus = get().getStatus(idea)
+      let effectiveStatus = status === null ? idea.status : status
+      if (idea.isNew) {
+        const row = await confirmRow(supabase.from('ideas').update({ status, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
+        effectiveStatus = row.status
+        set(state => ({ ideas: state.ideas.map(i => i.id === id ? normaliseIdea(row) : i) }))
+      } else {
+        if (status === null) await confirmDelete(supabase.from('status_overrides').delete().eq('idea_id', id), 'idea_id', id, !get().statusOverrides[id])
+        else {
+          const row = await confirmRow(supabase.from('status_overrides').upsert({ idea_id: id, status }), 'idea_id', id)
+          effectiveStatus = row.status
+        }
+        set(state => {
+          const statusOverrides = { ...state.statusOverrides }
+          if (status === null) delete statusOverrides[id]; else statusOverrides[id] = effectiveStatus
+          return { statusOverrides }
+        })
+      }
+      await followUp(set, get, `Status for #${id}`, [
+        ['status history', async () => {
+          const row = await confirmRow(supabase.from('status_history').insert({ idea_id: id, status: effectiveStatus, changed_at: today() }), 'id')
+          set(state => ({ statusHistory: { ...state.statusHistory, [id]: [...(state.statusHistory[id] || []), { status: row.status, date: row.changed_at }] } }))
+        }],
+        ['activity synchronization', recordActivity(get, id, 'status_changed', { from: previousStatus, to: effectiveStatus })],
+      ])
+    })
+  },
+  async updateNotes(id, notes) {
+    return mutate(set, get, 'updateNotes', id, [id, notes], async () => {
+      const before = requireIdea(get, id).notes || ''
+      const row = await confirmRow(supabase.from('ideas').update({ notes, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
+      const savedNotes = row.notes || ''
+      set(state => ({ ideas: state.ideas.map(i => i.id === id ? { ...i, notes: savedNotes } : i) }))
+      if (before !== savedNotes) await followUp(set, get, `Notes for #${id}`, [['activity synchronization', recordActivity(get, id, 'notes_updated', { fromLength: before.length, toLength: savedNotes.length })]])
+    })
+  },
   async batchSetStatus(ids, status) {
-    await Promise.all([...ids].map(id => get().setStatus(id, status)))
-    await get().load()
+    const unique = [...new Set(ids)]
+    return mutate(set, get, 'batchSetStatus', 'batch', [unique, status], async () => {
+      const results = await Promise.allSettled(unique.map(id => get().setStatus(id, status)))
+      const failed = unique.filter((_id, index) => results[index].status === 'rejected')
+      if (failed.length) {
+        const error = new Error(`${unique.length - failed.length} saved; ${failed.length} failed. Retry applies only to failed ideas.`)
+        error.retry = () => get().batchSetStatus(failed, status)
+        throw error
+      }
+    })
   },
 
   // ── Sprint weeks (localStorage — not critical for cross-device) ───────────
@@ -310,62 +363,51 @@ export const useStore = create((set, get) => ({
   getSprintAssignment(id) {
     return get().sprintAssignments[id] || null
   },
-  async setSprintAssignment(ideaId, week) {
-    const previousWeek = get().sprintAssignments[ideaId] || null
-    if (week === null) {
-      const { error } = await supabase.from('sprint_assignments').delete().eq('idea_id', ideaId)
-      if (error) throw error
-    } else {
-      const { error } = await supabase.from('sprint_assignments').upsert({
-        idea_id: ideaId,
-        week_num: week,
-        updated_at: new Date().toISOString(),
-      })
-      if (error) throw error
-    }
-    set(s => {
-      const sprintAssignments = { ...s.sprintAssignments }
-      if (week === null) delete sprintAssignments[ideaId]
-      else sprintAssignments[ideaId] = week
-      return { sprintAssignments }
+  async setSprintAssignment(id, week) {
+    return mutate(set, get, 'setSprintAssignment', id, [id, week], async () => {
+      requireIdea(get, id)
+      const previous = get().getSprintAssignment(id)
+      let savedWeek = week
+      if (week === null) await confirmDelete(supabase.from('sprint_assignments').delete().eq('idea_id', id), 'idea_id', id, previous === null)
+      else {
+        const row = await confirmRow(supabase.from('sprint_assignments').upsert({ idea_id: id, week_num: week, updated_at: new Date().toISOString() }), 'idea_id', id)
+        savedWeek = row.week_num
+      }
+      set(state => { const sprintAssignments = { ...state.sprintAssignments }; if (week === null) delete sprintAssignments[id]; else sprintAssignments[id] = savedWeek; return { sprintAssignments } })
+      if (previous !== savedWeek) await followUp(set, get, `Sprint for #${id}`, [['activity synchronization', recordActivity(get, id, 'sprint_scheduled', { from: previous, to: savedWeek })]])
     })
-    if (previousWeek !== week) await get().logActivity(ideaId, 'sprint_scheduled', { from: previousWeek, to: week })
   },
-  // ── Score adjustment + priority ──────────────────────────────────────────────────────
   async setScoreAdjust(id, scoreAdjust) {
-    const adj = Math.max(-99, Math.min(99, parseInt(scoreAdjust) || 0))
-    const previous = get().ideas.find(i => i.id === id)?.scoreAdjust || 0
-    await supabase.from('ideas').update({ score_adjust: adj, updated_at: new Date().toISOString() }).eq('id', id)
-    set(s => ({ ideas: s.ideas.map(i => i.id === id ? { ...i, scoreAdjust: adj } : i) }))
-    if (previous !== adj) await get().logActivity(id, 'score_adjusted', { from: previous, to: adj })
+    return mutate(set, get, 'setScoreAdjust', id, [id, scoreAdjust], async () => {
+      const previous = requireIdea(get, id).scoreAdjust || 0
+      const adj = Math.max(-99, Math.min(99, parseInt(scoreAdjust) || 0))
+      const row = await confirmRow(supabase.from('ideas').update({ score_adjust: adj, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
+      set(state => ({ ideas: state.ideas.map(i => i.id === id ? { ...i, scoreAdjust: row.score_adjust } : i) }))
+      if (previous !== row.score_adjust) await followUp(set, get, `Score for #${id}`, [['activity synchronization', recordActivity(get, id, 'score_adjusted', { from: previous, to: row.score_adjust })]])
+    })
   },
   async setPriority(id, isPriority) {
-    const previous = Boolean(get().ideas.find(i => i.id === id)?.isPriority)
-    await supabase.from('ideas').update({ is_priority: isPriority, updated_at: new Date().toISOString() }).eq('id', id)
-    set(s => ({ ideas: s.ideas.map(i => i.id === id ? { ...i, isPriority } : i) }))
-    if (previous !== isPriority) await get().logActivity(id, 'priority_changed', { from: previous, to: isPriority })
-  },
-
-  // ── Group assignment ──────────────────────────────────────────────────────
-  getGroup(ideaId) {
-    return get().groupAssignments[ideaId] || ''
-  },
-  async setGroupAssignment(ideaId, groupKey) {
-    const previous = get().groupAssignments[ideaId] || ''
-    if (groupKey) {
-      await supabase.from('idea_group_assignments').upsert(
-        { idea_id: ideaId, group_key: groupKey, updated_at: new Date().toISOString() },
-        { onConflict: 'idea_id' }
-      )
-    } else {
-      await supabase.from('idea_group_assignments').delete().eq('idea_id', ideaId)
-    }
-    set(s => {
-      const ga = { ...s.groupAssignments }
-      if (groupKey) { ga[ideaId] = groupKey } else { delete ga[ideaId] }
-      return { groupAssignments: ga }
+    return mutate(set, get, 'setPriority', id, [id, isPriority], async () => {
+      const previous = Boolean(requireIdea(get, id).isPriority)
+      const row = await confirmRow(supabase.from('ideas').update({ is_priority: isPriority, updated_at: new Date().toISOString() }).eq('id', id), 'id', id)
+      set(state => ({ ideas: state.ideas.map(i => i.id === id ? { ...i, isPriority: row.is_priority } : i) }))
+      if (previous !== row.is_priority) await followUp(set, get, `Priority for #${id}`, [['activity synchronization', recordActivity(get, id, 'priority_changed', { from: previous, to: row.is_priority })]])
     })
-    if (previous !== groupKey) await get().logActivity(ideaId, 'group_changed', { from: previous, to: groupKey })
+  },
+  getGroup(id) { return get().groupAssignments[id] || '' },
+  async setGroupAssignment(id, groupKey) {
+    return mutate(set, get, 'setGroupAssignment', id, [id, groupKey], async () => {
+      requireIdea(get, id)
+      const previous = get().getGroup(id)
+      let savedGroup = groupKey
+      if (groupKey) {
+        const row = await confirmRow(supabase.from('idea_group_assignments').upsert({ idea_id: id, group_key: groupKey, updated_at: new Date().toISOString() }, { onConflict: 'idea_id' }), 'idea_id', id)
+        savedGroup = row.group_key
+      }
+      else await confirmDelete(supabase.from('idea_group_assignments').delete().eq('idea_id', id), 'idea_id', id, !previous)
+      set(state => { const groupAssignments = { ...state.groupAssignments }; if (savedGroup) groupAssignments[id] = savedGroup; else delete groupAssignments[id]; return { groupAssignments } })
+      if (previous !== savedGroup) await followUp(set, get, `Group for #${id}`, [['activity synchronization', recordActivity(get, id, 'group_changed', { from: previous, to: savedGroup })]])
+    })
   },
 
   // ── Activity & decision timeline ──────────────────────────────────────────

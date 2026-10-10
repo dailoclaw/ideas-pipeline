@@ -70,7 +70,7 @@ function nextStatus(status) {
 }
 
 function CommandPage({ groupFilter, onOpenIdea, onNavigate }) {
-  const { ideas, getStatus, getGroup, setStatus, activityLog } = useStore()
+  const { ideas, getStatus, getGroup, setStatus, activityLog, pendingSaves } = useStore()
   const scoped = scopedIdeas(ideas, getGroup, groupFilter)
   const ranked = useMemo(() => [...scoped]
     .filter(idea => !['done', 'shelved'].includes(getStatus(idea)))
@@ -86,7 +86,8 @@ function CommandPage({ groupFilter, onOpenIdea, onNavigate }) {
   const advance = async idea => {
     const status = getStatus(idea)
     const next = nextStatus(status)
-    if (next !== status) await setStatus(idea.id, next)
+    try { if (next !== status) await setStatus(idea.id, next) }
+    catch { /* The app feedback offers Retry. */ }
   }
 
   return (
@@ -150,7 +151,7 @@ function CommandPage({ groupFilter, onOpenIdea, onNavigate }) {
                   <span className="obsidian-action-score">{score}</span>
                   <Icon name="chevronRight" size={16} />
                 </button>
-                {['idea', 'researching', 'ready'].includes(status) && <button className="obsidian-advance" onClick={() => advance(idea)}>Advance</button>}
+                {['idea', 'researching', 'ready'].includes(status) && <button disabled={!!pendingSaves[idea.id]} className="obsidian-advance" onClick={() => advance(idea)}>Advance</button>}
               </div>
             )
           })}

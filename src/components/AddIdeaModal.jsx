@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useStore } from '../lib/store'
 import { useDialogFocus } from '../hooks/useDialogFocus'
+import SaveFeedback from './SaveFeedback'
 import Icon from './Icon'
 import { TIME_ICONS } from './Pills'
 
@@ -27,6 +28,7 @@ export default function AddIdeaModal({ editId, onClose }) {
   const removeMvp = i => setForm(f => ({ ...f, mvp: f.mvp.filter((_, j) => j !== i) }))
 
   const submit = async () => {
+    if (saving) return
     if (!form.name.trim()) { setError('Name is required'); return }
     if (!form.pitch.trim()) { setError('Pitch is required'); return }
     setSaving(true)
@@ -56,6 +58,10 @@ export default function AddIdeaModal({ editId, onClose }) {
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close idea form"><Icon name="close" size={20} /></button>
         </div>
 
+        <SaveFeedback onRetry={feedback => {
+          if (feedback.level === 'error' && (feedback.method === 'addIdea' && !existing || feedback.method === 'editIdea' && feedback.id === existing?.id)) return submit()
+          return feedback.retry()
+        }} />
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           <Field label="Name *">
             <input className="input" value={form.name} onChange={e => set('name', e.target.value)} placeholder="e.g. Award Rate Monitor" />

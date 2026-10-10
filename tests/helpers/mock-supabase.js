@@ -5,13 +5,14 @@ const tableNames = ['ideas', 'status_overrides', 'status_history', 'idea_activit
   'idea_group_assignments', 'sprint_assignments']
 
 export const backend = {
-  tables: {}, requests: [], denied: [], nextId: 1,
+  tables: {}, requests: [], denied: [], faults: [], nextId: 1,
   reset() {
     this.tables = Object.fromEntries(tableNames.map(name => [name, []]))
     this.tables.ideas = clone(fixtureIdeas)
-    this.requests = []; this.denied = []; this.nextId = 1
+    this.requests = []; this.denied = []; this.faults = []; this.nextId = 1
   },
   deny(table, operation) { this.denied.push({ table, operation }) },
+  fault(table, operation, kind) { this.faults.push({ table, operation, kind }) },
 }
 backend.reset()
 
@@ -32,6 +33,9 @@ export const supabase = {
       then(resolve, reject) {
         return Promise.resolve().then(() => {
           backend.requests.push({ table, operation, body: body === undefined ? null : clone(body) })
+          const fault = backend.faults.find(f => f.table === table && f.operation === operation)
+          if (fault?.kind === 'network') throw new TypeError('Fixture network failure')
+          if (fault?.kind === 'zero') return { data: single ? null : [], error: null }
           if (backend.denied.some(d => d.table === table && d.operation === operation)) {
             return { data: null, error: { message: 'Fixture permission denied', code: '42501' } }
           }

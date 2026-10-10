@@ -1,5 +1,16 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.2 (2026-10-10) — Confirmed saves and recoverable failures
+### Fixed
+- Status, priority, score, group and other primary writes require confirmed returned records before changing client state or success activity
+- Missing records and failed/zero-row writes now produce recoverable errors; pending controls prevent duplicate submissions
+- Partial batches wait for every result and retry only failed ideas
+- Committed changes survive history/activity or background-refresh failures with distinct warnings
+- Functional override merging, parent-first cascading deletion, triage failure recovery and StrictMode action reuse repair adjacent defects
+### Added
+- 28 isolated store/browser failure and retry checks; seven expected failures promoted to passing regressions
+- Tracker v1.0.5 records current verification separately from the original baseline and points to step 4; live database work remains deferred
+
 ## v1.9.1 (2026-10-10) — Main publication recorded
 ### Changed
 - Tracker v1.0.3 records the user-requested step 2 main push and verified local checks

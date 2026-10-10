@@ -4,12 +4,13 @@ import { useDialogFocus } from '../hooks/useDialogFocus'
 import { scoreIdea } from '../lib/scoring'
 import { TimePill, PlatPill, ScoreBadge } from './Pills'
 import LedgeButton from './LedgeButton'
+import SaveFeedback from './SaveFeedback'
 import Icon from './Icon'
 
 const THROW_MS = 240
 
 export default function TriageModal({ onClose }) {
-  const { ideas, getStatus, setStatus } = useStore()
+  const { ideas, getStatus, setStatus, pendingSaves } = useStore()
   const [skipped, setSkipped] = useState(new Set())
   const [thrown, setThrown] = useState(null)
   const busy = useRef(false)
@@ -29,21 +30,19 @@ export default function TriageModal({ onClose }) {
   const act = useCallback(async action => {
     if (!current || busy.current) return
     busy.current = true
-    // Throw the card first; the queue behind it only moves once it has gone.
-    // Keyed by id so the incoming card never inherits the leaving state.
     setThrown(current.id)
-
-    // Commit while the card is still leaving. A fast store swaps the next card
-    // in mid-throw (no empty deck); a slow one lets the throw finish first.
-    const statusMap = { building: 'building', ready: 'ready', shelve: 'shelved' }
-    const commit = action === 'skip' ? null : setStatus(current.id, statusMap[action])
-    await new Promise(resolve => setTimeout(resolve, THROW_MS))
-
-    if (action === 'skip') setSkipped(s => new Set([...s, current.id]))
-    else await commit
-
-    setThrown(null)
-    busy.current = false
+    try {
+      const statusMap = { building: 'building', ready: 'ready', shelve: 'shelved' }
+      if (action === 'skip') {
+        await new Promise(resolve => setTimeout(resolve, THROW_MS))
+        setSkipped(s => new Set([...s, current.id]))
+      } else {
+        await Promise.all([setStatus(current.id, statusMap[action]), new Promise(resolve => setTimeout(resolve, THROW_MS))])
+      }
+    } finally {
+      setThrown(null)
+      busy.current = false
+    }
   }, [current, setStatus])
 
   const pct = queue.length > 0 ? Math.round((done / queue.length) * 100) : 100
@@ -66,6 +65,7 @@ export default function TriageModal({ onClose }) {
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1" aria-label="Close triage"><Icon name="close" size={20} /></button>
         </div>
 
+        <SaveFeedback />
         {/* Body */}
         <div className="flex-1 overflow-y-auto p-5">
           {!current ? (
@@ -125,6 +125,7 @@ export default function TriageModal({ onClose }) {
           <div className="p-4 border-t border-gray-100 flex-shrink-0 space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <LedgeButton
+                disabled={thrown !== null || !!pendingSaves[current.id]}
                 onAct={() => act('building')}
                 icon="hammer"
                 runLabel="Moving…"
@@ -132,6 +133,7 @@ export default function TriageModal({ onClose }) {
                 className="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl bg-blue-600 text-white text-sm font-bold"
               >Start Building</LedgeButton>
               <LedgeButton
+                disabled={thrown !== null || !!pendingSaves[current.id]}
                 onAct={() => act('ready')}
                 icon="circleCheck"
                 runLabel="Moving…"
@@ -141,11 +143,13 @@ export default function TriageModal({ onClose }) {
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
-                onClick={() => act('shelve')}
+                disabled={thrown !== null || !!pendingSaves[current.id]}
+                onClick={() => { void act('shelve').catch(() => {}) }}
                 className="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500"
               ><Icon name="archive" size={16} /> Shelve</button>
               <button
-                onClick={() => act('skip')}
+                disabled={thrown !== null || !!pendingSaves[current.id]}
+                onClick={() => { void act('skip').catch(() => {}) }}
                 className="inline-flex items-center justify-center gap-1.5 py-3 rounded-xl border border-dashed border-gray-200 text-sm text-gray-400"
               ><Icon name="skipForward" size={16} /> Skip for now</button>
             </div>

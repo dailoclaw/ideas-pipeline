@@ -16,3 +16,9 @@ For every delivered tracker update:
 The tracker is updated through project work; it does not poll, start tasks, write to a database, or claim automatic completion. UI controls affect presentation only. Local evidence links are useful in the repository copy; a standalone copy can still be read without neighboring files, but those links need the repository files to open.
 
 Step 1 is complete within the user-approved local scope. Live schema/data backup and remote staging remain deferred and must be revisited before database-changing work. The five passing checks and thirteen known failures are a baseline, not thirteen repaired defects.
+
+When checks change, keep `baseline` as the historical first-step result and update
+`verification` with current `tests`, `passing`, `knownFailures` and
+`unexpectedFailures`. The renderer displays current results when available.
+`nextStepId` may identify the next agreed work while a preceding live step is
+explicitly deferred; this does not complete or hide the earlier step.

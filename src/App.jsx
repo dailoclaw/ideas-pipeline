@@ -6,6 +6,7 @@ import { useSpotlight } from './hooks/useSpotlight'
 import { useSettings } from './hooks/useSettings'
 import { useAppLayout } from './hooks/useAppLayout'
 import { GROUPS } from './data/groups'
+import SaveFeedback from './components/SaveFeedback'
 import SettingsDrawer  from './components/SettingsDrawer'
 import LayoutPage      from './pages/LayoutPage'
 import SummaryPage     from './pages/SummaryPage'
@@ -124,6 +125,7 @@ export default function App({ onSignOut }) {
 
   return (
     <div className="app-shell flex flex-col h-screen bg-gray-50 dark:bg-slate-900 transition-colors">
+      {!openId && !addOpen && !editId && !triageOpen && <SaveFeedback />}
 
       {appLayout === 'obsidian' ? (
         <ObsidianConsole

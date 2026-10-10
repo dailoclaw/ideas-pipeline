@@ -4,6 +4,7 @@ import { TimePill, PlatPill, StatusBadge, ScoreBadge, STATUS_ICONS } from './Pil
 import { GROUPS } from '../data/groups'
 import { scoreIdea } from '../lib/scoring'
 import ActivityTimeline from './ActivityTimeline'
+import SaveFeedback from './SaveFeedback'
 import Icon from './Icon'
 import { useDialogFocus } from '../hooks/useDialogFocus'
 
@@ -17,7 +18,7 @@ const ALL_STATUSES = [
 ]
 
 export default function IdeaModal({ ideaId, onClose, onEdit }) {
-  const { ideas, statusHistory, activityLog, getStatus, setStatus, deleteIdea, updateNotes, getGroup, setGroupAssignment, setScoreAdjust, setPriority } = useStore()
+  const { ideas, statusHistory, activityLog, getStatus, setStatus, deleteIdea, updateNotes, getGroup, setGroupAssignment, setScoreAdjust, setPriority, pendingSaves } = useStore()
   const idea = ideas.find(i => i.id === ideaId)
   const ref = useRef()
   const [activeTab, setActiveTab] = useState('overview')
@@ -42,20 +43,23 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
     if (idea) setLocalNotes(idea.notes || '')
   }, [notesKey])
 
+  const saveNotes = useCallback(async val => {
+    setSaveState('saving')
+    try { await updateNotes(idea.id, val); setSaveState('saved') }
+    catch { setSaveState('error') }
+  }, [idea?.id, updateNotes])
+  const saveScore = async val => {
+    setAdjSaving(true)
+    try { await setScoreAdjust(idea.id, val); setLocalAdj(useStore.getState().ideas.find(i => i.id === idea.id)?.scoreAdjust || 0) }
+    catch { /* SaveFeedback retains the failed value and offers Retry. */ }
+    finally { setAdjSaving(false) }
+  }
   const handleNotesChange = useCallback((val) => {
     setLocalNotes(val)
     setSaveState('saving')
     clearTimeout(saveTimer.current)
-    saveTimer.current = setTimeout(async () => {
-      try {
-        await updateNotes(idea.id, val)
-        setSaveState('saved')
-        setTimeout(() => setSaveState('idle'), 1500)
-      } catch {
-        setSaveState('idle')
-      }
-    }, 800)
-  }, [idea?.id, updateNotes])
+    saveTimer.current = setTimeout(() => { void saveNotes(val) }, 800)
+  }, [saveNotes])
 
   useEffect(() => () => clearTimeout(saveTimer.current), [])
 
@@ -64,7 +68,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
     setStatusSaving(true)
     try {
       await setStatus(idea.id, newStatus)
-    } finally {
+    } catch { /* The shared feedback offers Retry. */ } finally {
       setStatusSaving(false)
     }
   }, [idea?.id, setStatus])
@@ -125,6 +129,12 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           </button>
         </div>
 
+        <SaveFeedback onRetry={feedback => {
+          if (feedback.id === idea.id && feedback.method === 'updateNotes') { clearTimeout(saveTimer.current); return saveNotes(localNotes) }
+          if (feedback.id === idea.id && feedback.method === 'setScoreAdjust') { clearTimeout(adjTimer.current); return saveScore(localAdj) }
+          if (feedback.id === idea.id && feedback.method === 'deleteIdea') return feedback.retry().then(() => onClose())
+          return feedback.retry()
+        }} />
         {/* Body */}
         {activeTab === 'overview' ? (
         <div className="idea-detail-overview flex-1 overflow-y-auto p-4 space-y-4" role="tabpanel">
@@ -132,7 +142,8 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
           <div className="flex items-center gap-2">
             <span className="text-xs font-semibold text-gray-500 shrink-0 w-12">Priority</span>
             <button
-              onClick={async () => { await setPriority(idea.id, !idea.isPriority) }}
+              disabled={!!pendingSaves[idea.id]}
+              onClick={() => { void setPriority(idea.id, !idea.isPriority).catch(() => {}) }}
               className={`idea-priority-toggle flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-bold transition-all
                 ${idea.isPriority
                   ? 'bg-amber-50 border-amber-300 text-amber-700'
@@ -151,6 +162,8 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               <span className="text-xs text-gray-300">→</span>
               <input
                 type="number"
+                aria-label="Score adjustment"
+                disabled={!!pendingSaves[idea.id]}
                 min="-99" max="99" step="5"
                 value={localAdj}
                 onChange={e => {
@@ -158,10 +171,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
                   setLocalAdj(v)
                   setAdjSaving(true)
                   clearTimeout(adjTimer.current)
-                  adjTimer.current = setTimeout(async () => {
-                    await setScoreAdjust(idea.id, v)
-                    setAdjSaving(false)
-                  }, 600)
+                  adjTimer.current = setTimeout(() => { void saveScore(v) }, 600)
                 }}
                 className="w-20 text-sm font-bold text-center border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
               />
@@ -184,10 +194,12 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               <Icon name={groupIcon} size={16} />
               <select
                 value={groupKey}
-                disabled={groupSaving}
+                aria-label="Idea group"
+                disabled={groupSaving || !!pendingSaves[idea.id]}
                 onChange={async e => {
                   setGroupSaving(true)
                   try { await setGroupAssignment(idea.id, e.target.value) }
+                  catch { /* The shared feedback offers Retry. */ }
                   finally { setGroupSaving(false) }
                 }}
                 className="w-full text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 bg-white text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
@@ -207,7 +219,8 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               <Icon name={STATUS_ICONS[status] || 'circleCheck'} size={16} />
               <select
                 value={status}
-                disabled={statusSaving}
+                aria-label="Idea status"
+                disabled={statusSaving || !!pendingSaves[idea.id]}
                 onChange={e => handleStatusChange(e.target.value)}
                 className="w-full text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 pr-8 appearance-none bg-white text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
               >
@@ -244,6 +257,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
             <div className="flex items-center justify-between mb-1">
               <div className="text-[0.625rem] font-bold uppercase tracking-widest text-gray-400">Notes</div>
               {saveState === 'saving' && <span className="text-[0.625rem] text-gray-400">Saving…</span>}
+              {saveState === 'error' && <span className="text-xs text-red-600">Not saved</span>}
               {saveState === 'saved' && <span className="inline-flex items-center gap-1 text-[0.625rem] text-green-500 font-semibold"><Icon name="check" size={11} /> Saved</span>}
             </div>
             <textarea
@@ -279,10 +293,11 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
             <button
               onClick={async () => {
                 if (!confirm(`Delete "${idea.name}"?`)) return
-                await deleteIdea(idea.id)
-                onClose()
+                try { await deleteIdea(idea.id); onClose() }
+                catch { /* Keep the dialog open for retry. */ }
               }}
               className="inline-flex items-center justify-center text-sm font-bold py-2 px-3 rounded-xl border border-red-100 text-red-500"
+              disabled={!!pendingSaves[idea.id]}
               aria-label="Delete idea"
             ><Icon name="trash" size={16} /></button>
           </div>

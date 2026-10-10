@@ -15,7 +15,7 @@ const NEXT_STATUS = { idea: 'researching', researching: 'ready', ready: 'buildin
 const NEXT_LABEL = { idea: 'To discovery', researching: 'To ready', ready: 'Start build' }
 
 export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
-  const { ideas, getStatus, setStatus, getGroup } = useStore()
+  const { ideas, getStatus, setStatus, getGroup, pendingSaves } = useStore()
 
   const groupIdeas = groupFilter === '__none__'
     ? ideas.filter(i => !getGroup(i.id))
@@ -48,6 +48,7 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
           <div className="flex flex-wrap items-center gap-2">
             <TimePill time={recommend.time} />
             <LedgeButton
+              disabled={!!pendingSaves[recommend.id]}
               onAct={() => setStatus(recommend.id, 'building')}
               icon="hammer"
               runLabel="Starting…"
@@ -85,7 +86,7 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
                 onClick={open}
                 onKeyDown={e => {
                   if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open() }
-                  if (e.key === 'ArrowRight' && next) { e.preventDefault(); setStatus(idea.id, next) }
+                  if (e.key === 'ArrowRight' && next) { e.preventDefault(); void setStatus(idea.id, next).catch(() => {}) }
                 }}
               >
                 <i className="au-bracket" aria-hidden="true" /><i className="au-bracket" aria-hidden="true" />
@@ -106,9 +107,10 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
                   <div className="flex-shrink-0"><StatusBadge status={status} /></div>
                   {next && (
                     <button
+                      disabled={!!pendingSaves[idea.id]}
                       className="au-advance"
                       title={`${NEXT_LABEL[status]} — #${idea.id} ${idea.name}`}
-                      onClick={e => { e.stopPropagation(); setStatus(idea.id, next) }}
+                      onClick={e => { e.stopPropagation(); void setStatus(idea.id, next).catch(() => {}) }}
                     >{NEXT_LABEL[status]}<Icon name="arrowRight" size={12} /></button>
                   )}
                 </div>

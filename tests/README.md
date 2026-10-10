@@ -1,6 +1,6 @@
 # Regression baseline — v1.8.1
 
-This is step 1 of the functional audit repair plan. Application behavior is deliberately unchanged. Tests run against fictional, in-memory records and preserve correct-behavior assertions for defects awaiting repair.
+This document preserves the historical step 1 baseline. Current results are recorded in the step additions below and the HTML tracker. Tests run against fictional, in-memory records and preserve correct-behavior assertions for defects awaiting repair.
 
 ## Run
 
@@ -22,9 +22,9 @@ Available commands:
 | `npm run test:browser` | Browser checks against an ephemeral localhost Vite server |
 | `npm run test:strict` | All correct-behavior assertions enforced as ordinary failures |
 
-Baseline mode expects **5 passes and 13 TODO failures across 18 tests**. TODO failures mean the recorded application defects still reproduce; they are not skipped assertions and are not production approval. Any unexpected test failure fails the command. An unexpected pass in a known-defect test also fails, prompting promotion to an ordinary regression test.
+The original baseline recorded **5 passes and 13 TODO failures across 18 tests**. TODO failures mean the recorded application defects still reproduce; they are not skipped assertions and are not production approval. Any unexpected test failure fails the command. An unexpected pass in a known-defect test also fails, prompting promotion to an ordinary regression test.
 
-Strict mode currently exits unsuccessfully with **13 failures**. Use it while fixing defects. Once a behavior is repaired, remove the `knownDefect` wrapper and keep its correct-behavior assertion as a normal passing test. Do not weaken assertions to match the bug or add more TODOs to hide regressions.
+The original strict-mode run exited unsuccessfully with **13 failures**; current counts are recorded below. Use it while fixing defects. Once a behavior is repaired, remove the `knownDefect` wrapper and keep its correct-behavior assertion as a normal passing test. Do not weaken assertions to match the bug or add more TODOs to hide regressions.
 
 ## Isolation
 
@@ -76,7 +76,7 @@ The archive includes existing tracked source and untracked review files, includi
 
 ## Step 2 additions — v1.9.0
 
-`npm test` now runs 46 checks: 33 pass and 13 original known defects remain.
+At step 2, `npm test` ran 46 checks: 33 pass and 13 original known defects remain.
 `npm run test:auth` runs 22 passing session/configuration checks. Six additional
 browser checks exercise anonymous gating, credential failure/retry, unlisted accounts,
 unavailable membership RPCs, session loss and settings sign-out. The existing baseline
@@ -86,3 +86,16 @@ The auth fixture defaults to a fictional permitted account for existing workflow
 `?signedOut` starts auth tests without a session. The fixture RPC is only a boolean stub:
 these tests do not validate JWTs, passwords against Supabase, or PostgreSQL RLS.
 Account allowlist/RLS/audit enforcement still requires restored staging tests.
+
+## Step 3 additions — v1.9.2 (current)
+
+`npm test` now runs **74 checks: 68 pass, 6 known failures**. Strict mode reports
+**68 passes and 6 actual failures**. Store/browser failure injection covers network
+and zero-row responses in addition to permission denial. Failed primary writes do
+not update state or log success activity; warnings distinguish a confirmed mutation
+from failed history/activity/refresh. Partial batches retry only failed IDs.
+
+Seven baseline failures are now passing regressions: status/priority/score/group
+permission handling, concurrent override merging, safe parent deletion and StrictMode
+action reuse. The six remaining defects concern immediate-close notes, storage and
+stale summary membership. See `docs/RELIABLE_SAVES.md` for guarantees and limits.

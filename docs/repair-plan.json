@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.3",
+  "planVersion": "1.0.5",
   "updated": "2026-10-10",
   "baselineVersion": "1.8.1",
-  "branch": "main",
+  "branch": "codex/reliable-saves",
   "readiness": "Not production-ready",
-  "scopeNote": "Steps 1 & 2 pushed \u00b7 Database work open",
+  "scopeNote": "Steps 1 & 3 complete locally; Step 2 live work open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Email/password gate and local step 2 preparation are pushed to main at 7f10fe2 by user request. 46 isolated checks: 33 pass, 13 known defects remain. The membership RPC and account enrollment are deployment prerequisites; live RLS and trusted audit remain unverified. Backup/staging remain deferred.",
+  "progressNote": "Step 3 save reliability is implemented locally: confirmed writes, recoverable errors/retry, partial-batch reporting and distinct refresh/history warnings. 74 isolated checks: 68 pass and 6 known defects remain. Seven baseline failures are now passing regressions. Step 2 live database work remains deferred; no production SQL executed.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -137,20 +137,28 @@
       "title": "Stop false-success saves",
       "short": "Reliable saves",
       "priority": "Critical",
-      "status": "pending",
-      "summary": "Make every save result reflect confirmed persistence and give users a recoverable error when a write fails.",
+      "status": "local-complete",
+      "summary": "Save reliability is verified locally. Writes require returned record confirmation before state or success activity changes. Errors retain prior state and offer Retry; secondary failures retain confirmed saves and show a distinct warning. Real database/RLS acceptance remains part of the release gate.",
       "actions": [
         {
-          "text": "Check every Supabase response for errors and confirm the expected record was affected."
+          "text": "Check every Supabase response for errors and confirm the expected record was affected.",
+          "status": "complete",
+          "note": "Primary inserts, updates, upserts and deletes check errors and returned identities. Required refresh reads also check errors. Optional activity failures are shown as synchronization warnings."
         },
         {
-          "text": "Update client state after persistence, or add rollback for deliberate optimistic updates."
+          "text": "Update client state after persistence, or add rollback for deliberate optimistic updates.",
+          "status": "complete",
+          "note": "Confirmed returned values update client state. Denied, network and zero-row results preserve it. Functional override merges and parent-only deletion also repair adjacent C5/C8 regressions."
         },
         {
-          "text": "Add visible errors and retry controls; prevent repeated clicks while pending."
+          "text": "Add visible errors and retry controls; prevent repeated clicks while pending.",
+          "status": "complete",
+          "note": "Shared inline errors and Retry are available in the app and dialogs. Pending saves disable affected controls; duplicate saves are rejected visibly. Notes/score failures retain the draft. Batch retry targets only failed IDs."
         },
         {
-          "text": "Separate a successful mutation from a failed subsequent refresh."
+          "text": "Separate a successful mutation from a failed subsequent refresh.",
+          "status": "complete",
+          "note": "Create/edit/delete refresh in the background. A committed write remains successful if history, activity or refresh fails; warnings offer read-only refresh rather than repeating the mutation."
         }
       ],
       "verify": [
@@ -158,14 +166,28 @@
         "Denied writes preserve prior client state.",
         "Reloaded state agrees with the save result."
       ],
-      "issues": "C2 \u00b7 mutation error handling"
+      "issues": "C2 \u00b7 mutation error handling",
+      "evidence": [
+        {
+          "label": "Save reliability verification and limits",
+          "href": "RELIABLE_SAVES.md"
+        },
+        {
+          "label": "Store regression checks",
+          "href": "../tests/store.test.mjs"
+        },
+        {
+          "label": "Browser failure/retry checks",
+          "href": "../tests/browser.test.mjs"
+        }
+      ]
     },
     {
       "id": 4,
       "title": "Fix IDs and concurrent mutations",
       "short": "IDs & concurrency",
       "priority": "Critical",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Move allocation and related-record integrity into the database, while safely merging concurrent client updates.",
       "actions": [
         {
@@ -175,13 +197,17 @@
           "text": "Remove browser-side maxId + 1 allocation and obtain the inserted ID from the returned row."
         },
         {
-          "text": "Use functional state updates and serialize conflicting writes to the same idea."
+          "text": "Use functional state updates and serialize conflicting writes to the same idea.",
+          "status": "in-progress",
+          "note": "Step 3 added functional override merges and rejects conflicting same-idea saves while pending. Database transaction/serialization work remains open."
         },
         {
           "text": "Put related status/history/activity changes in database transactions."
         },
         {
-          "text": "Delete the parent once and use cascading foreign keys for child records."
+          "text": "Delete the parent once and use cascading foreign keys for child records.",
+          "status": "complete",
+          "note": "Step 3 now deletes the parent only and verifies its returned ID; cascade behavior tested with fixtures matching supplied SQL. Actual deployed foreign keys remain unverified."
         }
       ],
       "verify": [
@@ -209,7 +235,9 @@
           "text": "Serialize notes and score saves so older responses cannot overwrite newer values."
         },
         {
-          "text": "Refresh in the background without replacing the app shell."
+          "text": "Refresh in the background without replacing the app shell.",
+          "status": "in-progress",
+          "note": "Post-save refreshes now run in the background without replacing the app shell. General refresh/draft lifecycle work remains open."
         },
         {
           "text": "Clean up score timers and keep input bounds consistent with persisted values."
@@ -255,7 +283,7 @@
       "title": "Repair summaries and workflow feedback",
       "short": "State & feedback",
       "priority": "High",
-      "status": "pending",
+      "status": "in-progress",
       "summary": "Keep reporting synchronized with assignments and statuses, and make action feedback recover correctly.",
       "actions": [
         {
@@ -265,10 +293,14 @@
           "text": "Consolidate scope and priority sorting; define Groups/Spaces and hidden-selection behavior."
         },
         {
-          "text": "Count triage decisions separately from skips and reset busy state in finally."
+          "text": "Count triage decisions separately from skips and reset busy state in finally.",
+          "status": "in-progress",
+          "note": "Step 3 now resets triage busy/animation state in finally and observes rejection immediately. Accurate skip/decision counts remain open."
         },
         {
-          "text": "Restore action-button mounted state during effect setup so StrictMode remains usable."
+          "text": "Restore action-button mounted state during effect setup so StrictMode remains usable.",
+          "status": "complete",
+          "note": "Step 3 restores the mounted ref in effect setup, disables pending actions, and promotes the StrictMode reuse check to a passing regression."
         }
       ],
       "verify": [
@@ -453,6 +485,23 @@
       "date": "2026-10-10",
       "title": "Step 2 implementation pushed to main",
       "body": "User requested main push. Fast-forwarded and pushed 6259fe1 and 7f10fe2; verified origin/main. Build passed; 46 checks: 33 pass, 13 recorded defects. No database SQL executed or deployment status verified. Gate requires the membership RPC and permitted account enrollment before use."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Step 3 save reliability verified locally",
+      "body": "74 checks: 68 pass, 6 known defects remain. Four denied-write failures plus override merging, parent-delete safety and StrictMode reuse now pass. Added 28 failure/retry checks. Build passes; no live SQL or deployment. Step 4 IDs/transactions remain open, along with step 2 live authorization and six remaining baseline defects."
+    },
+    {
+      "date": "2026-10-10",
+      "title": "Create/delete retry completion verified",
+      "body": "Retry uses the visible create draft and closes the form only after confirmation; delete retry closes the dialog and exposes any refresh warning. Final suite: 74 checks, 68 pass, 6 known defects. Tracker v1.0.5 preserves the intermediate v1.0.4 snapshot."
     }
-  ]
+  ],
+  "nextStepId": 4,
+  "verification": {
+    "tests": 74,
+    "passing": 68,
+    "knownFailures": 6,
+    "unexpectedFailures": 0
+  }
 }

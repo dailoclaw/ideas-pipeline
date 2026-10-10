@@ -10,7 +10,7 @@ const VIEW_LABELS = { kanban: 'Kanban', matrix: 'Matrix', features: 'Feature Car
 
 export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   const [view, setView] = useState('kanban')
-  const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, getGroup } = useStore()
+  const { ideas, getStatus, setStatus, getKanbanSort, setKanbanSort, getGroup, pendingSaves } = useStore()
   const [selected, setSelected] = useState(new Set())
   const canvasRef = useRef(null)
   const switcherRef = useRef(null)
@@ -49,7 +49,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
 
       {/* View */}
       <div ref={canvasRef} className="layout-canvas flex-1 overflow-auto p-3 sm:p-4">
-        {view === 'kanban'   && <KanbanView ideas={filteredIdeas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={selected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} />}
+        {view === 'kanban'   && <KanbanView ideas={filteredIdeas} getStatus={getStatus} setStatus={setStatus} onOpen={onOpenIdea} selected={selected} toggleSelect={toggleSelect} getKanbanSort={getKanbanSort} setKanbanSort={setKanbanSort} pendingSaves={pendingSaves} />}
         {view === 'matrix'  && <MatrixView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
         {view === 'features' && <FeaturesView ideas={filteredIdeas} getStatus={getStatus} onOpen={onOpenIdea} />}
       </div>
@@ -57,10 +57,11 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
       {/* Batch bar */}
       {selected.size > 0 && (
         <BatchBar
+          disabled={!!pendingSaves.batch}
           count={selected.size}
           onAction={async status => {
-            await useStore.getState().batchSetStatus(selected, status)
-            clearSelected()
+            try { await useStore.getState().batchSetStatus(selected, status); clearSelected() }
+            catch { /* Keep selection visible; Retry targets only failed writes. */ }
           }}
           onClear={clearSelected}
         />
@@ -70,7 +71,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
 }
 
 // ── Kanban ───────────────────────────────────────────────────────────────────
-function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelect, getKanbanSort, setKanbanSort }) {
+function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelect, getKanbanSort, setKanbanSort, pendingSaves }) {
   const ks = getKanbanSort()
   const activeFilter = i => { const s = getStatus(i); return s !== 'done' && s !== 'shelved' }
   const quick   = sortIdeas(ideas.filter(i => i.time === '1w'   && activeFilter(i)), ks.quick   || 'score')
@@ -156,7 +157,8 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
           <span className="build-next__time"><TimePill time={recommend.time} /></span>
           <div className="build-next__actions">
             <button
-              onClick={() => setStatus(recommend.id, 'building')}
+              disabled={!!pendingSaves[recommend.id]}
+              onClick={() => { void setStatus(recommend.id, 'building').catch(() => {}) }}
               className="inline-flex items-center justify-center gap-1 text-[0.6875rem] font-bold bg-green-600 text-white px-3 py-1 rounded-lg whitespace-nowrap"
             ><Icon name="hammer" size={13} /> Start</button>
             <button
@@ -246,14 +248,14 @@ function FeaturesView({ ideas, getStatus, onOpen }) {
 }
 
 // ── Batch action bar ─────────────────────────────────────────────────────────
-function BatchBar({ count, onAction, onClear }) {
+function BatchBar({ count, onAction, onClear, disabled }) {
   return (
     <div className="batch-bar fixed left-1/2 -translate-x-1/2 bg-gray-900 text-white rounded-2xl px-4 py-2.5 flex items-center gap-2 shadow-2xl z-40 text-xs font-bold whitespace-nowrap">
       <span className="batch-bar__count text-gray-300 mr-1">{count} selected</span>
-      <button onClick={() => onAction('building')} className="batch-bar__action inline-flex items-center justify-center gap-1 bg-blue-600 px-2.5 py-1.5 rounded-lg"><Icon name="hammer" size={13} /> Building</button>
-      <button onClick={() => onAction('ready')}    className="batch-bar__action inline-flex items-center justify-center gap-1 bg-green-600 px-2.5 py-1.5 rounded-lg"><Icon name="circleCheck" size={13} /> Ready</button>
-      <button onClick={() => onAction('done')}     className="batch-bar__action inline-flex items-center justify-center gap-1 bg-violet-600 px-2.5 py-1.5 rounded-lg"><Icon name="check" size={13} /> Done</button>
-      <button onClick={() => onAction('shelved')}  className="batch-bar__action inline-flex items-center justify-center border border-white/20 px-2.5 py-1.5 rounded-lg text-amber-300" aria-label="Shelve selected ideas"><Icon name="archive" size={14} /></button>
+      <button disabled={disabled} onClick={() => onAction('building')} className="batch-bar__action inline-flex items-center justify-center gap-1 bg-blue-600 px-2.5 py-1.5 rounded-lg"><Icon name="hammer" size={13} /> Building</button>
+      <button disabled={disabled} onClick={() => onAction('ready')}    className="batch-bar__action inline-flex items-center justify-center gap-1 bg-green-600 px-2.5 py-1.5 rounded-lg"><Icon name="circleCheck" size={13} /> Ready</button>
+      <button disabled={disabled} onClick={() => onAction('done')}     className="batch-bar__action inline-flex items-center justify-center gap-1 bg-violet-600 px-2.5 py-1.5 rounded-lg"><Icon name="check" size={13} /> Done</button>
+      <button disabled={disabled} onClick={() => onAction('shelved')}  className="batch-bar__action inline-flex items-center justify-center border border-white/20 px-2.5 py-1.5 rounded-lg text-amber-300" aria-label="Shelve selected ideas"><Icon name="archive" size={14} /></button>
       <button onClick={onClear} className="batch-bar__clear inline-grid place-items-center text-gray-400 ml-1 px-1" aria-label="Clear selection"><Icon name="close" size={15} /></button>
     </div>
   )
