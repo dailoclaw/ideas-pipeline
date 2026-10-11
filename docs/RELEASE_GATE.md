@@ -1,8 +1,8 @@
 # Step 12 — production release decision
 
-Version 1.9.26 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
+Version 1.9.27 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
 
-The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user explicitly deferred live backup/staging; that instruction remains in force. This assessment does not perform deployment or modify Supabase.
+The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user resumed live backup/staging preparation and read-only inspection on 2026-10-11; capture/restore and staging remain incomplete. This assessment does not perform deployment or modify Supabase.
 
 ## Evidence and limits
 
@@ -25,7 +25,7 @@ A six-table membership/column-grant candidate and fail-closed legacy bootstraps 
 
 ## Critical blockers — address first
 
-1. **Backup and staging are deferred.** Resume only when the user changes that instruction and identifies an approved administrative workflow. Capture schema, rows, policies/grants, functions/triggers, sequences and configuration; restore into an isolated staging project and verify counts/identities. A source archive is not a database backup.
+1. **Backup and staging are incomplete.** The user authorized resuming preparation/inspection and selected a local hidden-password CLI workflow. Complete its password handoff and verify capture/restore before changes. Capture schema, rows, policies/grants, functions/triggers, sequences and configuration; restore into an isolated staging project and verify counts/identities. A source archive is not a database backup.
 2. **Full database authorization is unfinished.** Inspect the deployed schema using the read-only [inspection candidate](../database/security/inspect-access.sql) in the approved workflow. Complete administrator-only membership and reviewed RLS/grants for all six tables. Deny anonymous, unlisted and revoked identities; deny direct create/status/audit bypasses and client-written trusted actors/times. Verify security-definer owners, locked paths, schemas/views/sequences and public RPC execution. Legacy source bootstraps now enable RLS; actual deployed schema and prior installation paths must still be inspected. Do not run them as a shortcut.
 3. **Matching database/frontend integration is unverified.** Coordinate candidates 001–005 against the inspected staging schema, not blindly against assumed tables. Run legacy-data preflight/repair, preserve IDs, install identity/RPC/constraint changes once and confirm actual PostgREST signatures/cache. Exercise create, status, edit, notes, score, priority, group, sprint, deletion, outbox retry and exports through real authenticated API clients. Compare persisted parent/history/activity rows; a missing RPC must remain a visible failure, not a fallback to unsafe writes.
 
@@ -63,3 +63,7 @@ Published guard commit 4e2ff2b has green 276-check CI. Subsequent local migratio
 ## Local release inspection — v1.9.26
 
 Tailwind migration 6cb52ba is now published with green 281-check CI. [Read-only inspection preparation](RELEASE_INSPECTION.md) adds private ledger, inherited grant, helper and audit-trigger metadata checks, verified with six disposable-database tests. Current local total is 287 strict checks; lint/build/budgets, compiled smoke and dependency guard pass. The inspection candidate is unpushed and has not run against Supabase. All live/Edge/manual release gates remain open.
+
+## Live inspection / backup handoff — v1.9.27
+
+[Current live findings](SUPABASE_LIVE_STATUS.md) confirm five public tables with RLS disabled and anonymous grants. Backup/staging preparation is now authorized, but no archive has been captured or restored and no staging project exists. Official PostgreSQL clients and the hidden-password runner are ready; three mocked security/failure tests pass. User local password entry is required. No live migrations or production acceptance occurred. Earlier deferral notes in this document/versioned evidence are historical.

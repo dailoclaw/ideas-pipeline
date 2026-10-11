@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.31",
+  "planVersion": "1.0.32",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/release-security-inspection",
+  "branch": "codex/supabase-backup-preparation",
   "readiness": "Not production-ready",
-  "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
-  "deferralLabel": "Live backup & remote staging",
-  "deferralNote": "Deferred by your instruction",
-  "progressNote": "Published Tailwind migration 6cb52ba to main; origin/main verified and exact 281-check CI green. Continued step 2/12 locally with read-only private audit/RPC/trigger inspection and six executable metadata tests. Full local 287-check regression and release checks pass. New inspection candidate is unpushed, not run against Supabase and does not complete live authorization acceptance. Full/production recorded audits zero; Edge/manual and real JWT/concurrency/rollout remain open. Backup/staging deferred; production NOT APPROVED.",
+  "scopeNote": "Live inspection resumed; backup/restore and database rollout remain open",
+  "deferralLabel": "Live backup & restored staging",
+  "deferralNote": "Authorized; backup password handoff pending",
+  "progressNote": "User authorized resuming backup/staging preparation and live read-only inspection of Ideas Pipeline. Confirmed five tables with RLS disabled and anonymous read/write grants, absent private application tables and PostgreSQL 17.6. Free plan has no dashboard backups. User selected CLI backup; verified portable PostgreSQL 17 tools and prepared a hidden local-password runner with three passing security/failure tests. No backup captured, no staging created and no migrations applied. Local Terminal password handoff required; production NOT APPROVED.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -23,8 +23,8 @@
       "title": "Establish a regression baseline",
       "short": "Regression baseline",
       "priority": "Foundation",
-      "status": "local-complete",
-      "summary": "Local regression baseline is published on main at ab3acb1. Live database backup and remote staging remain deferred by your instruction.",
+      "status": "in-progress",
+      "summary": "Historical regression baseline remains complete locally. User lifted the live backup/staging deferral on 2026-10-11; backup runner is ready but capture/restore and staging are not complete.",
       "actions": [
         {
           "text": "Create a working branch and preserve existing uncommitted files.",
@@ -33,13 +33,13 @@
         },
         {
           "text": "Back up the live database schema and data.",
-          "status": "deferred",
-          "note": "Deferred by user. The source archive includes local SQL files, not live database rows or deployed policies."
+          "status": "in-progress",
+          "note": "Authorization resumed 2026-10-11. Confirmed Free plan has no dashboard backups. User selected CLI; official PostgreSQL 17 tools verified, hidden-password backup runner prepared and three mocked security/failure tests pass. No archive captured yet; user must run local password prompt. Restore verification remains required."
         },
         {
           "text": "Configure a remote staging database with representative records.",
-          "status": "deferred",
-          "note": "Deferred by user. Fictional in-memory fixtures provide local isolation for this step."
+          "status": "in-progress",
+          "note": "Remote staging is now authorized for preparation, but no project exists yet. Capture/restore scope and safe staging workflow must be verified; no paid upgrade or credentials created."
         },
         {
           "text": "Add regression checks for failed writes, notes loss, concurrent updates, stale summaries and blocked storage.",
@@ -74,6 +74,10 @@
         {
           "label": "Strict-mode log",
           "href": "../test-results/strict.log"
+        },
+        {
+          "label": "Live Supabase findings and CLI backup handoff",
+          "href": "SUPABASE_LIVE_STATUS.md"
         }
       ]
     },
@@ -83,12 +87,12 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Authentication and six-table authorization candidates are published. Published candidate 005 adds atomic server-derived primary-change metadata, server timestamps and retained deletion evidence. No Supabase installation is claimed; real account/policy/audit acceptance remains open. Local read-only inspection now covers private ledgers, effective inherited grants, helper ownership/settings and missing/disabled audit triggers; six metadata tests pass. Live review remains open.",
+      "summary": "Read-only live inspection confirms five tables with RLS disabled, anonymous table grants and absent private application relations. Backup/staging workflow resumed with CLI password handoff pending. Authentication/policy/audit candidates remain uninstalled; step 2 is not complete.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
           "status": "in-progress",
-          "note": "Original public metadata inspection retained. New inspect-release.sql supplements it with private relation/RPC/trigger/sequence metadata, missing-object visibility and inherited privilege checks. Six actual-SQL tests pass on disposable PGlite, including unsafe grant/settings and disabled-trigger fixtures; no private row contents returned. Neither inspection has run against live Supabase. Backup/staging remain deferred."
+          "note": "Original public metadata inspection retained. New inspect-release.sql supplements it with private relation/RPC/trigger/sequence metadata, missing-object visibility and inherited privilege checks. Six actual-SQL tests pass on disposable PGlite, including unsafe grant/settings and disabled-trigger fixtures; no private row contents returned. Neither inspection has run against live Supabase. Backup/staging remain deferred. Live read-only catalog subset executed on confirmed project 2026-10-11: five tables RLS disabled, all six have anonymous read/write table grants, no app_private relations, server 17.6. Remaining policies/owners/helper/trigger/data inspection still required."
         },
         {
           "text": "Add authentication and restrict access to the permitted account or workspace members.",
@@ -107,8 +111,8 @@
         },
         {
           "text": "Roll out authentication and policies together so the legitimate user retains access.",
-          "status": "deferred",
-          "note": "Live rollout requires the user-deferred backup and restored staging workflow plus passing authorization tests."
+          "status": "pending",
+          "note": "Live backup/staging deferral lifted for preparation and read-only inspection. Production policy/RPC installation has not started; requires captured/restored backup, staging tests and reviewed coordinated rollout."
         }
       ],
       "verify": [
@@ -165,6 +169,10 @@
         {
           "label": "Executable inspection regression tests",
           "href": "../tests/inspection.test.mjs"
+        },
+        {
+          "label": "Confirmed live RLS inventory and backup status",
+          "href": "SUPABASE_LIVE_STATUS.md"
         }
       ]
     },
@@ -672,7 +680,7 @@
       "short": "Release decision",
       "priority": "Release gate",
       "status": "in-progress",
-      "summary": "Production remains NOT APPROVED. Tailwind migration 6cb52ba is published with green CI; full/production audits zero. New local read-only release inspection passes six metadata tests. Real JWT/API/concurrency, Edge/manual accessibility, audit retention and live rollout acceptance remain open.",
+      "summary": "Production NOT APPROVED. Live read-only inspection confirms authorization gaps. User resumed backup/staging preparation and selected CLI; local hidden-password handoff pending. No backup/restore, staging or live migrations completed. Real API/concurrency and Edge/manual acceptance remain open.",
       "actions": [
         {
           "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
@@ -738,6 +746,10 @@
         {
           "label": "Local release security inspection",
           "href": "RELEASE_INSPECTION.md"
+        },
+        {
+          "label": "Live inspection and backup preparation",
+          "href": "SUPABASE_LIVE_STATUS.md"
         }
       ]
     }
@@ -912,9 +924,14 @@
       "date": "2026-10-11",
       "title": "Release metadata inspection verified locally",
       "body": "Prepared a read-only private ledger/helper/trigger inspection supplement. Six disposable-database tests detect missing objects, inherited private grants, unsafe helper settings and disabled/extra triggers without returning application contents. 287 strict checks and local release checks pass. New candidate unpushed; no live inspection, retention approval or authorization acceptance. Production NOT APPROVED; backup/staging remains deferred."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Live read-only inspection resumed; CLI backup prepared",
+      "body": "User authorized resuming backup/staging preparation and signed-in Safari inspection. Confirmed Ideas Pipeline PostgreSQL 17.6, five public tables with RLS disabled, anonymous grants and absent private application tables. Free plan excludes dashboard backups; user chose CLI. Official portable PostgreSQL 17 clients verified; hidden-password runner and three security/failure tests pass. No live data contents fetched, backup captured, staging created, billing change or migration applied. Local Terminal password handoff pending."
     }
   ],
-  "nextStepId": 2,
+  "nextStepId": 1,
   "verification": {
     "tests": 287,
     "passing": 287,

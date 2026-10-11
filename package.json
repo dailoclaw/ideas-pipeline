@@ -1,6 +1,6 @@
 {
   "name": "ideas-webapp",
-  "version": "1.9.26",
+  "version": "1.9.27",
   "private": true,
   "type": "module",
   "scripts": {
@@ -23,7 +23,8 @@
     "test:release": "node scripts/release-smoke.mjs",
     "test:access": "node --test tests/access.test.mjs",
     "test:audit": "node --test tests/audit.test.mjs",
-    "check:dependencies": "node scripts/check-dependencies.mjs"
+    "check:dependencies": "node scripts/check-dependencies.mjs",
+    "test:backup": "python3 tests/backup_test.py"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

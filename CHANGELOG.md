@@ -1,5 +1,13 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.27 (2026-10-11) — Supabase live inspection and backup preparation
+### Added
+- Hidden local-password CLI backup runner with verified PostgreSQL 17 clients, TLS certificate verification, private permissions, archive checksums and incomplete-capture handling
+- Three backup security/failure tests and CI command; private backup/tool paths excluded from Git
+### Changed
+- Read-only signed-in live catalog inspection confirms five tables with disabled RLS and anonymous grants; no migrations applied
+- User resumed backup/staging preparation and selected CLI; tracker v1.0.32 records password handoff pending, no captured/restored backup or staging yet
+
 ## v1.9.26 (2026-10-11) — Read-only release security inspection
 ### Added
 - Local metadata inspection for private ledgers, effective inherited grants, RPC/helper owners/settings and absent/disabled audit triggers

@@ -7,3 +7,8 @@ dist/
 ui-review/*.html
 tests/.store-baseline-*/
 test-results/
+
+# Private database backups and portable administrative tools
+private-backups/
+.local-tools/
+scripts/__pycache__/

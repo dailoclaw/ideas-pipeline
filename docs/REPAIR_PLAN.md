@@ -22,3 +22,5 @@ When checks change, keep `baseline` as the historical first-step result and upda
 `unexpectedFailures`. The renderer displays current results when available.
 `nextStepId` may identify the next agreed work while a preceding live step is
 explicitly deferred; this does not complete or hide the earlier step.
+
+On 2026-10-11 the user lifted the live backup/staging deferral for preparation and read-only inspection. Historical deferral notes above and in prior snapshots describe earlier scope. Current status is in `SUPABASE_LIVE_STATUS.md`: backup password handoff pending, no archive/staging/migration yet. Never equate authorization or prepared tooling with completed backup/restore.
