@@ -1,5 +1,13 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.26 (2026-10-11) — Read-only release security inspection
+### Added
+- Local metadata inspection for private ledgers, effective inherited grants, RPC/helper owners/settings and absent/disabled audit triggers
+- Six executable SQL regression tests; no application contents returned and no live database operation
+### Changed
+- Published Tailwind migration 6cb52ba to main with green 281-check CI; local inspection brings strict checks to 287
+- Tracker v1.0.31 preserves live backup/staging deferral and open release gates; new candidate unpushed
+
 ## v1.9.25 (2026-10-11) — Tailwind build-chain security migration
 ### Fixes
 - Replace Tailwind 3 with Tailwind 4.3.3/PostCSS plugin; remove reported parser/watcher chains; recorded full and production audits both zero

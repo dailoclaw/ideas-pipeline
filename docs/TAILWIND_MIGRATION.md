@@ -2,7 +2,7 @@
 
 Version 1.9.25 · 2026-10-11 · local candidate, not production approval.
 
-Published dependency guard `4e2ff2b39e4561c2d9245e30a9790bcb187ae667` to main and verified origin/main. Its [CI run](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38104501593) passed. This subsequent migration is local on `codex/tailwind-security-migration`.
+Published dependency guard `4e2ff2b39e4561c2d9245e30a9790bcb187ae667` to main and verified origin/main. Its [CI run](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38104501593) passed. The subsequent migration was published at 6cb52ba; [exact-commit CI](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38105773628) passed all 281 checks. Versioned migration evidence below preserves the earlier local assessment.
 
 ## Change and rationale
 
@@ -27,6 +27,6 @@ Build targets remain Chrome/Edge 120+. Installed Chrome checks are local evidenc
 ## Review and next actions
 
 1. Review the local source and compatibility CSS; run `npm ci` under Node 24, then lint, strict tests, build, bundle checks, compiled fixture smoke and dependency guard.
-2. Publish only on user instruction; verify CI for the exact resulting commit.
+2. Publication and exact-commit CI completed at 6cb52ba; preserve that evidence.
 3. Run installed Edge and manual accessibility/browser zoom acceptance on an available machine.
 4. Resume the database acceptance sequence only when the user changes the live backup/staging deferral. Follow `RELEASE_GATE.md` for real JWT, concurrency, migration, retention and recovery requirements.

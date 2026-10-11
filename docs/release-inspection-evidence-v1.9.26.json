@@ -1,0 +1,35 @@
+{
+  "version": "1.9.26",
+  "date": "2026-10-11",
+  "branch": "codex/release-security-inspection",
+  "publishedMain": {
+    "commit": "6cb52ba113951a85960b2081714352ee1d33ca7c",
+    "originVerified": true,
+    "ciRun": 38105773628,
+    "ciResult": "success",
+    "strictTests": 281
+  },
+  "local": {
+    "strictTests": 287,
+    "passing": 287,
+    "failures": 0,
+    "skips": 0,
+    "inspectionTests": 6,
+    "lint": "pass",
+    "build": "pass",
+    "bundleBudgets": "pass",
+    "compiledFixtureSmoke": "pass",
+    "fullDependencyGuard": "pass; zero findings"
+  },
+  "scope": "Actual read-only SQL executed against disposable PGlite only; no live Supabase, identities, JWTs, backups, staging or deployment",
+  "openGates": [
+    "real database owner/grant/policy/helper/trigger review",
+    "audit retention and operational access approval",
+    "real JWT/PostgREST and independent-session concurrency",
+    "installed Edge and manual accessibility/zoom",
+    "live backup/staging deferred by user",
+    "safe rollout/recovery acceptance"
+  ],
+  "migrationCandidate": "database/security/inspect-release.sql",
+  "tests": "tests/inspection.test.mjs"
+}

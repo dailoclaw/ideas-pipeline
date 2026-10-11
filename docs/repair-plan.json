@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.30",
+  "planVersion": "1.0.31",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/tailwind-security-migration",
+  "branch": "codex/release-security-inspection",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Published dependency guard 4e2ff2b to main; origin verified and 276-check CI green. Continued locally with Tailwind 4 security migration: full and production audits now zero; guard accepts no advisories. All 281 strict checks, 66 installed Chrome checks, lint/build/budgets and compiled fixture smoke pass. Visual comparison covers 576 page/dialog states and 64 Console contexts. Migration is not pushed. Edge/manual and live database release gates remain open; backup/staging deferred. Production NOT APPROVED.",
+  "progressNote": "Published Tailwind migration 6cb52ba to main; origin/main verified and exact 281-check CI green. Continued step 2/12 locally with read-only private audit/RPC/trigger inspection and six executable metadata tests. Full local 287-check regression and release checks pass. New inspection candidate is unpushed, not run against Supabase and does not complete live authorization acceptance. Full/production recorded audits zero; Edge/manual and real JWT/concurrency/rollout remain open. Backup/staging deferred; production NOT APPROVED.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -83,12 +83,12 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Authentication and six-table authorization candidates are published. Published candidate 005 adds atomic server-derived primary-change metadata, server timestamps and retained deletion evidence. No Supabase installation is claimed; real account/policy/audit acceptance remains open.",
+      "summary": "Authentication and six-table authorization candidates are published. Published candidate 005 adds atomic server-derived primary-change metadata, server timestamps and retained deletion evidence. No Supabase installation is claimed; real account/policy/audit acceptance remains open. Local read-only inspection now covers private ledgers, effective inherited grants, helper ownership/settings and missing/disabled audit triggers; six metadata tests pass. Live review remains open.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
           "status": "in-progress",
-          "note": "Six-table source inventory confirmed. database/security/inspect-access.sql prepared; not executed against PostgreSQL or live data. Backup/staging remain deferred."
+          "note": "Original public metadata inspection retained. New inspect-release.sql supplements it with private relation/RPC/trigger/sequence metadata, missing-object visibility and inherited privilege checks. Six actual-SQL tests pass on disposable PGlite, including unsafe grant/settings and disabled-trigger fixtures; no private row contents returned. Neither inspection has run against live Supabase. Backup/staging remain deferred."
         },
         {
           "text": "Add authentication and restrict access to the permitted account or workspace members.",
@@ -153,6 +153,18 @@
         {
           "label": "Canonical audit regression checks",
           "href": "../tests/audit.test.mjs"
+        },
+        {
+          "label": "Release inspection scope and remaining review",
+          "href": "RELEASE_INSPECTION.md"
+        },
+        {
+          "label": "Read-only private audit/trigger inspection",
+          "href": "../database/security/inspect-release.sql"
+        },
+        {
+          "label": "Executable inspection regression tests",
+          "href": "../tests/inspection.test.mjs"
         }
       ]
     },
@@ -581,7 +593,7 @@
       "short": "Cleanup & performance",
       "priority": "Later",
       "status": "local-complete",
-      "summary": "Cleanup is verified locally and published guard CI passes. Local Tailwind 4 migration removes the remaining seven build findings; full and production audits zero. Chrome verified; Edge/manual acceptance remains open.",
+      "summary": "Cleanup and Tailwind security migration are published; main 6cb52ba has green 281-check CI. Full/production audits zero. Chrome verified; Edge/manual acceptance remains open.",
       "actions": [
         {
           "text": "Consolidate metadata, scoring, filtering and event helpers; lift nested component definitions.",
@@ -660,7 +672,7 @@
       "short": "Release decision",
       "priority": "Release gate",
       "status": "in-progress",
-      "summary": "Production remains NOT APPROVED. Guard 4e2ff2b is published with green CI. Local Tailwind migration removes seven build findings, with zero full/production audit findings. Real JWT/API/concurrency, Edge/manual accessibility, audit retention and live rollout acceptance remain open.",
+      "summary": "Production remains NOT APPROVED. Tailwind migration 6cb52ba is published with green CI; full/production audits zero. New local read-only release inspection passes six metadata tests. Real JWT/API/concurrency, Edge/manual accessibility, audit retention and live rollout acceptance remain open.",
       "actions": [
         {
           "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
@@ -680,7 +692,7 @@
         {
           "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build.",
           "status": "in-progress",
-          "note": "Published guard 4e2ff2b CI passes all 276 checks. Subsequent local Tailwind 4 migration passes 281 strict checks, 66 installed Chrome checks, lint/build/budgets, compiled fixture smoke and full-audit guard. Full/production audits zero. Four themes/both modes/four widths/normal and doubled text compared. New migration is unpushed; Edge/manual and actual deployment acceptance remain open."
+          "note": "Published Tailwind migration 6cb52ba has green 281-check CI, build/budgets, compiled smoke and zero-advisory guard. Installed Chrome migration checks previously passed (66). New local inspection adds six SQL tests: total 287 strict checks pass with lint/build/budgets, compiled fixture smoke and dependency guard. Candidate unpushed. Edge/manual, real database and deployed asset acceptance remain open."
         },
         {
           "text": "Record the release decision and evidence; track remaining low-impact work separately.",
@@ -722,6 +734,10 @@
         {
           "label": "Local CSS security migration and evidence",
           "href": "TAILWIND_MIGRATION.md"
+        },
+        {
+          "label": "Local release security inspection",
+          "href": "RELEASE_INSPECTION.md"
         }
       ]
     }
@@ -886,12 +902,22 @@
       "date": "2026-10-11",
       "title": "Tailwind security migration verified locally",
       "body": "Local Tailwind 4.3.3/PostCSS migration removes all seven reported build findings; full/production audits zero. Existing palette, typography, native controls, gradients and theme selectors preserved. 281 strict and 66 installed Chrome checks pass, with 576 page/dialog and 64 Console comparisons. Migration is unpushed; Edge/manual/live acceptance remains open. Production NOT APPROVED; backup/staging deferred."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Tailwind migration published to main",
+      "body": "Pushed 6cb52ba113951a85960b2081714352ee1d33ca7c and verified origin/main. Exact CI run 38105773628 succeeded with 281 strict checks, build/budgets, compiled smoke and dependency audits. No live SQL or deployment."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Release metadata inspection verified locally",
+      "body": "Prepared a read-only private ledger/helper/trigger inspection supplement. Six disposable-database tests detect missing objects, inherited private grants, unsafe helper settings and disabled/extra triggers without returning application contents. 287 strict checks and local release checks pass. New candidate unpushed; no live inspection, retention approval or authorization acceptance. Production NOT APPROVED; backup/staging remains deferred."
     }
   ],
-  "nextStepId": 12,
+  "nextStepId": 2,
   "verification": {
-    "tests": 281,
-    "passing": 281,
+    "tests": 287,
+    "passing": 287,
     "knownFailures": 0,
     "unexpectedFailures": 0
   }

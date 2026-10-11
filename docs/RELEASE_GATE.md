@@ -1,6 +1,6 @@
 # Step 12 — production release decision
 
-Version 1.9.25 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
+Version 1.9.26 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
 
 The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user explicitly deferred live backup/staging; that instruction remains in force. This assessment does not perform deployment or modify Supabase.
 
@@ -13,9 +13,9 @@ Application source assessed: main `ab86823d2657af5645a8c93bff2deb4ef214a555`. Re
 | Authorization and failed writes | Local login/member allow/deny, missing RPC and revocation behavior; rejected/zero-row writes retain data and show failure. Disposable PostgreSQL tests enforce candidate RPC membership checks. | Real Supabase JWTs, deployed six-table policies/grants, raw-API bypass denial and trusted audit enforcement. Candidate 001 installs the membership gate; new 001b supplies local six-table policies, but no deployed acceptance is claimed. |
 | Drafts and concurrency | Notes/score close, refresh recovery, failure/retry, account cleanup, local ordering and replay checks pass. Compiled fixture confirms immediate Escape persists notes. | Two independent database/API sessions, real lost-response replay and concurrent write/delete/status contention. Single-connection PGlite is not this evidence. |
 | Summaries/exports and keyboard | Fixture reconciliation, pagination, timeline, scope, filters, native forms, checkbox separation, tab navigation, focus restoration and score disclosure pass. Compiled CSV contains the saved fictional capture and notes. | Reconcile all summaries/exports against persisted staging records, including legacy-data repair and date boundaries; manual screen-reader/zoom acceptance. |
-| Browsers/build/dependencies | Node 24.21.0: lint, 281 strict tests (zero failures/TODOs/skips), build and bundle budgets pass. Installed headless Chrome 155.0.8059.39: 66 browser/review checks pass. Production-compiled fixture smoke passes in Chrome and bundled Chromium 151.0.7922.34. | Edge is not installed here. Actual deployed asset/cache behavior and installed Edge acceptance remain open. |
-| CI | [Main CI run](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38104501593) succeeded at `4e2ff2b`, including all 276 published checks, compiled smoke, lint, build, budgets and production audit. | The subsequent Tailwind migration remains local, with no remote CI result; its local checks are separate from published CI. CI success is not database or deployment approval. |
-| Dependency exposure | [Full audit](dependency-audit-v1.9.25.json): zero. [Production audit](dependency-production-audit-v1.9.25.json): zero after the local Tailwind migration. | Review and publish the [local Tailwind migration](TAILWIND_MIGRATION.md), then verify exact-commit CI and installed Edge. Zero audit findings do not prove application security. |
+| Browsers/build/dependencies | Node 24.21.0: lint, 287 strict tests (zero failures/TODOs/skips), build and bundle budgets pass. Installed headless Chrome 155.0.8059.39: 66 browser/review checks pass. Production-compiled fixture smoke passes in Chrome and bundled Chromium 151.0.7922.34. | Edge is not installed here. Actual deployed asset/cache behavior and installed Edge acceptance remain open. |
+| CI | [Main CI run](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38105773628) succeeded at `6cb52ba`, including all 281 published checks, compiled smoke, lint, build, budgets and production audit. | The subsequent release inspection candidate remains local, with no remote CI result; its six new tests are separate from published CI. CI success is not database or deployment approval. |
+| Dependency exposure | [Full audit](dependency-audit-v1.9.25.json): zero. [Production audit](dependency-production-audit-v1.9.25.json): zero after the local Tailwind migration. | Tailwind migration and exact-commit CI are verified. Installed Edge remains open. Zero audit findings do not prove application security. |
 
 `npm run test:release` checks the real `dist` assets for accidental fixture-hook inclusion, then builds a separate optimized fixture application into an automatically cleaned temporary directory. It cannot access the live database. This checks production bundling and UI behavior, not real Supabase integration. The normal production output is not overwritten. The test's bundle target matches the explicit Chrome/Edge 120+ target; installed-browser execution is still required for browser acceptance.
 
@@ -59,3 +59,7 @@ Then-local verification: all 276 strict tests, lint/build/bundle budgets, compil
 ## Local Tailwind migration — v1.9.25
 
 Published guard commit 4e2ff2b has green 276-check CI. Subsequent local migration removes the seven affected build packages: recorded full/production audits both zero. Local lint, 281 strict checks, build/budgets, compiled fixture smoke, 66 installed Chrome checks and the dependency guard pass. Visual coverage and limits are recorded in [migration evidence](TAILWIND_MIGRATION.md). This candidate is not pushed; Edge/manual acceptance and all deferred live database gates remain open.
+
+## Local release inspection — v1.9.26
+
+Tailwind migration 6cb52ba is now published with green 281-check CI. [Read-only inspection preparation](RELEASE_INSPECTION.md) adds private ledger, inherited grant, helper and audit-trigger metadata checks, verified with six disposable-database tests. Current local total is 287 strict checks; lint/build/budgets, compiled smoke and dependency guard pass. The inspection candidate is unpushed and has not run against Supabase. All live/Edge/manual release gates remain open.
