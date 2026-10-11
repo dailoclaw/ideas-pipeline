@@ -97,3 +97,43 @@ Migration source and evidence published and verified on main at `3b09808`. Refre
 Seven live anonymous PostgREST GET requests used only the existing application browser public key. Each of the six table ID projections with `limit=0`, and argument-free `can_access_ideas`, returned HTTP 401 with PostgreSQL code 42501 (permission denied). No records were returned or changed. [Non-secret result evidence](live-anonymous-access-v1.9.31.json) records each endpoint/status and limits. Unlike the earlier SQL-role checks, this verifies real anonymous API denial; it does not verify permitted-user access or unrelated/revoked identities.
 
 Next: user creates the intended application email/password user in the prepared form, identifies its email or Auth UUID without sharing the password, then exact account enrollment and real login/workflow acceptance can continue. Credentials and personal account identifiers must stay out of public tracker/Git evidence. No user is automatically enrolled simply because it is the only account or shares the dashboard email. No Auth settings were changed, no invitation sent and no synthetic account created.
+
+
+## Intended identity clarification — v1.9.32
+
+Authentication now visibly shows an account with an email different from the intended address. The user confirmed the intended address; it must not be substituted with the visible account. No membership enrollment or Auth credential change was performed. User-controlled creation of the intended email/password account remains the next handoff. Exact email and UUID stay out of public Git evidence. Browser interaction was interrupted by the user switching Safari tabs; no new creation form is claimed prepared in this continuation.
+
+After creation, independently verify the exact identity before granting private-dataset access with action-time approval, then test actual login and permitted workflows. Earlier zero-user observations above are historical. Anonymous API denial remains verified; authenticated acceptance and production approval remain open.
+
+
+## Intended account verified — v1.9.33
+
+The intended Auth email and UUID are now visibly present in Authentication. Prepared a separate exact-account enrollment query with guards for confirmed email, no deleted account and no unexpected existing member. It is staged, not executed. Action-time approval is pending before granting dataset access. No credentials, membership or application records changed. Personal identifiers remain excluded from public repository evidence. Real login and authenticated workflow acceptance remain open.
+
+
+## Approved enrollment applied — v1.9.34
+
+User confirmed granting the exact verified account access at action time. Guarded enrollment query `af4e4bc1-ce2c-4785-b790-d939c3804e4f` succeeded, returning one dataset member and intended-member-only true. Independent read-only verification query `46eecbfb-b245-46fb-8603-99b5d925f494` asserted the enrolled SQL role sees 230 ideas and membership true; the existing unenrolled identity sees zero and membership false. Both assertions passed. Claims were set locally inside a read-only transaction and rolled back; this is SQL authorization evidence, not real JWT login. No application row or Auth credential was changed.
+
+Started the local application at `http://127.0.0.1:5173/` and prepared its Safari sign-in screen against the live project. User sign-in handoff is pending; no password or token was captured. Vercel project inventory displays No Production Deployment for Ideas Pipeline; no deployment was created or promoted. Real API/browser workflow acceptance remains open. Private email/UUID values are omitted from public evidence.
+
+
+## Real authenticated browser reads — v1.9.35
+
+User completed real email/password sign-in in Safari. Observed authenticated local application against live Supabase: Kanban records loaded, Summary reports 230 ideas, Strategy 29 active ideas, Sprint 0 scheduled / 29 unscheduled, Groups view loads, and existing idea details/notes plus 11 recorded activity events load. No visible access error in reviewed views. Navigation and history reads only; no record mutation, password/token extraction or sign-out. This establishes permitted-user browser login/read acceptance, not persisted write, concurrency, unrelated/revoked JWT or deployment acceptance.
+
+The application runs locally at `http://127.0.0.1:5173/`; the user supplied credentials directly to the application. Summary status counts observed: Building 1, Ready 12, Discovery 2, Ideas 14, Done 18, Shelved 183 (total 230). Legacy unknown duration/platform labels remain visible and are not silently normalized. No claim of full workflow or release approval follows from read-only acceptance. No password, JWT or personal identity is stored in public evidence.
+
+
+## Live write and audit acceptance — v1.9.36
+
+Step 2 live write acceptance: created isolated QA idea #412 through the real authenticated browser, then saved notes, priority and Researching status. Independent read-only database reconciliation verified persisted fields, two status-history rows, four activity rows and four canonical audits with enrolled actor, server timestamps and no duplicated note text. Six rollback-only SQL-role denial checks passed for protected status, public actor forgery, private audit read/forgery, unenrolled notes write and status RPC. Initial unrelated-account probe stopped because no second unenrolled Auth user was available; corrected checks explicitly use a simulated identity and do not claim unrelated JWT acceptance. QA-only permanent deletion confirmation prepared; cleanup approval pending. Existing 230 ideas were not edited. Other persisted workflows, real unrelated/revoked JWT, retention and release acceptance remain open.
+
+[Non-secret reconciliation evidence](live-write-access-v1.9.36.json) records executed verification query IDs, counts and exact acceptance limits. Total ideas currently 231 including the pending-cleanup QA record; production readiness remains not approved.
+
+
+## Approved QA deletion and retained audit — v1.9.37
+
+User approved permanently deleting only QA idea #412 at action time. Deleted through the actual authenticated application. Independent read-only live SQL confirms 230 ideas, zero QA parent/history/activity rows, no QA rows in any of the five child tables, and five retained canonical audit rows including the enrolled actor and server timestamp on DELETE. Isolated live create, notes, priority, status and deletion acceptance now verified; original ideas were not edited. Remaining group/sprint workflows, real unrelated/revoked JWT, concurrency, retention and release acceptance remain open.
+
+[Cleanup evidence](live-qa-cleanup-v1.9.37.json) records the independent read-only query ID and results. Earlier 231-row and pending-cleanup entries are historical; the current dataset has 230 ideas. No production-readiness approval is implied.

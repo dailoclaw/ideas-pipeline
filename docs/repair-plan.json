@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.37",
+  "planVersion": "1.0.43",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
   "branch": "codex/auth-access-acceptance",
   "readiness": "Not production-ready",
-  "scopeNote": "Live anonymous API denial verified; private account creation handoff pending",
+  "scopeNote": "Live QA cleanup verified; 230 original ideas remain",
   "deferralLabel": "Live backup",
   "deferralNote": "Skipped for this rollout at your explicit request",
-  "progressNote": "Migration source/evidence pushed to main at 3b09808. Next access step: refreshed Supabase Authentication shows no application users; Create a new user form opened in Safari for user-controlled email/password entry and submission. Seven read-only anonymous PostgREST probes pass: all six tables and can_access_ideas RPC deny with HTTP 401 / PostgreSQL 42501. No rows returned or database writes made. Confirm exact intended identity after creation, then enroll and verify actual permitted-user login/workflows. Recovery and release acceptance remain open.",
+  "progressNote": "User approved permanently deleting only QA idea #412 at action time. Deleted through the actual authenticated application. Independent read-only live SQL confirms 230 ideas, zero QA parent/history/activity rows, no QA rows in any of the five child tables, and five retained canonical audit rows including the enrolled actor and server timestamp on DELETE. Isolated live create, notes, priority, status and deletion acceptance now verified; original ideas were not edited. Remaining group/sprint workflows, real unrelated/revoked JWT, concurrency, retention and release acceptance remain open.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -87,7 +87,7 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Live migrations installed; anonymous denial now verified through real PostgREST as well as SQL roles. Account-creation form is ready in Safari, but new password entry/submission requires the user. Exact identity enrollment and permitted/unrelated/revoked JWT workflows remain open.",
+      "summary": "Real login and isolated create, notes, priority, status and delete acceptance verified; QA cleanup restored 230 ideas and retained five canonical audit records. SQL bypass denials pass. Other workflows and real unrelated/revoked JWT acceptance remain open.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
@@ -97,22 +97,22 @@
         {
           "text": "Add authentication and restrict access to the permitted account or workspace members.",
           "status": "in-progress",
-          "note": "Confirmed: one private dataset, email/password. Login, retry, session handling and settings sign-out tested locally; access requires can_access_ideas() = true. Admin enrollment and real authorization tests remain pending. Sessions are memory-only; refresh requires login. Live membership helper/table installed; auth.users and idea_members are both empty. User must create the email/password credential, then exact intended account enrollment and real session acceptance remain required. Next continuation: refreshed Auth Users page visibly reports no users. Opened Create a new user form; credential handoff requested, no user/password created by the agent. No account identity inferred from dashboard sign-in."
+          "note": "One private dataset, email/password. Exact intended account created by user, enrolled with action-time approval; one member verified. Real application login/read acceptance passed in Safari against live Supabase. Create/notes/priority/status writes on isolated QA #412 independently reconciled. Unrelated/revoked real JWT checks and additional workflows remain open."
         },
         {
           "text": "Enable RLS on all six application tables, including child-record ownership or membership policies.",
           "status": "in-progress",
-          "note": "Local 001b candidate enables RLS, replaces legacy policies/grants, limits editable columns, validates parent visibility and denies direct creation/status/audit/private/sequence access. Both bootstrap sources now enable RLS. 26 SQL role/rollback/reinstallation checks pass. Actual deployed owners/grants and real JWT/PostgREST acceptance remain unverified. Applied to live project 2026-10-11; independent verification confirms six RLS tables and no anonymous table/column grants. Anonymous read and unenrolled SQL-role reads/RPCs/private membership denial passed. Real JWT/PostgREST owner/unrelated/revoked tests remain open. Real anonymous PostgREST GET probes now verify denial on all six tables: HTTP 401, PostgreSQL 42501, no rows returned. Membership RPC also denies anonymous execution. This is negative anonymous evidence only; authenticated positive/unrelated/revoked checks remain open."
+          "note": "Live six-table RLS and zero anonymous table/column grants verified. Seven anonymous API denial probes pass; permitted real browser reads and isolated create, notes, priority and status writes pass. Six SQL-role protected-column, audit and unenrolled bypass denials pass. No second unenrolled Auth account available for real JWT tests; simulated identity is not JWT evidence."
         },
         {
           "text": "Generate audit actor and timestamps server-side; restrict direct audit modification.",
           "status": "in-progress",
-          "note": "Candidate 005 captures actual primary edits/status overrides/assignments/deletions in private server-derived audit metadata atomically, stamps updated_at server-side and retains deletion/account-removal evidence. 22 SQL checks pass, including audit failure rollback and forged UI activity separation. Public timeline reports remain caller-supplied; canonical audit is administrator-only. No live enforcement, historical certification or retention approval claimed. Candidate published at 05b4968; remote 253-check CI passed. Live private canonical audit plus eight source stamp/audit triggers installed. Catalog/enforced grants verified; no application writes or synthetic users used in live verification. Real authenticated mutation evidence and retention acceptance remain open."
+          "note": "Live canonical audit triggers installed and verified. Four actual QA browser mutations produced four private canonical audits with enrolled actor, server timestamps and no duplicated notes. Direct public actor forgery and private canonical read/forgery are denied under authenticated SQL role. Historical trust and retention approval remain open; public timeline reports are caller-supplied. Cleanup verification: five canonical audits retained after approved deletion, including server actor/timestamp on DELETE."
         },
         {
           "text": "Roll out authentication and policies together so the legitimate user retains access.",
           "status": "in-progress",
-          "note": "User explicitly approved rollout without backup and confirmed concrete dashboard warning. Combined transaction installed with unchanged existing rows across all six tables. Live Auth users/members are zero: user-controlled credential creation, confirmed enrollment and real login acceptance still required. No recovery/staging acceptance claimed. Create-user form prepared in Safari; awaiting user-controlled email/password submission. After confirmation of intended identity, enroll exactly that account and validate real application login. Source and migration evidence published to main at 3b09808."
+          "note": "User-approved no-backup rollout applied without changing original records. Intended account enrolled; real login/read and isolated create, notes, priority, status and delete acceptance pass. User-approved QA #412 deletion independently verified across parent and all five child tables; count restored to 230, five private canonical audits retained. Other workflows, real JWT denial/revocation and release/recovery acceptance remain open."
         }
       ],
       "verify": [
@@ -193,6 +193,14 @@
         {
           "label": "Seven real anonymous API denial results and limits",
           "href": "live-anonymous-access-v1.9.31.json"
+        },
+        {
+          "label": "Live persisted-save and bypass acceptance results",
+          "href": "live-write-access-v1.9.36.json"
+        },
+        {
+          "label": "Approved QA cleanup and retained deletion audit",
+          "href": "live-qa-cleanup-v1.9.37.json"
         }
       ]
     },
@@ -979,6 +987,36 @@
       "date": "2026-10-11",
       "title": "Live anonymous API acceptance and credential handoff",
       "body": "Migration source/evidence pushed to main at 3b09808. Next access step: refreshed Supabase Authentication shows no application users; Create a new user form opened in Safari for user-controlled email/password entry and submission. Seven read-only anonymous PostgREST probes pass: all six tables and can_access_ideas RPC deny with HTTP 401 / PostgreSQL 42501. No rows returned or database writes made. Confirm exact intended identity after creation, then enroll and verify actual permitted-user login/workflows. Recovery and release acceptance remain open. Tracker inline syntax and 1440/768/390/320px light/dark, anchors and expand/collapse passed without overflow/page errors. Production build passes; existing 295-test regression evidence retained, no application logic changed."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Intended account clarified; enrollment held",
+      "body": "User confirmed the intended application email differs from the account visible in Supabase Authentication. No membership was granted and no account credential was changed. Intended account creation is awaiting user-controlled password entry and submission; then verify its exact identity, enroll it with action-time approval and test real login/workflows. Personal email and UUID omitted from public evidence. Existing anonymous API denial evidence remains valid; recovery and release acceptance remain open."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Intended Auth account verified; enrollment prepared",
+      "body": "The intended email/password Auth account is now visibly verified with its exact UUID in Supabase. Prepared a separate guarded enrollment query: exact email/UUID, confirmed email, no deleted account and no unexpected existing dataset member required; insertion is idempotent. Query has not been executed. Action-time access approval requested; real login/workflows remain pending. No membership, credentials or application rows changed; personal identifiers omitted from public evidence."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Approved enrollment installed; database read gates verified",
+      "body": "User approved exact-account enrollment at action time. Live guarded enrollment succeeded: dataset_members=1 and intended_member_only=true. Independent read-only SQL-role assertions passed: enrolled identity sees 230 ideas and membership=true; existing unenrolled identity sees zero and membership=false. These are simulated database claims, not real JWT login evidence. Local app sign-in opened in Safari against the live project with intended email filled; user password/sign-in handoff pending. No application records or credentials changed. Production integration, recovery/staging and release acceptance remain open."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Real permitted-user login and browser reads verified",
+      "body": "User completed real email/password sign-in in Safari. Observed authenticated local application against live Supabase: Kanban records loaded, Summary reports 230 ideas, Strategy 29 active ideas, Sprint 0 scheduled / 29 unscheduled, Groups view loads, and existing idea details/notes plus 11 recorded activity events load. No visible access error in reviewed views. Navigation and history reads only; no record mutation, password/token extraction or sign-out. This establishes permitted-user browser login/read acceptance, not persisted write, concurrency, unrelated/revoked JWT or deployment acceptance."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Live browser writes and canonical audit reconciled",
+      "body": "Step 2 live write acceptance: created isolated QA idea #412 through the real authenticated browser, then saved notes, priority and Researching status. Independent read-only database reconciliation verified persisted fields, two status-history rows, four activity rows and four canonical audits with enrolled actor, server timestamps and no duplicated note text. Six rollback-only SQL-role denial checks passed for protected status, public actor forgery, private audit read/forgery, unenrolled notes write and status RPC. Initial unrelated-account probe stopped because no second unenrolled Auth user was available; corrected checks explicitly use a simulated identity and do not claim unrelated JWT acceptance. QA-only permanent deletion confirmation prepared; cleanup approval pending. Existing 230 ideas were not edited. Other persisted workflows, real unrelated/revoked JWT, retention and release acceptance remain open."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Approved QA cleanup and deletion audit verified",
+      "body": "User approved permanently deleting only QA idea #412 at action time. Deleted through the actual authenticated application. Independent read-only live SQL confirms 230 ideas, zero QA parent/history/activity rows, no QA rows in any of the five child tables, and five retained canonical audit rows including the enrolled actor and server timestamp on DELETE. Isolated live create, notes, priority, status and deletion acceptance now verified; original ideas were not edited. Remaining group/sprint workflows, real unrelated/revoked JWT, concurrency, retention and release acceptance remain open."
     }
   ],
   "nextStepId": 2,

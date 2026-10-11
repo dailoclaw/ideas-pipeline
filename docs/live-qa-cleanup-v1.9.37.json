@@ -1,0 +1,23 @@
+{
+  "version": "1.9.37",
+  "date": "2026-10-11",
+  "project": "uooouxgdurhwzzszlngc",
+  "qaIdeaId": 412,
+  "approvedDeletion": "User action-time confirmation for QA idea only",
+  "verificationQuery": "23d77551-4b8f-4898-adce-cb171efbc3a0",
+  "result": {
+    "ideas": 230,
+    "qaParentRows": 0,
+    "qaChildRowsAllFiveTables": 0,
+    "qaStatusHistoryRows": 0,
+    "qaActivityRows": 0,
+    "retainedCanonicalAudits": 5,
+    "deleteAuditActorAndTimestampVerified": true
+  },
+  "limits": [
+    "Only isolated QA deletion tested.",
+    "No original idea edited or deleted.",
+    "Real unrelated/revoked JWT and additional workflow acceptance remain open.",
+    "No credentials or personal identity included."
+  ]
+}

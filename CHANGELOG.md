@@ -1,5 +1,39 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.37 (2026-10-11) — Approved QA cleanup verified
+### Changed
+- Delete only the user-approved QA idea through the authenticated app; verify parent and all five child-table cleanup
+- Confirm 230 remaining ideas and five retained private canonical audits including deletion actor/timestamp
+- Tracker v1.0.43 records cleanup completion and remaining JWT/workflow acceptance
+
+## v1.9.36 (2026-10-11) — Live write and audit acceptance
+### Added
+- Non-secret real browser save reconciliation and six rollback-only SQL-role denial results
+### Changed
+- Verify isolated QA create/notes/priority/status persistence and server canonical audit without editing original ideas
+- Tracker v1.0.42 records QA cleanup approval and remaining actual JWT/workflow acceptance; no full Step 2 completion claimed
+
+## v1.9.35 (2026-10-11) — Real authenticated browser reads
+### Changed
+- Verify user-completed email/password login and live-data reads across primary views, idea details and activity history
+- Tracker v1.0.41 records 230 loaded ideas and remaining persisted-write, concurrency and JWT acceptance; no application records changed
+
+## v1.9.34 (2026-10-11) — Approved private account enrollment
+### Changed
+- Apply approved guarded enrollment and verify exactly one intended member
+- Independent read-only SQL-role assertions confirm 230 visible ideas for enrolled identity and zero for unenrolled identity
+- Tracker v1.0.40 records actual database access and pending real application sign-in; no application rows or credentials changed
+
+## v1.9.33 (2026-10-11) — Intended account verified
+### Changed
+- Verify intended Auth identity and prepare guarded, idempotent private-dataset enrollment without executing it
+- Tracker v1.0.39 records pending action-time access approval and actual login acceptance; no credentials or application rows changed
+
+## v1.9.32 (2026-10-11) — Intended account clarification
+### Changed
+- Record confirmed account mismatch and user-controlled creation handoff; no membership granted or credential changed
+- Tracker v1.0.38 preserves pending exact-account enrollment and real login acceptance; personal account identifiers omitted
+
 ## v1.9.31 (2026-10-11) — Live anonymous access acceptance
 ### Added
 - Non-secret evidence for seven live read-only anonymous PostgREST denial probes across all six tables and the membership RPC

@@ -1,0 +1,42 @@
+{
+  "version": "1.9.36",
+  "date": "2026-10-11",
+  "project": "uooouxgdurhwzzszlngc",
+  "browser": "Safari",
+  "application": "local Vite app against live Supabase",
+  "qaIdeaId": 412,
+  "qaName": "QA access acceptance 2026-10-11",
+  "persistedReadQuery": "c9c71088-1ea0-4b6c-a667-e4f29fe3d99d",
+  "negativeSqlQuery": "ec4f97e9-8c7e-448f-9043-6bc5ca96c659",
+  "browserWrites": [
+    "create",
+    "notes",
+    "priority",
+    "status: researching"
+  ],
+  "verified": {
+    "ideas": 231,
+    "qaStatusHistoryRows": 2,
+    "qaActivityRows": 4,
+    "qaCanonicalAuditRows": 4,
+    "actorMatchesEnrolledMember": true,
+    "serverAuditTimestampsPresent": true,
+    "noteTextExcludedFromCanonicalValues": true
+  },
+  "deniedSqlRoleChecks": [
+    "direct protected status update",
+    "public activity actor forgery",
+    "private canonical audit read",
+    "private canonical audit actor forgery",
+    "unenrolled notes update affects zero rows",
+    "unenrolled status RPC"
+  ],
+  "cleanup": "awaiting action-time deletion approval",
+  "limits": [
+    "No second unenrolled Auth account available; corrected denial checks use simulated SQL identity, not unrelated JWT.",
+    "No revocation/expiry JWT acceptance.",
+    "No group/sprint/delete/export/concurrency acceptance in this result.",
+    "No existing ideas edited.",
+    "No passwords/tokens/personal account identifiers retained."
+  ]
+}
