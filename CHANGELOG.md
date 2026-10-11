@@ -1,5 +1,12 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.31 (2026-10-11) — Live anonymous access acceptance
+### Added
+- Non-secret evidence for seven live read-only anonymous PostgREST denial probes across all six tables and the membership RPC
+### Changed
+- Confirm main publication at 3b09808; prepare Safari account-creation form for user-controlled credential submission
+- Tracker v1.0.37 records anonymous API acceptance and remaining exact-account enrollment/login work; no account, membership or application row changed
+
 ## v1.9.30 (2026-10-11) — Live private-dataset migration
 ### Fixes
 - Apply user-approved no-backup database rollout with six-table RLS, private membership, transactional/replay RPCs, canonical audit and nine validated compatible constraints

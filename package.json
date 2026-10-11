@@ -1,6 +1,6 @@
 {
   "name": "ideas-webapp",
-  "version": "1.9.30",
+  "version": "1.9.31",
   "private": true,
   "type": "module",
   "scripts": {

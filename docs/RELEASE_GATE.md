@@ -1,6 +1,6 @@
 # Step 12 — production release decision
 
-Version 1.9.30 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
+Version 1.9.31 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
 
 The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user resumed live backup/staging preparation and read-only inspection on 2026-10-11; capture/restore and staging remain incomplete. The user subsequently approved and completed the live database migration without backup on 2026-10-11. See the current applied-rollout evidence below; this is not full production acceptance.
 
@@ -78,3 +78,8 @@ Latest direction v1.9.29: user deferred the unsuccessful backup again after pass
 [Live rollout evidence](SUPABASE_LIVE_STATUS.md#applied-live-rollout--2026-10-11) records the user-approved no-backup transaction, exact SQL artifact/digest, six-table record preservation and independent SQL-role denial checks. RLS/grants, atomic create/status/outbox RPCs, server audit/stamps and nine compatible validated constraints are installed. Legacy classifications were preserved with field-change validation rather than a CHECK that would break unrelated edits. Earlier candidate-only installation statements above are historical.
 
 There are zero application Auth users/members. Create and enroll the intended email/password identity before asserting permitted workflow acceptance. No real JWT/API positive test, independent-session concurrency, backup/restore/staging, classification cleanup, Edge/manual accessibility or deployed frontend acceptance is claimed. The user override authorizes this migration; it does not convert missing recovery or integration evidence into a passed production gate.
+
+
+## Anonymous API continuation — v1.9.31
+
+All seven [anonymous API denial probes](live-anonymous-access-v1.9.31.json) pass against the live project: six table reads and the membership RPC return HTTP 401 / PostgreSQL 42501. Requests are read-only and return no rows. Auth account creation is prepared for user-controlled password submission in Safari; no user or membership was added. Real authenticated positive/negative acceptance and the other gates above remain open. Production remains NOT APPROVED.

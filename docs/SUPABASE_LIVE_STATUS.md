@@ -1,6 +1,6 @@
 # Supabase live inspection and backup preparation
 
-Version 1.9.30 · 2026-10-11 · live migration applied and SQL-role checks passed.
+Version 1.9.31 · 2026-10-11 · live migration applied and SQL-role checks passed.
 
 **Latest direction:** the user explicitly approved live migration without backup, then confirmed the concrete dashboard warning. This supersedes the earlier prerequisite/deferral notes below. No backup or restored staging exists.
 
@@ -88,3 +88,12 @@ Eight new disposable-PostgreSQL rollout checks pass, including legacy edits, new
 Applied SQL SHA-256: `a8a0a27d040cd526b0eb680ef7e1a18c895390f85bfbcff5af87f20ff6ec367b`.
 
 Local verification: the 294-check strict suite passed, then the final eighth rollout check was added and all eight passed, covering 295 distinct passing checks. Lint and production build pass. The sandbox initially blocked browser startup; the isolated suite passed with approved local browser execution. No additional live API request occurred.
+
+
+## Next access acceptance — v1.9.31
+
+Migration source and evidence published and verified on main at `3b09808`. Refreshed Authentication → Users visibly reports **No users in your project**. The footer's estimated 10 is not the actual count and does not identify an account. Opened Add user → Create new user in Safari. Email/password fields are untouched and no account was submitted. Computer-use policy requires the user to complete new-password entry and submission. This is a prepared handoff, not finished authentication setup.
+
+Seven live anonymous PostgREST GET requests used only the existing application browser public key. Each of the six table ID projections with `limit=0`, and argument-free `can_access_ideas`, returned HTTP 401 with PostgreSQL code 42501 (permission denied). No records were returned or changed. [Non-secret result evidence](live-anonymous-access-v1.9.31.json) records each endpoint/status and limits. Unlike the earlier SQL-role checks, this verifies real anonymous API denial; it does not verify permitted-user access or unrelated/revoked identities.
+
+Next: user creates the intended application email/password user in the prepared form, identifies its email or Auth UUID without sharing the password, then exact account enrollment and real login/workflow acceptance can continue. Credentials and personal account identifiers must stay out of public tracker/Git evidence. No user is automatically enrolled simply because it is the only account or shares the dashboard email. No Auth settings were changed, no invitation sent and no synthetic account created.

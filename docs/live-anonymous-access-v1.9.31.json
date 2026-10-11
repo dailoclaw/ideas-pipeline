@@ -1,0 +1,59 @@
+{
+  "version": "1.9.31",
+  "date": "2026-10-11",
+  "projectRef": "uooouxgdurhwzzszlngc",
+  "scope": "Live anonymous PostgREST GET requests only; table reads selected only IDs with limit=0; membership RPC has no arguments and no mutations. Existing anonymous browser public key used, omitted from evidence.",
+  "passed": 7,
+  "total": 7,
+  "results": [
+    {
+      "endpoint": "ideas",
+      "httpStatus": 401,
+      "postgresCode": "42501",
+      "denied": true
+    },
+    {
+      "endpoint": "status_overrides",
+      "httpStatus": 401,
+      "postgresCode": "42501",
+      "denied": true
+    },
+    {
+      "endpoint": "status_history",
+      "httpStatus": 401,
+      "postgresCode": "42501",
+      "denied": true
+    },
+    {
+      "endpoint": "idea_activity",
+      "httpStatus": 401,
+      "postgresCode": "42501",
+      "denied": true
+    },
+    {
+      "endpoint": "idea_group_assignments",
+      "httpStatus": 401,
+      "postgresCode": "42501",
+      "denied": true
+    },
+    {
+      "endpoint": "sprint_assignments",
+      "httpStatus": 401,
+      "postgresCode": "42501",
+      "denied": true
+    },
+    {
+      "endpoint": "rpc/can_access_ideas",
+      "httpStatus": 401,
+      "postgresCode": "42501",
+      "denied": true
+    }
+  ],
+  "limits": [
+    "No permitted-user, unrelated-user, expired/revoked JWT or mutation request tested.",
+    "Auth dashboard refreshed and visibly reports no users; footer estimate of 10 is not an actual account count.",
+    "Account creation form prepared only; user must enter and submit the new password.",
+    "No membership grant, Auth configuration change or existing record mutation performed.",
+    "Backup/restore/staging and production approval remain open."
+  ]
+}

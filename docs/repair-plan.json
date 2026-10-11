@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.36",
+  "planVersion": "1.0.37",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/supabase-backup-preparation",
+  "branch": "codex/auth-access-acceptance",
   "readiness": "Not production-ready",
-  "scopeNote": "Live migration applied by request without backup; login enrollment and release acceptance open",
+  "scopeNote": "Live anonymous API denial verified; private account creation handoff pending",
   "deferralLabel": "Live backup",
   "deferralNote": "Skipped for this rollout at your explicit request",
-  "progressNote": "User explicitly approved live migration without backup, including the concrete dashboard warning. Combined 001\u2013005 rollout applied with legacy-compatible validation and missing FK/week constraints. All six tables preserved existing contents (230 ideas). Independent read-only SQL-role checks pass: six RLS tables, zero anonymous grants, eight audit triggers, one classification guard, nine validated constraints. No application Auth users exist yet; account creation/enrollment and real JWT/browser acceptance remain open. Backup/restore/staging remain incomplete.",
+  "progressNote": "Migration source/evidence pushed to main at 3b09808. Next access step: refreshed Supabase Authentication shows no application users; Create a new user form opened in Safari for user-controlled email/password entry and submission. Seven read-only anonymous PostgREST probes pass: all six tables and can_access_ideas RPC deny with HTTP 401 / PostgreSQL 42501. No rows returned or database writes made. Confirm exact intended identity after creation, then enroll and verify actual permitted-user login/workflows. Recovery and release acceptance remain open.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -87,7 +87,7 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Live six-table RLS/grants, membership/RPC and canonical audit migrations applied and independently checked without altering existing records. Step remains open: zero application Auth users exist; create/enroll the intended email/password account and verify real JWT/browser workflows.",
+      "summary": "Live migrations installed; anonymous denial now verified through real PostgREST as well as SQL roles. Account-creation form is ready in Safari, but new password entry/submission requires the user. Exact identity enrollment and permitted/unrelated/revoked JWT workflows remain open.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
@@ -97,12 +97,12 @@
         {
           "text": "Add authentication and restrict access to the permitted account or workspace members.",
           "status": "in-progress",
-          "note": "Confirmed: one private dataset, email/password. Login, retry, session handling and settings sign-out tested locally; access requires can_access_ideas() = true. Admin enrollment and real authorization tests remain pending. Sessions are memory-only; refresh requires login. Live membership helper/table installed; auth.users and idea_members are both empty. User must create the email/password credential, then exact intended account enrollment and real session acceptance remain required."
+          "note": "Confirmed: one private dataset, email/password. Login, retry, session handling and settings sign-out tested locally; access requires can_access_ideas() = true. Admin enrollment and real authorization tests remain pending. Sessions are memory-only; refresh requires login. Live membership helper/table installed; auth.users and idea_members are both empty. User must create the email/password credential, then exact intended account enrollment and real session acceptance remain required. Next continuation: refreshed Auth Users page visibly reports no users. Opened Create a new user form; credential handoff requested, no user/password created by the agent. No account identity inferred from dashboard sign-in."
         },
         {
           "text": "Enable RLS on all six application tables, including child-record ownership or membership policies.",
           "status": "in-progress",
-          "note": "Local 001b candidate enables RLS, replaces legacy policies/grants, limits editable columns, validates parent visibility and denies direct creation/status/audit/private/sequence access. Both bootstrap sources now enable RLS. 26 SQL role/rollback/reinstallation checks pass. Actual deployed owners/grants and real JWT/PostgREST acceptance remain unverified. Applied to live project 2026-10-11; independent verification confirms six RLS tables and no anonymous table/column grants. Anonymous read and unenrolled SQL-role reads/RPCs/private membership denial passed. Real JWT/PostgREST owner/unrelated/revoked tests remain open."
+          "note": "Local 001b candidate enables RLS, replaces legacy policies/grants, limits editable columns, validates parent visibility and denies direct creation/status/audit/private/sequence access. Both bootstrap sources now enable RLS. 26 SQL role/rollback/reinstallation checks pass. Actual deployed owners/grants and real JWT/PostgREST acceptance remain unverified. Applied to live project 2026-10-11; independent verification confirms six RLS tables and no anonymous table/column grants. Anonymous read and unenrolled SQL-role reads/RPCs/private membership denial passed. Real JWT/PostgREST owner/unrelated/revoked tests remain open. Real anonymous PostgREST GET probes now verify denial on all six tables: HTTP 401, PostgreSQL 42501, no rows returned. Membership RPC also denies anonymous execution. This is negative anonymous evidence only; authenticated positive/unrelated/revoked checks remain open."
         },
         {
           "text": "Generate audit actor and timestamps server-side; restrict direct audit modification.",
@@ -112,7 +112,7 @@
         {
           "text": "Roll out authentication and policies together so the legitimate user retains access.",
           "status": "in-progress",
-          "note": "User explicitly approved rollout without backup and confirmed concrete dashboard warning. Combined transaction installed with unchanged existing rows across all six tables. Live Auth users/members are zero: user-controlled credential creation, confirmed enrollment and real login acceptance still required. No recovery/staging acceptance claimed."
+          "note": "User explicitly approved rollout without backup and confirmed concrete dashboard warning. Combined transaction installed with unchanged existing rows across all six tables. Live Auth users/members are zero: user-controlled credential creation, confirmed enrollment and real login acceptance still required. No recovery/staging acceptance claimed. Create-user form prepared in Safari; awaiting user-controlled email/password submission. After confirmation of intended identity, enroll exactly that account and validate real application login. Source and migration evidence published to main at 3b09808."
         }
       ],
       "verify": [
@@ -189,6 +189,10 @@
         {
           "label": "Eight executable rollout and rollback checks",
           "href": "../tests/live-rollout.test.mjs"
+        },
+        {
+          "label": "Seven real anonymous API denial results and limits",
+          "href": "live-anonymous-access-v1.9.31.json"
         }
       ]
     },
@@ -696,7 +700,7 @@
       "short": "Release decision",
       "priority": "Release gate",
       "status": "in-progress",
-      "summary": "Production NOT APPROVED. User-approved live migration without backup installed; existing contents of all six tables preserved and SQL-role denial/catalog checks passed. Account creation/enrollment, real JWT/API/concurrency, recovery/staging, legacy classification mapping and Edge/manual acceptance remain open.",
+      "summary": "Production NOT APPROVED. User-approved live migration without backup installed; existing contents of all six tables preserved and SQL-role denial/catalog checks passed. Account creation/enrollment, real JWT/API/concurrency, recovery/staging, legacy classification mapping and Edge/manual acceptance remain open. Anonymous PostgREST denial verified across six tables and membership RPC (7/7); user credential handoff/enrollment still prevents permitted-user acceptance.",
       "actions": [
         {
           "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
@@ -965,6 +969,16 @@
       "date": "2026-10-11",
       "title": "Live migration evidence and tracker verification refreshed",
       "body": "294-check strict suite passed; all eight rollout checks passed, including one post-installation SQL check added after the strict run (295 distinct passing checks). Lint/build pass. Version 1.0.35 snapshot preserves the earlier recorded test count; this update records current verification. Live migration already installed and independently verified, Auth account enrollment still pending."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Main publication verified",
+      "body": "User requested main publication. Fast-forwarded main and pushed via existing SSH authentication after HTTPS credential lookup failed; fetched origin/main and verified 3b09808. Existing untracked review assets preserved. No database operation repeated."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Live anonymous API acceptance and credential handoff",
+      "body": "Migration source/evidence pushed to main at 3b09808. Next access step: refreshed Supabase Authentication shows no application users; Create a new user form opened in Safari for user-controlled email/password entry and submission. Seven read-only anonymous PostgREST probes pass: all six tables and can_access_ideas RPC deny with HTTP 401 / PostgreSQL 42501. No rows returned or database writes made. Confirm exact intended identity after creation, then enroll and verify actual permitted-user login/workflows. Recovery and release acceptance remain open. Tracker inline syntax and 1440/768/390/320px light/dark, anchors and expand/collapse passed without overflow/page errors. Production build passes; existing 295-test regression evidence retained, no application logic changed."
     }
   ],
   "nextStepId": 2,
