@@ -1,5 +1,11 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.22 (2026-10-11) — Authorization continuation main publication
+### Changed
+- Tracker v1.0.27 records publication of a345f57 and verified origin/main
+- All 231 local strict checks and build checks passed; new remote CI result remains unverified
+- No Supabase SQL or deployment acceptance; production gate and live backup/staging deferral remain open
+
 ## v1.9.21 (2026-10-11) — Local private-dataset authorization continuation
 ### Added
 - Reviewed-installation candidate for six-table membership policies, column grants, private metadata/sequence isolation and inherited-privilege rollback guards

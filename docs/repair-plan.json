@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.25",
+  "planVersion": "1.0.27",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/private-dataset-policies",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Continued remaining step 2/12 authorization locally: six-table membership/column-grant candidate and private metadata cleanup pass 26 SQL checks; legacy bootstraps now enable RLS. All 231 strict checks plus lint/build/bundle budgets and compiled fixture smoke pass. Published main be4c868 CI is green. No Supabase installation, live backup/staging, deployment or main push. Supporting-mutation audit trust, real JWT/API/concurrency, Edge/manual accessibility and rollout acceptance remain open; production NOT APPROVED.",
+  "progressNote": "Published the local six-table authorization candidate and fail-closed bootstraps to main at a345f57; origin/main verified. Recorded checks: all 231 strict tests, lint/build/bundle budgets and compiled fixture smoke pass. New remote CI result remains unverified. No Supabase installation, live backup/staging or deployment acceptance. Supporting-mutation audit trust, real JWT/API/concurrency, Edge/manual accessibility and rollout acceptance remain open; production NOT APPROVED.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -633,7 +633,7 @@
         {
           "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
           "status": "in-progress",
-          "note": "231 strict checks include 26 actual local SQL role checks: allowed edits/upserts and RPCs, denied anonymous/outsider/private/protected writes, revocation, inherited-grant guards and rollback. New policy/bootstrap changes remain local; real JWTs, deployed policies/API and trusted supporting-mutation audit still required."
+          "note": "231 strict checks include 26 actual local SQL role checks: allowed edits/upserts and RPCs, denied anonymous/outsider/private/protected writes, revocation, inherited-grant guards and rollback. Policy/bootstrap changes are published to main but not installed; real JWTs, deployed policies/API and trusted supporting-mutation audit still required."
         },
         {
           "text": "Confirm drafts survive close/refresh and concurrent operations preserve data.",
@@ -648,7 +648,7 @@
         {
           "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build.",
           "status": "in-progress",
-          "note": "231 strict checks, Node 24 lint/build/budgets and compiled Chromium smoke pass. Previous installed Chrome 62 checks apply to the unchanged frontend. Published main be4c868 CI, including compiled smoke, is verified green; the local authorization continuation is unpushed. Edge remains unavailable and seven build-tool findings remain assessed."
+          "note": "231 strict checks, Node 24 lint/build/budgets and compiled Chromium smoke pass. Previous installed Chrome 62 checks apply to the unchanged frontend. Published main be4c868 CI, including compiled smoke, is verified green; the authorization continuation is published at a345f57 with its CI result unverified. Edge remains unavailable and seven build-tool findings remain assessed. User requested publication: authorization candidate published at a345f57; origin/main verified. Its new CI result remains unverified."
         },
         {
           "text": "Record the release decision and evidence; track remaining low-impact work separately.",
@@ -816,6 +816,11 @@
       "date": "2026-10-11",
       "title": "Remaining six-table authorization prepared locally",
       "body": "Continued remaining step 2/12 authorization locally: six-table membership/column-grant candidate and private metadata cleanup pass 26 SQL checks; legacy bootstraps now enable RLS. All 231 strict checks plus lint/build/bundle budgets and compiled fixture smoke pass. Published main be4c868 CI is green. No Supabase installation, live backup/staging, deployment or main push. Supporting-mutation audit trust, real JWT/API/concurrency, Edge/manual accessibility and rollout acceptance remain open; production NOT APPROVED."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Local authorization continuation published to main",
+      "body": "Published the local six-table authorization candidate and fail-closed bootstraps to main at a345f57; origin/main verified. Recorded checks: all 231 strict tests, lint/build/bundle budgets and compiled fixture smoke pass. New remote CI result remains unverified. No Supabase installation, live backup/staging or deployment acceptance. Supporting-mutation audit trust, real JWT/API/concurrency, Edge/manual accessibility and rollout acceptance remain open; production NOT APPROVED."
     }
   ],
   "nextStepId": 12,
