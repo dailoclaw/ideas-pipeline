@@ -65,11 +65,11 @@ export default function TriageModal({ onClose, groupFilter = '' }) {
   const pct = sessionIds.length ? Math.round(((decided.size + deferredCount) / sessionIds.length) * 100) : 100
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="triage-dialog-title" tabIndex={-1} className="app-dialog triage-dialog bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl">
 
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-3">
             <span id="triage-dialog-title" className="text-base font-bold text-gray-900">Triage</span>
             <div className="flex items-center gap-2">
@@ -141,7 +141,7 @@ export default function TriageModal({ onClose, groupFilter = '' }) {
 
         {/* Actions */}
         {current && (
-          <div key={current.id} className="p-4 border-t border-gray-100 flex-shrink-0 space-y-2">
+          <div key={current.id} className="p-4 border-t border-gray-100 shrink-0 space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <LedgeButton
                 disabled={thrown !== null || !!pendingSaves[current.id]}

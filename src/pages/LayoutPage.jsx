@@ -69,7 +69,7 @@ export default function LayoutPage({ onOpenIdea, groupFilter = '' }) {
   return (
     <div className="layout-page flex flex-col h-full overflow-hidden">
       {/* Toggle bar */}
-      <div ref={switcherRef} className="view-switcher flex gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0 flex-wrap">
+      <div ref={switcherRef} className="view-switcher flex gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 shrink-0 flex-wrap">
         {VIEWS.map(v => (
           <button
             key={v}
@@ -130,7 +130,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
       <div
         key={i.id}
         className={`kb-card idea-card bg-white border rounded-xl p-2.5 cursor-pointer
-          ${sel ? 'border-violet-400 bg-violet-50 shadow-sm shadow-violet-100' : 'border-gray-200 hover:border-violet-300'}`}
+          ${sel ? 'border-violet-400 bg-violet-50 shadow-xs shadow-violet-100' : 'border-gray-200 hover:border-violet-300'}`}
         style={{ '--v': Math.min(100, scoreIdea(i)) }}
         onClick={e => { if (!e.target.closest('button,input')) onOpen(i.id) }}
       >
@@ -148,7 +148,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
             checked={sel}
             onChange={e => toggleSelect(i.id, e)}
             onClick={e => e.stopPropagation()}
-            className="mt-0.5 flex-shrink-0 accent-violet-600"
+            className="mt-0.5 shrink-0 accent-violet-600"
           />
         </div>
         <div className="text-[0.6875rem] text-gray-400 leading-snug mb-1.5">{i.pitch.slice(0, 60)}…</div>
@@ -166,7 +166,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
       aria-label={`Sort ${col} ideas`} value={ks[col] || 'score'}
       onChange={e => setKanbanSort(col, e.target.value)}
       onClick={e => e.stopPropagation()}
-      className="text-[0.625rem] border border-gray-200 rounded-md px-1 py-0.5 bg-gray-50 text-gray-500 outline-none"
+      className="text-[0.625rem] border border-gray-200 rounded-md px-1 py-0.5 bg-gray-50 text-gray-500 outline-hidden"
     >
       <option value="score">Score</option>
       <option value="name">Name</option>
@@ -188,7 +188,7 @@ function KanbanView({ ideas, getStatus, setStatus, onOpen, selected, toggleSelec
     <div>
       {/* Build Next banner */}
       {recommend && (
-        <div className="build-next flex items-center gap-2 flex-wrap bg-gradient-to-r from-green-50 to-violet-50 border border-green-200 rounded-xl px-3 py-2 mb-3">
+        <div className="build-next flex items-center gap-2 flex-wrap bg-linear-to-r/srgb from-green-50 to-violet-50 border border-green-200 rounded-xl px-3 py-2 mb-3">
           <span className="build-next__eyebrow inline-flex items-center gap-1 text-[0.625rem] font-bold text-green-700 uppercase tracking-wider whitespace-nowrap"><Icon name="starFilled" size={12} /> Build Next</span>
           <span className="build-next__title text-xs font-bold text-gray-800 flex-1 min-w-0 truncate">#{recommend.id} {recommend.name}</span>
           <span className="build-next__time"><TimePill time={recommend.time} /></span>
@@ -225,7 +225,7 @@ function Quad({ ideas, label, color, bg, border, onOpen }) {
       {ideas.map(i => (
         <button type="button" aria-label={`Open #${i.id} ${i.name}`} key={i.id} className="block text-left text-xs text-gray-600 py-0.5 cursor-pointer hover:text-violet-600" onClick={() => onOpen(i.id)}>
           <span className="font-semibold text-gray-800">#{i.id}</span> {i.name}
-          {i.isNew && <span className="ml-1 text-[0.5625rem] font-bold bg-violet-100 text-violet-600 px-1 py-0.5 rounded">NEW</span>}
+          {i.isNew && <span className="ml-1 text-[0.5625rem] font-bold bg-violet-100 text-violet-600 px-1 py-0.5 rounded-sm">NEW</span>}
         </button>
       ))}
     </div>

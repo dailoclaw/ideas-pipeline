@@ -687,3 +687,40 @@ test('failed dialog module keeps navigation available and offers keyboard dismis
   await navigate('Strategy')
   await page.getByRole('button', { name: /Open #/ }).first().waitFor()
 })
+
+test('migrated utilities retain mobile line heights and native checkbox background',async()=>{
+ await openApp();await page.setViewportSize({width:320,height:900})
+ const button=page.getByRole('button',{name:'Kanban',exact:true})
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
+ for(const rootSize of [16,32]) {
+  await page.evaluate(async size => {
+   document.documentElement.style.fontSize = size + 'px'
+   await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+  }, rootSize)
+  await page.waitForFunction(({ element, size }) => getComputedStyle(element).lineHeight === size + 'px', { element: await button.elementHandle(), size: rootSize })
+  assert.equal(await button.evaluate(el=>getComputedStyle(el).lineHeight),rootSize+'px')
+ }
+ assert.equal(await page.locator('input[type="checkbox"]').first().evaluate(el=>getComputedStyle(el).backgroundColor),'rgba(0, 0, 0, 0)')
+})
+test('Aurora form radii remain fixed under doubled root text',async()=>{
+ await openApp();await page.evaluate(()=>{document.documentElement.dataset.uiTheme='aurora';document.documentElement.style.fontSize='32px'})
+ await page.getByRole('button',{name:'New idea',exact:true}).click()
+ assert.equal(await page.getByLabel('Name *',{exact:true}).evaluate(el=>getComputedStyle(el).borderRadius),'14px')
+})
+test('renamed gradient and blur classes keep custom theme overrides',async()=>{
+ await openApp();await page.evaluate(()=>document.documentElement.dataset.uiTheme='glass')
+ await page.getByRole('button',{name:'New idea',exact:true}).click()
+ assert.equal(await page.locator('.backdrop-blur-xs').first().evaluate(el=>getComputedStyle(el).backdropFilter),'blur(10px)')
+ await page.keyboard.press('Escape')
+ await page.evaluate(()=>{document.documentElement.classList.add('dark')})
+ const banner=page.locator('.build-next')
+ assert.equal(await banner.evaluate(el=>getComputedStyle(el).borderColor),'rgba(5, 150, 105, 0.3)')
+ assert.ok(!(await banner.evaluate(el=>getComputedStyle(el).backgroundImage)).includes('in oklab'))
+})
+
+test('dark native score input retains readable browser background', async () => {
+ await openApp()
+ await page.evaluate(() => document.documentElement.classList.add('dark'))
+ await page.getByRole('button', { name: 'Open #101 Fixture intake', exact: true }).click()
+ assert.equal(await page.locator('input[type=number]').evaluate(el => getComputedStyle(el).backgroundColor), 'rgb(59, 59, 59)')
+})

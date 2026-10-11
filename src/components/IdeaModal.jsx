@@ -73,7 +73,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={e => { if (e.target === e.currentTarget) void leave() }}
     >
       <div
@@ -85,7 +85,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
         className="app-dialog bg-white w-full sm:max-w-2xl lg:max-w-4xl sm:rounded-2xl rounded-t-2xl max-h-[92vh] flex flex-col shadow-2xl"
       >
         {/* Header */}
-        <div className="flex items-start justify-between p-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-start justify-between p-4 border-b border-gray-100 shrink-0">
           <div className="flex-1 min-w-0 pr-4">
             <div className="text-xs text-gray-400 font-medium mb-0.5">Idea #{idea.id}</div>
             <div id="idea-dialog-title" className="text-lg font-bold text-gray-900 leading-tight">{idea.name}</div>
@@ -169,7 +169,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
                 min="-99" max="99" step="5"
                 value={localAdj}
                 onChange={e => changeDraft(idea.id, 'score', e.target.value)}
-                className="w-20 text-sm font-bold text-center border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
+                className="w-20 text-sm font-bold text-center border border-gray-200 rounded-lg px-2 py-1 focus:outline-hidden focus:ring-2 focus:ring-violet-200 focus:border-violet-400"
               />
               <span className={`text-xs font-bold ${
                 localAdj > 0 ? 'text-green-600' : localAdj < 0 ? 'text-red-500' : 'text-gray-400'
@@ -198,7 +198,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
                   catch { /* The shared feedback offers Retry. */ }
                   finally { setGroupSaving(false) }
                 }}
-                className="w-full text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 bg-white text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
+                className="w-full text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 bg-white text-gray-700 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
               >
                 <option value="">No group</option>
                 {GROUPS.map(g => (
@@ -218,7 +218,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
                 aria-label="Idea status"
                 disabled={statusSaving || !!pendingSaves[idea.id]}
                 onChange={e => handleStatusChange(e.target.value)}
-                className="w-full text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 pr-8 appearance-none bg-white text-gray-700 cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
+                className="w-full text-sm font-semibold rounded-lg border border-gray-200 px-3 py-1.5 pr-8 appearance-none bg-white text-gray-700 cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-violet-200 focus:border-violet-400 disabled:opacity-50"
               >
                 {ALL_STATUSES.map(s => (
                   <option key={s.value} value={s.value}>{s.label}</option>
@@ -257,7 +257,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
               {saveState === 'saved' && <span className="inline-flex items-center gap-1 text-[0.625rem] text-green-500 font-semibold"><Icon name="check" size={11} /> Saved</span>}
             </div>
             <textarea
-              className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 placeholder-gray-300"
+              className="w-full text-sm text-gray-600 border border-gray-200 rounded-lg px-3 py-2 resize-none focus:outline-hidden focus:ring-2 focus:ring-violet-200 focus:border-violet-400 placeholder-gray-300"
               rows={3}
               aria-label="Idea notes" aria-describedby="notes-save-state" placeholder="Add notes…"
               value={localNotes}
@@ -282,7 +282,7 @@ export default function IdeaModal({ ideaId, onClose, onEdit }) {
 
         {/* Footer actions for user-added ideas */}
         {idea.isNew && activeTab === 'overview' && (
-          <div className="flex gap-2 p-4 border-t border-gray-100 flex-shrink-0">
+          <div className="flex gap-2 p-4 border-t border-gray-100 shrink-0">
             <button
               disabled={closing}
               onClick={() => { void leave(() => onEdit(idea.id)) }}

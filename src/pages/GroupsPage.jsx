@@ -61,7 +61,7 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
                   <div className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{group.desc}</div>
                 </div>
               </div>
-              <div className="group-section__metrics flex items-center gap-2 flex-shrink-0 ml-2">
+              <div className="group-section__metrics flex items-center gap-2 shrink-0 ml-2">
                 {groupIdeas.length === 0
                   ? <span className="text-xs text-gray-300 italic">No ideas assigned</span>
                   : <span className="text-xs font-bold text-violet-600 bg-violet-50 dark:bg-violet-900/30 dark:text-violet-400 px-2 py-0.5 rounded-full">{active} active</span>
@@ -88,7 +88,7 @@ export default function GroupsPage({ onOpenIdea, groupFilter = '' }) {
                         aria-label={`Open #${idea.id} ${idea.name}`} onClick={() => onOpenIdea(idea.id)}
                       >
                         <span className="flex items-start gap-2">
-                          <span className="text-xs text-gray-400 dark:text-slate-500 flex-shrink-0 mt-0.5 w-6">#{idea.id}</span>
+                          <span className="text-xs text-gray-400 dark:text-slate-500 shrink-0 mt-0.5 w-6">#{idea.id}</span>
                           <span className="text-sm font-semibold text-gray-800 dark:text-slate-200 leading-snug">{idea.name}</span>
                         </span>
                         <span className="flex items-center gap-1.5 mt-1.5 pl-8 flex-wrap">

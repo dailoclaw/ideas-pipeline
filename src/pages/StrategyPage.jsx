@@ -46,7 +46,7 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
 
       {/* Build Next */}
       {recommend && (
-        <div className="strategy-banner bg-gradient-to-r from-green-50 to-violet-50 dark:from-green-900/20 dark:to-violet-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-4">
+        <div className="strategy-banner bg-linear-to-r/srgb from-green-50 to-violet-50 dark:from-green-900/20 dark:to-violet-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-4">
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-green-700 dark:text-green-400 uppercase tracking-wider mb-2"><Icon name="starFilled" size={13} /> Recommended Next Build</div>
           <div className="font-bold text-gray-900 dark:text-slate-100 leading-snug mb-1">#{recommend.id} {recommend.name}</div>
           <div className="text-sm text-gray-500 dark:text-slate-400 mb-3 leading-relaxed">{recommend.pitch}</div>
@@ -93,16 +93,16 @@ export default function StrategyPage({ onOpenIdea, groupFilter = '' }) {
 
                 {/* Top row: rank + grade + score bar + pills */}
                 <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-xs text-gray-300 dark:text-slate-600 w-5 text-center flex-shrink-0 font-bold">#{idx + 1}</span>
-                  <span className={`text-xs font-bold border rounded-lg px-1.5 py-0.5 flex-shrink-0 ${GRADE_STYLE[grade]}`}>{grade}</span>
+                  <span className="text-xs text-gray-300 dark:text-slate-600 w-5 text-center shrink-0 font-bold">#{idx + 1}</span>
+                  <span className={`text-xs font-bold border rounded-lg px-1.5 py-0.5 shrink-0 ${GRADE_STYLE[grade]}`}>{grade}</span>
                   {/* Score bar */}
                   <div className="strategy-row__bar flex items-center gap-1.5 flex-1">
                     <div className="strategy-row__track flex-1 h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div className="h-full bg-violet-500 rounded-full" style={{ width: `${Math.min(100, score / 204 * 100)}%` }} />
                     </div>
-                    <span className="strategy-row__score text-xs font-bold text-violet-600 dark:text-violet-400 flex-shrink-0">{score}</span>
+                    <span className="strategy-row__score text-xs font-bold text-violet-600 dark:text-violet-400 shrink-0">{score}</span>
                   </div>
-                  <div className="flex-shrink-0"><StatusBadge status={status} /></div>
+                  <div className="shrink-0"><StatusBadge status={status} /></div>
                   {next && (
                     <button
                       disabled={!!pendingSaves[idea.id]}

@@ -49,7 +49,7 @@ export async function main() {
   const result = reviewAudit(report, baseline)
   const lock = JSON.parse(await readFile(new URL('../package-lock.json', import.meta.url), 'utf8'))
   result.failures.push(...reviewDevelopmentPaths(report, lock))
-  console.log(`Full dependency audit: ${result.affectedPackages} affected packages; review valid through ${result.reviewedThrough}. Existing findings remain unresolved.`)
+  console.log(`Full dependency audit: ${result.affectedPackages} affected packages; review valid through ${result.reviewedThrough}. ${result.affectedPackages ? 'Existing findings remain unresolved.' : 'No reported vulnerabilities.'}`)
   if (result.failures.length) throw new Error(result.failures.join('\n'))
   console.log('No unreviewed or worsened findings. Production-only audit remains a separate required CI check.')
 }

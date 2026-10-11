@@ -11,8 +11,6 @@
 
 @property --dpv     { syntax: '<number>'; inherits: false; initial-value: 0; }
 @property --pulse-value { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-@property --mx      { syntax: '<length>'; inherits: true;  initial-value: 50%; }
-@property --my      { syntax: '<length>'; inherits: true;  initial-value: 50%; }
 
 /* ── Neutral defaults: the new DOM is inert unless a theme opts in ────────── */
 .au-donut,
@@ -106,7 +104,8 @@ html.dark[data-ui-theme="aurora"] body {
 }
 
 /* ── Radii: 20 surfaces / 14 controls / 26 dialogs ────────────────────────── */
-html[data-ui-theme="aurora"] .rounded-xl  { border-radius: 14px; }
+html[data-ui-theme="aurora"] .rounded-xl,
+html[data-ui-theme="aurora"] .input { border-radius: 14px; }
 html[data-ui-theme="aurora"] .rounded-2xl { border-radius: 20px; }
 html[data-ui-theme="aurora"] .rounded-lg  { border-radius: 11px; }
 html[data-ui-theme="aurora"] .idea-card,

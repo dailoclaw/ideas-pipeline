@@ -58,11 +58,11 @@ export default function AddIdeaModal({ editId, onClose }) {
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center"
+      className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end sm:items-center justify-center"
       onClick={e => { if (e.target === e.currentTarget && !saving) onClose() }}
     >
       <form noValidate onSubmit={e => { e.preventDefault(); void submit() }} ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="add-idea-title" tabIndex={-1} className="app-dialog bg-white w-full sm:max-w-xl sm:rounded-2xl rounded-t-2xl max-h-[95vh] flex flex-col shadow-2xl">
-        <div className="flex items-center justify-between p-4 border-b border-gray-100 flex-shrink-0">
+        <div className="flex items-center justify-between p-4 border-b border-gray-100 shrink-0">
           <h2 id="add-idea-title" className="text-base font-bold text-gray-900">{existing ? 'Edit idea' : 'Add new idea'}</h2>
           <button type="button" disabled={saving} onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close idea form"><Icon name="close" size={20} /></button>
         </div>
@@ -132,7 +132,7 @@ export default function AddIdeaModal({ editId, onClose }) {
 
         {error && <div id="idea-form-error" role={saveFeedback?.level === 'error' && saveFeedback.message.includes(error) ? 'note' : 'alert'} className="px-4 py-2 text-sm text-red-600 bg-red-50">{error}</div>}
 
-        <div className="flex gap-3 p-4 border-t border-gray-100 flex-shrink-0">
+        <div className="flex gap-3 p-4 border-t border-gray-100 shrink-0">
           <button type="button" disabled={saving} onClick={onClose} className="flex-1 py-3 rounded-xl border border-gray-200 text-sm font-semibold text-gray-500">Cancel</button>
           <button type="submit"
             disabled={saving}

@@ -159,7 +159,7 @@ export default function App({ onSignOut, accountId }) {
         />
       ) : <>
 
-      <header className="app-header bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
+      <header className="app-header bg-white dark:bg-slate-800 border-b border-gray-100 dark:border-slate-700 shrink-0">
         <div className="brand-lockup">
           <span className="brand-mark"><AppMark /></span>
           <span className="brand-copy">
@@ -176,7 +176,7 @@ export default function App({ onSignOut, accountId }) {
                 value={groupFilter}
                 onChange={e => setGroupFilter(e.target.value)}
                 aria-label="Filter ideas by workspace"
-                className={`header-filter__select rounded-lg border font-semibold cursor-pointer focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200
+                className={`header-filter__select rounded-lg border font-semibold cursor-pointer focus:outline-hidden focus:ring-2 focus:ring-violet-200 focus:border-violet-400 dark:bg-slate-700 dark:border-slate-600 dark:text-slate-200
                   ${groupFilter ? 'border-violet-400 bg-violet-50 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300' : 'border-gray-200 bg-white text-gray-600'}`}
               >
                 <option value="">All ideas</option>
@@ -283,7 +283,7 @@ export default function App({ onSignOut, accountId }) {
       </main>
 
       {/* ── Bottom tab nav ── */}
-      <nav className="bottom-nav flex bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 flex-shrink-0" aria-label="Primary navigation">
+      <nav className="bottom-nav flex bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shrink-0" aria-label="Primary navigation">
         {TABS.map(t => (
           <button
             key={t.id}

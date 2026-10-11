@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.29",
+  "planVersion": "1.0.30",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/dependency-audit-guard",
+  "branch": "codex/tailwind-security-migration",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Published canonical audit candidate 05b4968 to main; origin/main verified and its 253-check CI is green. Continued step 11/12 locally with a full-audit regression guard and expiring reviewed baseline. Seven build findings remain unresolved; production-only audit zero. No live SQL or deployment acceptance; backup/staging remains deferred. New guard branch is unpushed; production NOT APPROVED. All 276 strict tests, lint/build/bundle budgets, compiled fixture smoke and the live dependency guard pass.",
+  "progressNote": "Published dependency guard 4e2ff2b to main; origin verified and 276-check CI green. Continued locally with Tailwind 4 security migration: full and production audits now zero; guard accepts no advisories. All 281 strict checks, 66 installed Chrome checks, lint/build/budgets and compiled fixture smoke pass. Visual comparison covers 576 page/dialog states and 64 Console contexts. Migration is not pushed. Edge/manual and live database release gates remain open; backup/staging deferred. Production NOT APPROVED.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -116,7 +116,7 @@
         "The authorized user can complete intended workflows.",
         "Forged audit actors and event edits are rejected."
       ],
-      "issues": "C1 · authorization and audit trust",
+      "issues": "C1 \u00b7 authorization and audit trust",
       "evidence": [
         {
           "label": "Database access implementation plan",
@@ -190,7 +190,7 @@
         "Denied writes preserve prior client state.",
         "Reloaded state agrees with the save result."
       ],
-      "issues": "C2 · mutation error handling",
+      "issues": "C2 \u00b7 mutation error handling",
       "evidence": [
         {
           "label": "Save reliability verification and limits",
@@ -245,7 +245,7 @@
         "Simultaneous changes retain both overrides.",
         "Failures leave no partial status/history or destructive child-only changes."
       ],
-      "issues": "C4 · C5 · C8",
+      "issues": "C4 \u00b7 C5 \u00b7 C8",
       "evidence": [
         {
           "label": "Transaction guarantees, limits & deferred rollout",
@@ -300,7 +300,7 @@
         "Reversed network response timing preserves the latest value.",
         "Failed saves retain the draft with Retry; page reload uses a recoverable local draft."
       ],
-      "issues": "C3 · M4",
+      "issues": "C3 \u00b7 M4",
       "evidence": [
         {
           "label": "Autosave behavior, verification and limits",
@@ -320,7 +320,7 @@
       "id": 6,
       "title": "Harden configuration and storage",
       "short": "Storage resilience",
-      "priority": "High · easy wins",
+      "priority": "High \u00b7 easy wins",
       "status": "local-complete",
       "summary": "Guarded account-scoped storage and configuration handling verified locally; source pushed to main at d50ea20. Denied/quota storage, malformed caches and reload preferences pass. Deleted-idea and sign-out caches are cleaned up where storage permits. No live SQL or deployment; Chrome/Edge release acceptance remains open.",
       "actions": [
@@ -400,7 +400,7 @@
         "Failed triage actions recover and completed/deferred counts are accurate.",
         "Action buttons return to idle in StrictMode; filters do not cause undisclosed hidden mutations."
       ],
-      "issues": "C7 · M5 · M6 · M9",
+      "issues": "C7 \u00b7 M5 \u00b7 M6 \u00b7 M9",
       "evidence": [
         {
           "label": "Workflow behavior, verification & limits",
@@ -450,7 +450,7 @@
         "Offline events synchronize exactly once; repeated transitions remain visible.",
         "More than 1,000 records export completely; Adelaide midnight/DST fixtures give correct counts."
       ],
-      "issues": "M3 · M7 · M8 · M13",
+      "issues": "M3 \u00b7 M7 \u00b7 M8 \u00b7 M13",
       "evidence": [
         {
           "label": "History/export guarantees & deferred rollout",
@@ -487,7 +487,7 @@
         {
           "text": "Document score range; show pain and manual adjustment in the breakdown; apply promised priority ordering.",
           "status": "complete",
-          "note": "Preserved valid scores with documented range 1–204, rounded base/pain/manual/minimum explanation, safe legacy values and deterministic ID ties after priority."
+          "note": "Preserved valid scores with documented range 1\u2013204, rounded base/pain/manual/minimum explanation, safe legacy values and deterministic ID ties after priority."
         },
         {
           "text": "Make matrix placement rules explicit and clarify sprint duration/scheduling semantics.",
@@ -500,7 +500,7 @@
         "Score explanation reconciles with the computed value.",
         "Priority ties and planning rules are consistent across views."
       ],
-      "issues": "M10 · M11 · M12 · M14",
+      "issues": "M10 \u00b7 M11 \u00b7 M12 \u00b7 M14",
       "evidence": [
         {
           "label": "Validation, score/planning rules & deferred rollout",
@@ -520,7 +520,7 @@
       "id": 10,
       "title": "Fix accessibility and review-document defects",
       "short": "Accessible controls",
-      "priority": "High · easy wins",
+      "priority": "High \u00b7 easy wins",
       "status": "local-complete",
       "summary": "Core keyboard controls, labels, modal focus and responsive disclosure verified locally. Six separately named accessible review copies preserve originals. Manual assistive-technology and release-browser acceptance remain release-gate work.",
       "actions": [
@@ -555,7 +555,7 @@
         "Screen readers announce controls, errors and states; focus returns correctly.",
         "200% zoom and narrow screens remain usable; review links/lightboxes and reduced motion work."
       ],
-      "issues": "Accessibility · review HTML",
+      "issues": "Accessibility \u00b7 review HTML",
       "evidence": [
         {
           "label": "Accessibility guarantees, review generators & release limits",
@@ -581,7 +581,7 @@
       "short": "Cleanup & performance",
       "priority": "Later",
       "status": "local-complete",
-      "summary": "Cleanup and measured loading work are verified locally; published main CI passes. New full-audit guard rejects unreviewed or worsened advisory findings and production-path exposure; seven reviewed build findings still require the separate Tailwind migration.",
+      "summary": "Cleanup is verified locally and published guard CI passes. Local Tailwind 4 migration removes the remaining seven build findings; full and production audits zero. Chrome verified; Edge/manual acceptance remains open.",
       "actions": [
         {
           "text": "Consolidate metadata, scoring, filtering and event helpers; lift nested component definitions.",
@@ -601,12 +601,12 @@
         {
           "text": "Split CSS while preserving cascade order; add lint, tests and build checks to CI.",
           "status": "complete",
-          "note": "Five sequential CSS modules produce identical compiled CSS at split comparison. ESLint 10, clean install, strict Chromium tests, build, bundle budgets and production audit defined in read-only Node 24 CI. Local equivalent checks pass; remote workflow execution is still unverified. Published main 05b4968 CI is green; new local full-audit guard is added to CI but has not run remotely."
+          "note": "Five sequential CSS modules produce identical compiled CSS at split comparison. ESLint 10, clean install, strict Chromium tests, build, bundle budgets and production audit defined in read-only Node 24 CI. Local equivalent checks pass; remote workflow execution is still unverified. Published main 05b4968 CI is green; new local full-audit guard is added to CI but has not run remotely. Guard published at 4e2ff2b with green CI. Subsequent local Tailwind 4 CSS/PostCSS migration passes build and fixture checks; its remote CI remains unverified."
         },
         {
           "text": "Assess the 13 recorded dependency advisories and plan compatible, tested upgrades; declare Node/browser support baselines.",
           "status": "complete",
-          "note": "All 13 baseline packages assessed; compatible Vite/plugin/transitive updates reduce full audit to seven build-tool findings. Production audit zero. Remaining Tailwind-chain denial-of-service exposure and isolated major migration documented. Node 24 and Chrome/Edge 120+ build targets declared; installed release-browser acceptance remains open. Refreshed audit still has seven findings (five high/two moderate), production zero. No compatible patched braces/selector-parser chain; new full-audit regression guard with 23 checks and review expiry prevents silently accepting new exposure. Existing findings are not repaired."
+          "note": "All 13 baseline packages assessed; compatible Vite/plugin/transitive updates reduce full audit to seven build-tool findings. Production audit zero. Remaining Tailwind-chain denial-of-service exposure and isolated major migration documented. Node 24 and Chrome/Edge 120+ build targets declared; installed release-browser acceptance remains open. Refreshed audit still has seven findings (five high/two moderate), production zero. No compatible patched braces/selector-parser chain; new full-audit regression guard with 23 checks and review expiry prevents silently accepting new exposure. Existing findings are not repaired. Subsequent local v1.9.25 migration replaces the vulnerable Tailwind 3 chain; full/production audits zero. Active baseline accepts no findings; 24 guard tests retain historical seven-package evidence. Node 24 and Chrome/Edge 120+ build targets retained."
         }
       ],
       "verify": [
@@ -614,7 +614,7 @@
         "Initial bundle decreases and requests remain bounded.",
         "Regression checks pass on supported Chrome/Edge versions; advisory exposure is assessed."
       ],
-      "issues": "Maintainability · performance · dependency baseline",
+      "issues": "Maintainability \u00b7 performance \u00b7 dependency baseline",
       "evidence": [
         {
           "label": "Implementation, bundle measurements and verification limits",
@@ -641,8 +641,16 @@
           "href": "../tests/dependencies.test.mjs"
         },
         {
-          "label": "Current full audit evidence",
-          "href": "dependency-audit-v1.9.24.json"
+          "label": "Current full audit \u2014 zero findings",
+          "href": "dependency-audit-v1.9.25.json"
+        },
+        {
+          "label": "Tailwind migration and verification limits",
+          "href": "TAILWIND_MIGRATION.md"
+        },
+        {
+          "label": "Structured migration evidence",
+          "href": "tailwind-evidence-v1.9.25.json"
         }
       ]
     },
@@ -652,7 +660,7 @@
       "short": "Release decision",
       "priority": "Release gate",
       "status": "in-progress",
-      "summary": "Production remains not approved. Canonical audit candidate is published with green CI. New local full-audit guard tightens advisory review; seven build findings, real JWT/API/concurrency, audit retention/owner review and live rollout acceptance remain open.",
+      "summary": "Production remains NOT APPROVED. Guard 4e2ff2b is published with green CI. Local Tailwind migration removes seven build findings, with zero full/production audit findings. Real JWT/API/concurrency, Edge/manual accessibility, audit retention and live rollout acceptance remain open.",
       "actions": [
         {
           "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
@@ -672,7 +680,7 @@
         {
           "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build.",
           "status": "in-progress",
-          "note": "Published main 05b4968 CI passes all 253 checks, compiled fixture smoke, lint/build/budgets and production audit. New dependency guard adds 23 local tests and is not yet published. Full audit still reports seven reviewed development findings (five high/two moderate), production audit zero. Edge/manual accessibility and real deployment remain open. Final local total: 276 strict checks plus lint/build/budgets, compiled smoke and live full-audit guard pass."
+          "note": "Published guard 4e2ff2b CI passes all 276 checks. Subsequent local Tailwind 4 migration passes 281 strict checks, 66 installed Chrome checks, lint/build/budgets, compiled fixture smoke and full-audit guard. Full/production audits zero. Four themes/both modes/four widths/normal and doubled text compared. New migration is unpushed; Edge/manual and actual deployment acceptance remain open."
         },
         {
           "text": "Record the release decision and evidence; track remaining low-impact work separately.",
@@ -710,6 +718,10 @@
         {
           "label": "Canonical audit implementation and remaining release requirements",
           "href": "TRUSTED_MUTATION_AUDIT.md"
+        },
+        {
+          "label": "Local CSS security migration and evidence",
+          "href": "TAILWIND_MIGRATION.md"
         }
       ]
     }
@@ -864,12 +876,22 @@
       "date": "2026-10-11",
       "title": "Remaining dependency findings guarded locally",
       "body": "No compatible upstream patched chain exists. Added full-audit CI guard with 23 targeted tests, development-only lockfile-path enforcement and explicit review expiry. Seven existing build findings remain unresolved; production-only audit zero. New guard branch is not pushed. Live database and release acceptance remain open. All 276 strict checks, lint/build/budgets, compiled smoke and the actual live guard pass."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Dependency guard published to main",
+      "body": "Pushed 4e2ff2b and verified origin/main. CI run 38104501593 passed all 276 checks, build/budgets, compiled fixture smoke and dependency guard. No live Supabase or deployment changes."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Tailwind security migration verified locally",
+      "body": "Local Tailwind 4.3.3/PostCSS migration removes all seven reported build findings; full/production audits zero. Existing palette, typography, native controls, gradients and theme selectors preserved. 281 strict and 66 installed Chrome checks pass, with 576 page/dialog and 64 Console comparisons. Migration is unpushed; Edge/manual/live acceptance remains open. Production NOT APPROVED; backup/staging deferred."
     }
   ],
   "nextStepId": 12,
   "verification": {
-    "tests": 276,
-    "passing": 276,
+    "tests": 281,
+    "passing": 281,
     "knownFailures": 0,
     "unexpectedFailures": 0
   }

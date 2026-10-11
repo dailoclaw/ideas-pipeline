@@ -308,7 +308,7 @@ html[data-ui-theme] .ring-violet-200 {
   --tw-ring-color: color-mix(in srgb, var(--ui-accent) 22%, transparent) !important;
 }
 
-html[data-ui-theme="glass"] .backdrop-blur-sm {
+html[data-ui-theme="glass"] .backdrop-blur-xs {
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }

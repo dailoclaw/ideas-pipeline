@@ -22,12 +22,12 @@ export default function SettingsDrawer({ onSignOut, open, onClose, dark, toggleD
       onClick={e => { if (e.target === e.currentTarget) onClose() }}
     >
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-xs" onClick={onClose} />
 
       {/* Drawer */}
       <div ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby="settings-dialog-title" tabIndex={-1} className="settings-drawer relative w-full sm:w-80 bg-white dark:bg-slate-800 h-full shadow-2xl flex flex-col z-10 overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-700 flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 dark:border-slate-700 shrink-0">
           <h2 id="settings-dialog-title" className="text-base font-bold text-gray-900 dark:text-slate-100">Customise</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600 text-xl p-1" aria-label="Close appearance settings"><Icon name="close" size={20} /></button>
         </div>
@@ -159,7 +159,7 @@ export default function SettingsDrawer({ onSignOut, open, onClose, dark, toggleD
         {onSignOut && <div className="px-5 pb-4"><button type="button" onClick={onSignOut} className="w-full py-3 rounded-xl border border-gray-300 dark:border-slate-600 text-sm font-bold">Sign out</button></div>}
 
         {/* Footer */}
-        <div className="px-5 py-4 border-t border-gray-100 dark:border-slate-700 flex-shrink-0">
+        <div className="px-5 py-4 border-t border-gray-100 dark:border-slate-700 shrink-0">
           <button
             onClick={onClose}
             className="w-full py-3 rounded-xl bg-violet-600 text-white text-sm font-bold"

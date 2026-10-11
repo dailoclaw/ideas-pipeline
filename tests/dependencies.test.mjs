@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { reviewAudit, reviewDevelopmentPaths } from '../scripts/check-dependencies.mjs'
 const report = JSON.parse(await readFile(new URL('../docs/dependency-audit-v1.9.19.json', import.meta.url)))
-const baseline = JSON.parse(await readFile(new URL('../docs/dependency-review-baseline.json', import.meta.url)))
+const baseline = JSON.parse(await readFile(new URL('../docs/dependency-review-baseline-v1.9.24.json', import.meta.url)))
 const now = new Date('2026-10-11T00:00:00Z')
 const check = (r = report, b = baseline, date = now) => reviewAudit(r, b, date)
 const copy = () => structuredClone(report)
@@ -26,7 +26,10 @@ test('invalid review expiry fails closed',()=>assert.throws(()=>check(report,{..
 test('invalid calendar expiry cannot extend review silently',()=>assert.throws(()=>check(report,{...baseline,reviewValidThrough:'2026-99-99'}),/Invalid dependency review expiry/))
 test('inherited object keys are not valid audit severities',()=>{const r=copy();r.vulnerabilities.braces.severity='constructor';assert.throws(()=>check(r),/Invalid vulnerability/)})
 
-const lock = JSON.parse(await readFile(new URL('../package-lock.json', import.meta.url)))
+// Historical advisory paths are a fixture; the CLI checks the actual current lockfile.
+const lock = { packages: Object.fromEntries(Object.values(report.vulnerabilities).flatMap(v => v.nodes.map(path => [path, { dev: true }]))) }
 test('accepted findings are present exclusively on development-only paths',()=>assert.deepEqual(reviewDevelopmentPaths(report,lock),[]))
 test('moving a reviewed build finding into production fails review',()=>{const l=structuredClone(lock);l.packages[report.vulnerabilities.braces.nodes[0]].dev=false;assert.match(reviewDevelopmentPaths(report,l).join(),/outside a development-only/)})
 test('missing installed node fails the development-only check',()=>{const l=structuredClone(lock);delete l.packages[report.vulnerabilities.braces.nodes[0]];assert.match(reviewDevelopmentPaths(report,l).join(),/outside a development-only/)})
+
+test('clean current baseline rejects recurrence of formerly accepted findings',async()=>{const clean=JSON.parse(await readFile(new URL('../docs/dependency-review-baseline.json',import.meta.url)));assert.deepEqual(check(summary({...copy(),vulnerabilities:{}}),clean).failures,[]);assert.match(check(report,clean).failures.join(),/Unreviewed affected package/)})

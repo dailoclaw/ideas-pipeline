@@ -1,5 +1,15 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.25 (2026-10-11) — Tailwind build-chain security migration
+### Fixes
+- Replace Tailwind 3 with Tailwind 4.3.3/PostCSS plugin; remove reported parser/watcher chains; recorded full and production audits both zero
+- Preserve original palette, rem typography, native dark inputs, Aurora radii, blur overrides and sRGB gradients; add four browser regression checks
+### Changed
+- Remove two invalid, browser-ignored Aurora pointer property registrations discovered by the new CSS optimizer
+- Restrict CSS scanning to application sources; remove legacy Tailwind config/autoprefixer; active advisory guard accepts no findings and historical baseline remains available
+- Published guard 4e2ff2b with green CI; subsequent migration verified locally with 281 strict checks, 66 installed Chrome checks, lint/build/budgets and compiled fixture smoke
+- Tracker v1.0.30 records progress and visual evidence; migration unpushed, live backup/staging deferred and production gate NOT APPROVED
+
 ## v1.9.24 (2026-10-11) — Full dependency audit guard
 ### Added
 - Full-audit CI check rejects unreviewed/worsened findings, advisory range/chain changes, failed feeds and production-path exposure

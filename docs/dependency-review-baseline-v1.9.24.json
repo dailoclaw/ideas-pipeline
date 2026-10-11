@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "reviewed": "2026-10-11",
+  "reviewValidThrough": "2026-11-10",
+  "rationale": "Seven reviewed development build-chain findings only. No patched braces release or compatible Tailwind 3 selector-parser fix. This is review acceptance, not remediation or production approval. Re-review before extending this date.",
+  "allowed": {
+    "braces": {
+      "severity": "high",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-vfj7-8cjw-p6xm",
+          "range": "<=3.0.3",
+          "severity": "high"
+        }
+      ]
+    },
+    "chokidar": {
+      "severity": "high",
+      "advisories": [
+        {
+          "dependency": "braces"
+        }
+      ]
+    },
+    "fast-glob": {
+      "severity": "high",
+      "advisories": [
+        {
+          "dependency": "micromatch"
+        }
+      ]
+    },
+    "micromatch": {
+      "severity": "high",
+      "advisories": [
+        {
+          "dependency": "braces"
+        }
+      ]
+    },
+    "postcss-nested": {
+      "severity": "moderate",
+      "advisories": [
+        {
+          "dependency": "postcss-selector-parser"
+        }
+      ]
+    },
+    "postcss-selector-parser": {
+      "severity": "moderate",
+      "advisories": [
+        {
+          "url": "https://github.com/advisories/GHSA-rj75-hqrm-r3gf",
+          "range": "<7.1.6",
+          "severity": "moderate"
+        }
+      ]
+    },
+    "tailwindcss": {
+      "severity": "high",
+      "advisories": [
+        {
+          "dependency": "chokidar"
+        },
+        {
+          "dependency": "fast-glob"
+        },
+        {
+          "dependency": "micromatch"
+        },
+        {
+          "dependency": "postcss-nested"
+        },
+        {
+          "dependency": "postcss-selector-parser"
+        }
+      ]
+    }
+  }
+}

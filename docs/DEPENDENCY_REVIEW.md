@@ -1,8 +1,12 @@
 # Dependency review — step 11
 
-Version 1.9.17 · audit date 2026-10-11. Counts describe the installed lockfile and advisory feed on this date; they can change.
+Current version 1.9.25 · audit date 2026-10-11. The local [Tailwind security migration](TAILWIND_MIGRATION.md) removes the remaining affected chains. Current [full audit](dependency-audit-v1.9.25.json): **0 findings**; [production audit](dependency-production-audit-v1.9.25.json): **0 findings**. The active guard allows no findings. Installed Edge and live acceptance remain open.
 
-Historical first-step baseline: 13 findings (10 high, 3 moderate). Current full audit: **7 findings (5 high, 2 moderate)**. Production-only audit: **0 findings**. These are affected-package counts, not seven independent exploitable browser vulnerabilities. Zero findings is not proof of a secure application.
+## Historical assessment — v1.9.17
+
+The following assessment and seven findings describe the earlier lockfile, not the current migration candidate. Counts can change with the advisory feed.
+
+Historical first-step baseline: 13 findings (10 high, 3 moderate). Then-current full audit: **7 findings (5 high, 2 moderate)**. Production-only audit: **0 findings**. These are affected-package counts, not seven independent exploitable browser vulnerabilities. Zero findings is not proof of a secure application.
 
 Recorded [full audit](dependency-audit-v1.9.17.json), [production audit](dependency-production-audit-v1.9.17.json) and `package-lock.json` make the results reviewable.
 

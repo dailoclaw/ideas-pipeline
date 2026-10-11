@@ -77,7 +77,7 @@ export default function SprintPage({ groupFilter = '' }) {
                           <span className="text-xs text-gray-400">{getSprintWeeks(idea.id, idea)} wks</span>
                         </div>
                       </div>
-                      <button disabled={!!pendingSaves[idea.id]} onClick={() => assignToWeek(idea.id, null)} className="text-gray-400 hover:text-red-500 flex-shrink-0 px-1 text-sm" title="Remove" aria-label={`Remove ${idea.name} from sprint`}><Icon name="close" size={17} /></button>
+                      <button disabled={!!pendingSaves[idea.id]} onClick={() => assignToWeek(idea.id, null)} className="text-gray-400 hover:text-red-500 shrink-0 px-1 text-sm" title="Remove" aria-label={`Remove ${idea.name} from sprint`}><Icon name="close" size={17} /></button>
                     </div>
                   ))}
                 </div>
@@ -108,7 +108,7 @@ export default function SprintPage({ groupFilter = '' }) {
                       <PlatPill plat={idea.plat} />
                     </span>
                   </span>
-                  <Icon name={selected === idea.id ? 'chevronDown' : 'chevronRight'} size={16} className="text-gray-400 dark:text-slate-500 flex-shrink-0 mt-0.5" />
+                  <Icon name={selected === idea.id ? 'chevronDown' : 'chevronRight'} size={16} className="text-gray-400 dark:text-slate-500 shrink-0 mt-0.5" />
                 </span>
               </button>
 

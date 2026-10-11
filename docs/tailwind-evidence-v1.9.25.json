@@ -1,0 +1,104 @@
+{
+  "version": "1.9.25",
+  "date": "2026-10-11",
+  "branch": "codex/tailwind-security-migration",
+  "status": "local-only; not production approval",
+  "publishedMain": {
+    "commit": "4e2ff2b39e4561c2d9245e30a9790bcb187ae667",
+    "ci": "https://github.com/dailoclaw/ideas-pipeline/actions/runs/38104501593",
+    "result": "success",
+    "strictTests": 276
+  },
+  "migration": {
+    "tailwindBefore": "3.4.19",
+    "tailwindAfter": "4.3.3",
+    "postcssPlugin": "@tailwindcss/postcss",
+    "forceAuditFix": false,
+    "overrides": false
+  },
+  "verification": {
+    "strictTests": 281,
+    "passing": 281,
+    "failures": 0,
+    "skips": 0,
+    "todos": 0,
+    "installedChromeTests": 66,
+    "chrome": "155.0.8059.39",
+    "lint": "pass",
+    "build": "pass",
+    "bundleBudgets": "pass",
+    "compiledFixtureSmoke": "pass",
+    "dependencyGuard": "pass",
+    "dependencyGuardTests": 24,
+    "tracker": "v1.0.30: inline syntax, 1440/768/390/320px, both themes, anchors and expand/collapse passed; no overflow or page errors",
+    "buildWarnings": 0
+  },
+  "audit": {
+    "full": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "production": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    }
+  },
+  "visual": {
+    "themes": [
+      "glass",
+      "calm",
+      "aurora",
+      "obsidian"
+    ],
+    "modes": [
+      "light",
+      "dark"
+    ],
+    "widths": [
+      320,
+      390,
+      768,
+      1440
+    ],
+    "text": [
+      "normal",
+      "root 32px"
+    ],
+    "pagesAndDialogs": 576,
+    "consoleContexts": 64,
+    "consoleDifferences": 0,
+    "rawMetricDifferences": {
+      "radius": 3916,
+      "bg": 64,
+      "rect": 47,
+      "shadow": 3
+    },
+    "review": "3916 equivalent infinite-radius serializations; 64 alpha colors normalized to identical pixels; 47 one-pixel hover translations and 3 hover shadows from pointer placement. No remaining font, line-height, padding, foreground color, border width or element-count differences. Not a pixel-identical claim.",
+    "evidenceDirectory": "/Users/dailoclaw/.codex/visualizations/2026/10/10/01a124e9-40ed-78c0-89e9-859b5e60fbe0",
+    "before": "tailwind-before/metrics.json",
+    "after": "tailwind-after-verified/metrics.json",
+    "differences": "tailwind-after-verified/differences.json",
+    "console": "tailwind-console-differences.json",
+    "ignoredCssRemoval": "Two invalid @property rules removed after the full matrix; browser already ignored them. Subsequent production build/smoke passed.",
+    "colorNormalization": {
+      "pairs": 64,
+      "pixelDifferences": 0
+    }
+  },
+  "openGates": [
+    "migration publication/exact commit CI",
+    "installed Edge",
+    "actual browser toolbar zoom/manual screen readers",
+    "live backup and staging deferred by user",
+    "real JWT/API/database integration and concurrent connections",
+    "audit ownership/retention and rollout/recovery acceptance"
+  ]
+}

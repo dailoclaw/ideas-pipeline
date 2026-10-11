@@ -247,7 +247,7 @@ html[data-app-layout="obsidian"] .obsidian-page-heading {
 .obsidian-main > .h-full { padding: 28px !important; }
 .obsidian-main .rounded-xl { border-radius: var(--ui-radius-sm) !important; }
 .obsidian-main .rounded-2xl { border-radius: var(--ui-radius-lg) !important; }
-.obsidian-main .bg-gradient-to-r {
+.obsidian-main .bg-linear-to-r\/srgb {
   border-color: var(--ui-border-strong) !important;
   background-color: var(--ui-surface) !important;
   background-image: none !important;
