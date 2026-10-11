@@ -221,3 +221,7 @@ See [authorization candidate and limits](../docs/PRIVATE_DATASET_ACCESS.md).
 ### Canonical mutation audit — v1.9.23
 
 `npm run test:audit` executes 22 local SQL tests for migration 005, using fictional identities in disposable PGlite. It verifies actual primary changes produce private canonical metadata atomically, server timestamps replace supplied times, no-op upserts do not add noise, replay is preserved, audit failure rolls back edit/deletion, deletion/account removal retain metadata, and clients cannot read or forge audit storage. Existing caller-reported timeline events remain separate. No real JWT, PostgREST, multi-connection, live migration or production approval is claimed. See [audit candidate and staging acceptance](../docs/TRUSTED_MUTATION_AUDIT.md).
+
+### Full-audit regression guard — v1.9.24
+
+`tests/dependencies.test.mjs` has 23 ordinary tests for scoped advisory review, feed failure, expiry, severity/range/chain changes and development-only installed paths. It uses preserved audit evidence and does not contact the network. `npm run check:dependencies` separately checks the actual live feed and is required in CI. Seven existing build findings remain unresolved; production audit and Tailwind migration acceptance remain separate requirements.

@@ -1,6 +1,6 @@
 # Step 12 — production release decision
 
-Version 1.9.23 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
+Version 1.9.24 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
 
 The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user explicitly deferred live backup/staging; that instruction remains in force. This assessment does not perform deployment or modify Supabase.
 
@@ -13,15 +13,15 @@ Application source assessed: main `ab86823d2657af5645a8c93bff2deb4ef214a555`. Re
 | Authorization and failed writes | Local login/member allow/deny, missing RPC and revocation behavior; rejected/zero-row writes retain data and show failure. Disposable PostgreSQL tests enforce candidate RPC membership checks. | Real Supabase JWTs, deployed six-table policies/grants, raw-API bypass denial and trusted audit enforcement. Candidate 001 installs the membership gate; new 001b supplies local six-table policies, but no deployed acceptance is claimed. |
 | Drafts and concurrency | Notes/score close, refresh recovery, failure/retry, account cleanup, local ordering and replay checks pass. Compiled fixture confirms immediate Escape persists notes. | Two independent database/API sessions, real lost-response replay and concurrent write/delete/status contention. Single-connection PGlite is not this evidence. |
 | Summaries/exports and keyboard | Fixture reconciliation, pagination, timeline, scope, filters, native forms, checkbox separation, tab navigation, focus restoration and score disclosure pass. Compiled CSV contains the saved fictional capture and notes. | Reconcile all summaries/exports against persisted staging records, including legacy-data repair and date boundaries; manual screen-reader/zoom acceptance. |
-| Browsers/build/dependencies | Node 24.21.0: lint, 253 strict tests (zero failures/TODOs/skips), build and bundle budgets pass. Installed headless Chrome 155.0.8059.39: 62 browser/review checks pass. Production-compiled fixture smoke passes in Chrome and bundled Chromium 151.0.7922.34. | Edge is not installed here. Actual deployed asset/cache behavior and installed Edge acceptance remain open. |
-| CI | [Main CI run](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38103756947) succeeded at `2d05076`, including all 231 published checks, compiled smoke, lint, build, budgets and production audit. | New candidate 005 and its 22 additional checks remain local, with no remote CI result. CI success is not database or deployment approval. |
+| Browsers/build/dependencies | Node 24.21.0: lint, 276 strict tests (zero failures/TODOs/skips), build and bundle budgets pass. Installed headless Chrome 155.0.8059.39: 62 browser/review checks pass. Production-compiled fixture smoke passes in Chrome and bundled Chromium 151.0.7922.34. | Edge is not installed here. Actual deployed asset/cache behavior and installed Edge acceptance remain open. |
+| CI | [Main CI run](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38104180153) succeeded at `05b4968`, including all 253 published checks, compiled smoke, lint, build, budgets and production audit. | New full-audit guard and its 23 additional checks remain local, with no remote CI result. CI success is not database or deployment approval. |
 | Dependency exposure | [Full audit](dependency-audit-v1.9.19.json): 7 development findings (5 high, 2 moderate). [Production audit](dependency-production-audit-v1.9.19.json): zero. | Follow the [Tailwind-chain migration plan](DEPENDENCY_REVIEW.md). These build-input denial-of-service findings remain documented; zero production audit findings does not prove application security. |
 
 `npm run test:release` checks the real `dist` assets for accidental fixture-hook inclusion, then builds a separate optimized fixture application into an automatically cleaned temporary directory. It cannot access the live database. This checks production bundling and UI behavior, not real Supabase integration. The normal production output is not overwritten. The test's bundle target matches the explicit Chrome/Edge 120+ target; installed-browser execution is still required for browser acceptance.
 
 ## Local authorization continuation
 
-A six-table membership/column-grant candidate and fail-closed legacy bootstraps are now prepared with 26 local role checks. See [private-dataset access](PRIVATE_DATASET_ACCESS.md). Authorization candidate 001b is published at a345f57; main 2d05076 CI is verified green, including compiled smoke. New [candidate 005](TRUSTED_MUTATION_AUDIT.md) adds private atomic canonical primary-change metadata, server timestamps and retained deletion evidence, tested locally with 22 SQL checks. UI supporting-event payload/time remains caller-reported and separate. Real JWT/staging, audit retention/owner/trigger review and rollout acceptance remain open. The previous versioned release evidence is historical, not an approval of these new changes.
+A six-table membership/column-grant candidate and fail-closed legacy bootstraps are now prepared with 26 local role checks. See [private-dataset access](PRIVATE_DATASET_ACCESS.md). Authorization candidate 001b is published at a345f57; main 05b4968 CI is verified green, including compiled smoke. Published [candidate 005](TRUSTED_MUTATION_AUDIT.md) adds private atomic canonical primary-change metadata, server timestamps and retained deletion evidence, tested locally with 22 SQL checks. UI supporting-event payload/time remains caller-reported and separate. Real JWT/staging, audit retention/owner/trigger review and rollout acceptance remain open. The previous versioned release evidence is historical, not an approval of these new changes.
 
 ## Critical blockers — address first
 
@@ -49,3 +49,9 @@ Detailed acceptance matrices and migration limits remain in [database access](DA
 - Historical documentation and the unused known-defect helper can be archived after deciding how to preserve the original baseline. They are not runtime release blockers.
 
 **Final verdict:** local behavior and published main CI are passing. Production remains **Not Ready** until real authorization/integration, backup/restore, Edge, manual accessibility and safe rollout evidence pass. No live operation or deployment was performed, and step 12 remains in progress.
+
+## Local dependency guard continuation — v1.9.24
+
+The audit candidate was pushed at 05b4968; its full 253-check CI is verified green. [Dependency review](DEPENDENCY_REVIEW.md) now records seven unresolved build findings, zero production-only findings, no compatible patched chain and a new local full-audit CI guard with 23 tests. The guard rejects new/worsened findings, failed feeds, production-path exposure and an expired explicit review; it is not vulnerability remediation or production approval. The Tailwind migration and existing live/Edge/manual acceptance gates remain open.
+
+Final local verification: all 276 strict tests, lint/build/bundle budgets, compiled fixture smoke and actual full-audit guard pass. [Recorded guard evidence](dependency-guard-evidence-v1.9.24.json) distinguishes these local results from the published main 253-check CI.

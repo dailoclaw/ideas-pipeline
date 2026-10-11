@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.28",
+  "planVersion": "1.0.29",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/trusted-mutation-audit",
+  "branch": "codex/dependency-audit-guard",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Continued step 2/12 audit trust locally: candidate 005 derives canonical primary-change metadata and timestamps in the database, rolls back failed audits, and retains deletion evidence. All 253 strict tests (22 new audit checks), lint/build/bundle budgets and compiled fixture smoke pass. Published main 2d05076 CI is verified green. No live SQL or main push. Real JWT/API/concurrency, audit retention/owner review, Edge/manual accessibility and approved rollout remain open; production NOT APPROVED.",
+  "progressNote": "Published canonical audit candidate 05b4968 to main; origin/main verified and its 253-check CI is green. Continued step 11/12 locally with a full-audit regression guard and expiring reviewed baseline. Seven build findings remain unresolved; production-only audit zero. No live SQL or deployment acceptance; backup/staging remains deferred. New guard branch is unpushed; production NOT APPROVED. All 276 strict tests, lint/build/bundle budgets, compiled fixture smoke and the live dependency guard pass.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -83,7 +83,7 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Authentication and six-table authorization candidates are published. New local candidate 005 adds atomic server-derived primary-change metadata, server timestamps and retained deletion evidence. No Supabase installation is claimed; real account/policy/audit acceptance remains open.",
+      "summary": "Authentication and six-table authorization candidates are published. Published candidate 005 adds atomic server-derived primary-change metadata, server timestamps and retained deletion evidence. No Supabase installation is claimed; real account/policy/audit acceptance remains open.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
@@ -103,7 +103,7 @@
         {
           "text": "Generate audit actor and timestamps server-side; restrict direct audit modification.",
           "status": "in-progress",
-          "note": "Candidate 005 captures actual primary edits/status overrides/assignments/deletions in private server-derived audit metadata atomically, stamps updated_at server-side and retains deletion/account-removal evidence. 22 SQL checks pass, including audit failure rollback and forged UI activity separation. Public timeline reports remain caller-supplied; canonical audit is administrator-only. No live enforcement, historical certification or retention approval claimed."
+          "note": "Candidate 005 captures actual primary edits/status overrides/assignments/deletions in private server-derived audit metadata atomically, stamps updated_at server-side and retains deletion/account-removal evidence. 22 SQL checks pass, including audit failure rollback and forged UI activity separation. Public timeline reports remain caller-supplied; canonical audit is administrator-only. No live enforcement, historical certification or retention approval claimed. Candidate published at 05b4968; remote 253-check CI passed."
         },
         {
           "text": "Roll out authentication and policies together so the legitimate user retains access.",
@@ -581,7 +581,7 @@
       "short": "Cleanup & performance",
       "priority": "Later",
       "status": "local-complete",
-      "summary": "Focused cleanup, parallel reads, selective subscriptions and deferred views verified locally. Initial authenticated JS is smaller; seven remaining development findings have an exposure assessment and migration plan. Remote CI and actual Chrome/Edge release acceptance remain step 12 work.",
+      "summary": "Cleanup and measured loading work are verified locally; published main CI passes. New full-audit guard rejects unreviewed or worsened advisory findings and production-path exposure; seven reviewed build findings still require the separate Tailwind migration.",
       "actions": [
         {
           "text": "Consolidate metadata, scoring, filtering and event helpers; lift nested component definitions.",
@@ -601,12 +601,12 @@
         {
           "text": "Split CSS while preserving cascade order; add lint, tests and build checks to CI.",
           "status": "complete",
-          "note": "Five sequential CSS modules produce identical compiled CSS at split comparison. ESLint 10, clean install, strict Chromium tests, build, bundle budgets and production audit defined in read-only Node 24 CI. Local equivalent checks pass; remote workflow execution is still unverified."
+          "note": "Five sequential CSS modules produce identical compiled CSS at split comparison. ESLint 10, clean install, strict Chromium tests, build, bundle budgets and production audit defined in read-only Node 24 CI. Local equivalent checks pass; remote workflow execution is still unverified. Published main 05b4968 CI is green; new local full-audit guard is added to CI but has not run remotely."
         },
         {
           "text": "Assess the 13 recorded dependency advisories and plan compatible, tested upgrades; declare Node/browser support baselines.",
           "status": "complete",
-          "note": "All 13 baseline packages assessed; compatible Vite/plugin/transitive updates reduce full audit to seven build-tool findings. Production audit zero. Remaining Tailwind-chain denial-of-service exposure and isolated major migration documented. Node 24 and Chrome/Edge 120+ build targets declared; installed release-browser acceptance remains open."
+          "note": "All 13 baseline packages assessed; compatible Vite/plugin/transitive updates reduce full audit to seven build-tool findings. Production audit zero. Remaining Tailwind-chain denial-of-service exposure and isolated major migration documented. Node 24 and Chrome/Edge 120+ build targets declared; installed release-browser acceptance remains open. Refreshed audit still has seven findings (five high/two moderate), production zero. No compatible patched braces/selector-parser chain; new full-audit regression guard with 23 checks and review expiry prevents silently accepting new exposure. Existing findings are not repaired."
         }
       ],
       "verify": [
@@ -631,6 +631,18 @@
         {
           "label": "CI checks and budgets",
           "href": "../.github/workflows/checks.yml"
+        },
+        {
+          "label": "Explicit advisory review baseline and expiry",
+          "href": "dependency-review-baseline.json"
+        },
+        {
+          "label": "Full-audit guard and failed-feed regression tests",
+          "href": "../tests/dependencies.test.mjs"
+        },
+        {
+          "label": "Current full audit evidence",
+          "href": "dependency-audit-v1.9.24.json"
         }
       ]
     },
@@ -640,7 +652,7 @@
       "short": "Release decision",
       "priority": "Release gate",
       "status": "in-progress",
-      "summary": "Production remains not approved. Local authorization and canonical audit candidates pass 253 strict checks; published main CI is green. Real JWT/API/concurrency, audit retention/owner review and live rollout acceptance remain unverified.",
+      "summary": "Production remains not approved. Canonical audit candidate is published with green CI. New local full-audit guard tightens advisory review; seven build findings, real JWT/API/concurrency, audit retention/owner review and live rollout acceptance remain open.",
       "actions": [
         {
           "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
@@ -660,7 +672,7 @@
         {
           "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build.",
           "status": "in-progress",
-          "note": "253 strict checks, Node 24 lint/build/budgets and compiled Chromium smoke pass. Prior 62 installed Chrome frontend checks remain historical evidence for unchanged frontend. Published main 2d05076 CI, including 231 checks and compiled smoke, is verified green. New local audit branch is unpushed. Edge and assessed build-tool findings remain open."
+          "note": "Published main 05b4968 CI passes all 253 checks, compiled fixture smoke, lint/build/budgets and production audit. New dependency guard adds 23 local tests and is not yet published. Full audit still reports seven reviewed development findings (five high/two moderate), production audit zero. Edge/manual accessibility and real deployment remain open. Final local total: 276 strict checks plus lint/build/budgets, compiled smoke and live full-audit guard pass."
         },
         {
           "text": "Record the release decision and evidence; track remaining low-impact work separately.",
@@ -842,12 +854,22 @@
       "date": "2026-10-11",
       "title": "Canonical primary-change audit prepared locally",
       "body": "Continued step 2/12 audit trust locally: candidate 005 derives canonical primary-change metadata and timestamps in the database, rolls back failed audits, and retains deletion evidence. All 253 strict tests (22 new audit checks), lint/build/bundle budgets and compiled fixture smoke pass. Published main 2d05076 CI is verified green. No live SQL or main push. Real JWT/API/concurrency, audit retention/owner review, Edge/manual accessibility and approved rollout remain open; production NOT APPROVED."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Canonical audit candidate published to main",
+      "body": "User requested publication: fast-forwarded main and pushed 05b4968, verified origin/main. Exact remote CI run 38104180153 passed all 253 checks and compiled smoke. No Supabase SQL, backup/staging or deployment acceptance; production remains NOT APPROVED."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Remaining dependency findings guarded locally",
+      "body": "No compatible upstream patched chain exists. Added full-audit CI guard with 23 targeted tests, development-only lockfile-path enforcement and explicit review expiry. Seven existing build findings remain unresolved; production-only audit zero. New guard branch is not pushed. Live database and release acceptance remain open. All 276 strict checks, lint/build/budgets, compiled smoke and the actual live guard pass."
     }
   ],
   "nextStepId": 12,
   "verification": {
-    "tests": 253,
-    "passing": 253,
+    "tests": 276,
+    "passing": 276,
     "knownFailures": 0,
     "unexpectedFailures": 0
   }

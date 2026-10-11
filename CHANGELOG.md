@@ -1,5 +1,14 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.24 (2026-10-11) — Full dependency audit guard
+### Added
+- Full-audit CI check rejects unreviewed/worsened findings, advisory range/chain changes, failed feeds and production-path exposure
+- Explicit reviewed seven-package baseline expires 2026-11-10 UTC; 23 guard tests and fresh full/production evidence
+### Changed
+- Published audit candidate 05b4968 to main and verified its green 253-check CI
+- Tracker v1.0.29 records publication and local continuation; all 276 strict tests, lint/build/budgets, compiled smoke and live guard pass; existing seven build findings remain unresolved
+- No dependency/CSS rewrite, live SQL or production approval; backup/staging remains deferred
+
 ## v1.9.23 (2026-10-11) — Local canonical mutation audit
 ### Added
 - One-time private audit trigger candidate for actual idea/status/assignment edits and retained deletion metadata; server timestamps and atomic rollback

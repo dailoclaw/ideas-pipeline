@@ -41,3 +41,15 @@ ESLint 9 was initially evaluated but is [out of maintenance](https://eslint.org/
 5. Publish only after reviewed CSS differences and supported Chrome/Edge acceptance. If a compatible upstream patch arrives first, test that smaller change against the same evidence.
 
 This assessment completes the step's advisory review, not the outstanding dependency remediation or production release gate.
+
+## Full-audit regression guard — v1.9.24 (2026-10-11)
+
+Fresh [full audit](dependency-audit-v1.9.24.json) still reports seven affected development packages: five high and two moderate. [Production-only audit](dependency-production-audit-v1.9.24.json) remains zero. No dependency versions, CSS defaults or application behavior changed in this continuation. The audit trigger candidate was published to main at `05b4968`; [its remote checks passed](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38104180153), including all 253 checks and compiled fixture smoke. This new guard is local and has not run remotely.
+
+There is no published compatible patch: [braces](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) has no patched release, and the available fixed selector-parser line is outside Tailwind 3/postcss-nested 6's declared major ranges. The reviewed Tailwind 4 migration remains necessary. Overriding incompatible parsers or force-fixing the audit would not establish compatibility.
+
+`npm run check:dependencies` now checks the complete live npm audit against [the explicitly reviewed baseline](dependency-review-baseline.json). The CI workflow runs it alongside the existing separate production audit. It fails on a new affected package, new/changed advisory range or URL, increased severity, changed transitive advisory chain, malformed/failed feed, inconsistent counts, missing installed paths, or any reviewed finding moving outside development-only lockfile nodes. Timeout/network failures are failed checks, not evidence of zero findings. Known findings are printed as unresolved; successful comparison does not remove their severity or approve production.
+
+The review is time-limited through **2026-11-10 UTC**; builds after that date fail until a human re-examines the current feed, package exposure and compatible remediation. Do not simply extend the date, copy new findings into the baseline, remove the CI command or disable the production audit to make a build pass. Resolved findings may disappear without failure; update evidence and remove obsolete baseline entries after confirming the fix. Review baseline changes as security decisions, including direct and transitive chains. Advisory wording-only changes do not require renewal; URL, affected range, severity and dependency changes do.
+
+23 ordinary tests exercise accepted/removal cases and each failure class, including malformed responses, invalid dates/severities, expiry boundaries and production-path exposure. These verify the guard, not patched vulnerable packages. Real Edge/manual accessibility, live database acceptance and production rollout remain open. The planned Tailwind migration and its visual/keyboard acceptance criteria above are unchanged.

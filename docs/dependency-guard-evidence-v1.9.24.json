@@ -1,0 +1,52 @@
+{
+  "version": "1.9.24",
+  "date": "2026-10-11",
+  "scope": "Local full-audit guard continuation after publishing 05b4968",
+  "strict": {
+    "tests": 276,
+    "passing": 276,
+    "failures": 0,
+    "todos": 0,
+    "skips": 0
+  },
+  "guard": {
+    "tests": 23,
+    "passing": 23,
+    "actualFeed": "pass",
+    "reviewValidThrough": "2026-11-10 UTC"
+  },
+  "checks": {
+    "lint": "pass",
+    "build": "pass",
+    "bundleBudgets": "pass",
+    "compiledFixtureSmoke": "pass"
+  },
+  "audit": {
+    "full": {
+      "total": 7,
+      "high": 5,
+      "moderate": 2
+    },
+    "production": {
+      "total": 0
+    },
+    "patched": false
+  },
+  "publishedMain": {
+    "sha": "05b4968a5db7feb582adb5c21d9b248845ddfa03",
+    "originVerified": true,
+    "ciConclusion": "success",
+    "url": "https://github.com/dailoclaw/ideas-pipeline/actions/runs/38104180153",
+    "tests": 253
+  },
+  "localBranch": "codex/dependency-audit-guard",
+  "guardPushed": false,
+  "productionReady": false,
+  "limits": [
+    "Existing seven build findings remain unresolved",
+    "No dependency/CSS migration or frontend behavior changes",
+    "New guard not yet run remotely",
+    "No live SQL; backup/staging deferred",
+    "Real JWT/API/concurrency, retained audit acceptance, Edge/manual accessibility and rollout gates open"
+  ]
+}
