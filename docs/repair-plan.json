@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.23",
+  "planVersion": "1.0.25",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "main",
+  "branch": "codex/private-dataset-policies",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 12 assessment and test tooling published to main at 0b9c0a9; origin/main verified. Production release remains NOT APPROVED. Recorded evidence: 205 strict and 62 installed Chrome checks plus both optimized fixture smokes pass. Earlier main ab86823 CI is green; the newly published compiled-smoke workflow result is not yet verified. Live backup/staging, real JWT/RLS/integration, Edge, manual accessibility and rollout/rollback acceptance remain open.",
+  "progressNote": "Continued remaining step 2/12 authorization locally: six-table membership/column-grant candidate and private metadata cleanup pass 26 SQL checks; legacy bootstraps now enable RLS. All 231 strict checks plus lint/build/bundle budgets and compiled fixture smoke pass. Published main be4c868 CI is green. No Supabase installation, live backup/staging, deployment or main push. Supporting-mutation audit trust, real JWT/API/concurrency, Edge/manual accessibility and rollout acceptance remain open; production NOT APPROVED.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -83,7 +83,7 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Email/password authentication and membership gate are pushed to main. The allowlist RPC and step 4 transaction SQL are tested in local PostgreSQL fixtures, not installed on Supabase. Account enrollment, six-table policies, full trusted audit and staging acceptance remain open.",
+      "summary": "Authentication is published; a six-table membership/column-grant candidate, private metadata cleanup and fail-closed bootstraps are now tested locally. No Supabase installation is claimed. Real account/policy acceptance and complete trusted audit remain open.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
@@ -97,13 +97,13 @@
         },
         {
           "text": "Enable RLS on all six application tables, including child-record ownership or membership policies.",
-          "status": "pending",
-          "note": "All six source tables disable RLS. Step 4 migration refuses disabled RLS, but production policy/grant design and deployed inspection are still open; fixture read policies are not a rollout."
+          "status": "in-progress",
+          "note": "Local 001b candidate enables RLS, replaces legacy policies/grants, limits editable columns, validates parent visibility and denies direct creation/status/audit/private/sequence access. Both bootstrap sources now enable RLS. 26 SQL role/rollback/reinstallation checks pass. Actual deployed owners/grants and real JWT/PostgREST acceptance remain unverified."
         },
         {
           "text": "Generate audit actor and timestamps server-side; restrict direct audit modification.",
           "status": "in-progress",
-          "note": "Step 4 create/status RPCs derive actor/time on the server and commit audit atomically in local PostgreSQL tests. Other event types and direct audit bypass restrictions still need step 2 hardening."
+          "note": "Local create/status RPCs derive atomic server audit actor/time; 001b denies direct audit writes. Supporting events still accept validated caller-reported payload/time separately from the main edit, so complete trusted mutation audit remains open. No live enforcement claimed."
         },
         {
           "text": "Roll out authentication and policies together so the legitimate user retains access.",
@@ -116,7 +116,7 @@
         "The authorized user can complete intended workflows.",
         "Forged audit actors and event edits are rejected."
       ],
-      "issues": "C1 \u00b7 authorization and audit trust",
+      "issues": "C1 · authorization and audit trust",
       "evidence": [
         {
           "label": "Database access implementation plan",
@@ -129,6 +129,18 @@
         {
           "label": "Auth and configuration regression tests",
           "href": "../tests/auth.test.mjs"
+        },
+        {
+          "label": "Local private-dataset access candidate and rollout limits",
+          "href": "PRIVATE_DATASET_ACCESS.md"
+        },
+        {
+          "label": "Six-table policy and column-grant candidate",
+          "href": "../database/security/001b-private-dataset-access.sql"
+        },
+        {
+          "label": "SQL authorization/rollback regressions",
+          "href": "../tests/access.test.mjs"
         }
       ]
     },
@@ -166,7 +178,7 @@
         "Denied writes preserve prior client state.",
         "Reloaded state agrees with the save result."
       ],
-      "issues": "C2 \u00b7 mutation error handling",
+      "issues": "C2 · mutation error handling",
       "evidence": [
         {
           "label": "Save reliability verification and limits",
@@ -221,7 +233,7 @@
         "Simultaneous changes retain both overrides.",
         "Failures leave no partial status/history or destructive child-only changes."
       ],
-      "issues": "C4 \u00b7 C5 \u00b7 C8",
+      "issues": "C4 · C5 · C8",
       "evidence": [
         {
           "label": "Transaction guarantees, limits & deferred rollout",
@@ -276,7 +288,7 @@
         "Reversed network response timing preserves the latest value.",
         "Failed saves retain the draft with Retry; page reload uses a recoverable local draft."
       ],
-      "issues": "C3 \u00b7 M4",
+      "issues": "C3 · M4",
       "evidence": [
         {
           "label": "Autosave behavior, verification and limits",
@@ -296,7 +308,7 @@
       "id": 6,
       "title": "Harden configuration and storage",
       "short": "Storage resilience",
-      "priority": "High \u00b7 easy wins",
+      "priority": "High · easy wins",
       "status": "local-complete",
       "summary": "Guarded account-scoped storage and configuration handling verified locally; source pushed to main at d50ea20. Denied/quota storage, malformed caches and reload preferences pass. Deleted-idea and sign-out caches are cleaned up where storage permits. No live SQL or deployment; Chrome/Edge release acceptance remains open.",
       "actions": [
@@ -376,7 +388,7 @@
         "Failed triage actions recover and completed/deferred counts are accurate.",
         "Action buttons return to idle in StrictMode; filters do not cause undisclosed hidden mutations."
       ],
-      "issues": "C7 \u00b7 M5 \u00b7 M6 \u00b7 M9",
+      "issues": "C7 · M5 · M6 · M9",
       "evidence": [
         {
           "label": "Workflow behavior, verification & limits",
@@ -426,7 +438,7 @@
         "Offline events synchronize exactly once; repeated transitions remain visible.",
         "More than 1,000 records export completely; Adelaide midnight/DST fixtures give correct counts."
       ],
-      "issues": "M3 \u00b7 M7 \u00b7 M8 \u00b7 M13",
+      "issues": "M3 · M7 · M8 · M13",
       "evidence": [
         {
           "label": "History/export guarantees & deferred rollout",
@@ -463,7 +475,7 @@
         {
           "text": "Document score range; show pain and manual adjustment in the breakdown; apply promised priority ordering.",
           "status": "complete",
-          "note": "Preserved valid scores with documented range 1\u2013204, rounded base/pain/manual/minimum explanation, safe legacy values and deterministic ID ties after priority."
+          "note": "Preserved valid scores with documented range 1–204, rounded base/pain/manual/minimum explanation, safe legacy values and deterministic ID ties after priority."
         },
         {
           "text": "Make matrix placement rules explicit and clarify sprint duration/scheduling semantics.",
@@ -476,7 +488,7 @@
         "Score explanation reconciles with the computed value.",
         "Priority ties and planning rules are consistent across views."
       ],
-      "issues": "M10 \u00b7 M11 \u00b7 M12 \u00b7 M14",
+      "issues": "M10 · M11 · M12 · M14",
       "evidence": [
         {
           "label": "Validation, score/planning rules & deferred rollout",
@@ -496,7 +508,7 @@
       "id": 10,
       "title": "Fix accessibility and review-document defects",
       "short": "Accessible controls",
-      "priority": "High \u00b7 easy wins",
+      "priority": "High · easy wins",
       "status": "local-complete",
       "summary": "Core keyboard controls, labels, modal focus and responsive disclosure verified locally. Six separately named accessible review copies preserve originals. Manual assistive-technology and release-browser acceptance remain release-gate work.",
       "actions": [
@@ -531,7 +543,7 @@
         "Screen readers announce controls, errors and states; focus returns correctly.",
         "200% zoom and narrow screens remain usable; review links/lightboxes and reduced motion work."
       ],
-      "issues": "Accessibility \u00b7 review HTML",
+      "issues": "Accessibility · review HTML",
       "evidence": [
         {
           "label": "Accessibility guarantees, review generators & release limits",
@@ -590,7 +602,7 @@
         "Initial bundle decreases and requests remain bounded.",
         "Regression checks pass on supported Chrome/Edge versions; advisory exposure is assessed."
       ],
-      "issues": "Maintainability \u00b7 performance \u00b7 dependency baseline",
+      "issues": "Maintainability · performance · dependency baseline",
       "evidence": [
         {
           "label": "Implementation, bundle measurements and verification limits",
@@ -616,12 +628,12 @@
       "short": "Release decision",
       "priority": "Release gate",
       "status": "in-progress",
-      "summary": "Release verdict recorded: not approved for production. Local tests, installed Chrome and optimized fixture smoke pass; main CI is green. Critical real authorization/integration gates remain deferred or unverified, with explicit acceptance and recovery instructions.",
+      "summary": "Production remains not approved. Local six-table authorization candidate and fail-closed bootstraps now pass 26 SQL checks; total strict suite is 231. Published main CI is green. Real database/JWT/API acceptance and full trusted supporting-mutation audit remain unverified.",
       "actions": [
         {
           "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
           "status": "in-progress",
-          "note": "Local session/member allow/deny and failed/zero-row write checks pass; candidate SQL enforces RPC membership in disposable PGlite. Real JWTs, complete six-table RLS/grants/audit and raw-API bypass denial remain unverified under deferred database workflow."
+          "note": "231 strict checks include 26 actual local SQL role checks: allowed edits/upserts and RPCs, denied anonymous/outsider/private/protected writes, revocation, inherited-grant guards and rollback. New policy/bootstrap changes remain local; real JWTs, deployed policies/API and trusted supporting-mutation audit still required."
         },
         {
           "text": "Confirm drafts survive close/refresh and concurrent operations preserve data.",
@@ -636,7 +648,7 @@
         {
           "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build.",
           "status": "in-progress",
-          "note": "205 strict tests, 62 installed Chrome 155 checks, both Chromium/Chrome optimized smoke, Node 24 lint/build/budgets pass. Main ab86823 CI verified green. Seven assessed development advisories; production audit zero. Edge unavailable. Added compiled-smoke CI step published at 0b9c0a9; its remote result is not yet verified."
+          "note": "231 strict checks, Node 24 lint/build/budgets and compiled Chromium smoke pass. Previous installed Chrome 62 checks apply to the unchanged frontend. Published main be4c868 CI, including compiled smoke, is verified green; the local authorization continuation is unpushed. Edge remains unavailable and seven build-tool findings remain assessed."
         },
         {
           "text": "Record the release decision and evidence; track remaining low-impact work separately.",
@@ -666,6 +678,10 @@
         {
           "label": "Remaining dependency assessment",
           "href": "DEPENDENCY_REVIEW.md"
+        },
+        {
+          "label": "Local authorization continuation and remaining boundaries",
+          "href": "PRIVATE_DATASET_ACCESS.md"
         }
       ]
     }
@@ -795,12 +811,17 @@
       "date": "2026-10-11",
       "title": "Step 12 assessment published to main",
       "body": "User requested publication. Fast-forwarded main and pushed 0b9c0a9; confirmed origin/main. Published the release verdict, acceptance plan and browser/compiled-smoke tooling. Preserved unrelated review assets and existing snapshots. Production remains NOT APPROVED; no live SQL or deployment acceptance performed. New workflow run remains unverified."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Remaining six-table authorization prepared locally",
+      "body": "Continued remaining step 2/12 authorization locally: six-table membership/column-grant candidate and private metadata cleanup pass 26 SQL checks; legacy bootstraps now enable RLS. All 231 strict checks plus lint/build/bundle budgets and compiled fixture smoke pass. Published main be4c868 CI is green. No Supabase installation, live backup/staging, deployment or main push. Supporting-mutation audit trust, real JWT/API/concurrency, Edge/manual accessibility and rollout acceptance remain open; production NOT APPROVED."
     }
   ],
   "nextStepId": 12,
   "verification": {
-    "tests": 205,
-    "passing": 205,
+    "tests": 231,
+    "passing": 231,
     "knownFailures": 0,
     "unexpectedFailures": 0
   }

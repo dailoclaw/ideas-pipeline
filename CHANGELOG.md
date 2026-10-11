@@ -1,5 +1,15 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.21 (2026-10-11) — Local private-dataset authorization continuation
+### Added
+- Reviewed-installation candidate for six-table membership policies, column grants, private metadata/sequence isolation and inherited-privilege rollback guards
+- 26 real local SQL role checks; full strict suite now passes all 231 checks
+### Fixed
+- Historical schema/activity bootstraps enable RLS instead of reopening anonymous access; guard regression explicitly disables a fixture table
+### Changed
+- Tracker v1.0.25 records local policy evidence and verified main CI at be4c868; live backup/staging/Supabase remain deferred
+- Production stays NOT APPROVED: supporting-mutation audit trust and real JWT/API/concurrency, Edge/manual accessibility and rollout gates remain open
+
 ## v1.9.20 (2026-10-11) — Step 12 main publication
 ### Changed
 - Tracker v1.0.23 records requested publication and verified origin/main at 0b9c0a9

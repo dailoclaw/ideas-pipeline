@@ -1,0 +1,39 @@
+{
+  "version": "1.9.21",
+  "date": "2026-10-11",
+  "scope": "Local SQL candidate only; fictional identities in disposable PostgreSQL WASM. No Supabase or live changes.",
+  "policy": "../database/security/001b-private-dataset-access.sql",
+  "strict": {
+    "tests": 231,
+    "passing": 231,
+    "failures": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "authorization": {
+    "tests": 26,
+    "passing": 26,
+    "coverage": "Allow/deny, protected columns, assignment upsert, RPCs, revocation, private metadata, seed deletion/cascades, dirty legacy grants/policies, inherited privileges, privileged roles, sequence/truncate, safe helper and missing-table guards, bootstrap/reinstallation rollback."
+  },
+  "localChecks": {
+    "lint": "pass",
+    "build": "pass",
+    "bundleBudget": "pass",
+    "compiledFixtureSmoke": "pass"
+  },
+  "publishedMainCI": {
+    "sha": "be4c868f3feaf859590cc5fd7051f38d81ef786c",
+    "conclusion": "success",
+    "url": "https://github.com/dailoclaw/ideas-pipeline/actions/runs/38102902666"
+  },
+  "currentBranchCI": "Not pushed; not verified remotely.",
+  "releaseDecision": "NOT APPROVED",
+  "remaining": [
+    "Verified backup/restore and approved staging workflow (user-deferred)",
+    "Real Supabase schema/owners/grants/RPCs/views/inheritance inspection and real JWT/raw API acceptance",
+    "Independent-session concurrency and persisted-data/export reconciliation",
+    "Trusted atomic audit for supporting mutations; caller-reported historical activity is not such evidence",
+    "Actual Edge and manual accessibility/zoom",
+    "Safe rollout and recovery acceptance"
+  ]
+}

@@ -33,7 +33,8 @@ before(async () => {
 })
 after(async () => { await db?.close() })
 
-test('migration aborts before changing IDs when source RLS is disabled', async () => {
+test('migration aborts before changing IDs if prerequisite RLS is disabled', async () => {
+  await db.exec('ALTER TABLE public.ideas DISABLE ROW LEVEL SECURITY')
   await assert.rejects(db.exec(migration), /six-table RLS/)
   await db.exec('ROLLBACK')
   assert.equal((await query("SELECT attidentity FROM pg_attribute WHERE attrelid='public.ideas'::regclass AND attname='id'"))[0].attidentity, '')

@@ -174,7 +174,7 @@ screen-reader/browser-release acceptance remains release-gate work. See
 [accessibility guarantees and review generation](../docs/ACCESSIBILITY.md).
 
 
-## Step 11/12 additions — v1.9.19 (current)
+## Step 11/12 additions — v1.9.19
 
 205 ordinary strict checks pass without TODOs or skipped checks. Step 11 adds
 parallel reads, lazy module reuse/error recovery and stable matrix-focus coverage.
@@ -204,3 +204,16 @@ verified green at ab86823; the new smoke CI step is published at 0b9c0a9 and loc
 but its remote result is not yet verified. Live JWT/RLS and multi-session tests, actual
 Supabase reconciliation, assistive technology and deployment/rollback acceptance
 remain open. See [release decision](../docs/RELEASE_GATE.md).
+
+
+## Local authorization continuation — v1.9.21 (current)
+
+`npm run test:access` runs 26 SQL role checks against the real local 001b candidate.
+The suite models unsafe legacy policies/table/column grants before installation,
+then checks allowed application writes and denies protected/anonymous/private
+access. Guards reject inherited privileges, owner/bypass roles, unsafe helpers
+and missing tables. Per-test transactions and per-statement savepoints isolate
+expected permission errors; no Supabase connection or real JWT is used. Bootstrap
+fixtures now enable RLS, and the existing missing-RLS test explicitly disables a
+fixture table to test the guard. Current full results are in the HTML tracker.
+See [authorization candidate and limits](../docs/PRIVATE_DATASET_ACCESS.md).

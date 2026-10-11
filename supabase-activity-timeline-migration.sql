@@ -1,5 +1,5 @@
 -- IdeaFlow v1.5.0 — Activity & Decision Timeline
--- Safe to run once in the Supabase SQL editor for an existing deployment.
+-- Historical bootstrap: inspect and restore staging before approved use.
 
 CREATE TABLE IF NOT EXISTS idea_activity (
   id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -13,4 +13,4 @@ CREATE TABLE IF NOT EXISTS idea_activity (
 CREATE INDEX IF NOT EXISTS idx_activity_idea
   ON idea_activity(idea_id, occurred_at DESC);
 
-ALTER TABLE idea_activity DISABLE ROW LEVEL SECURITY;
+ALTER TABLE idea_activity ENABLE ROW LEVEL SECURITY;

@@ -1,26 +1,27 @@
 {
   "name": "ideas-webapp",
-  "version": "1.9.20",
+  "version": "1.9.21",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node --test tests/auth.test.mjs tests/store.test.mjs tests/drafts.test.mjs tests/storage.test.mjs tests/scoring.test.mjs tests/history.test.mjs tests/database.test.mjs tests/browser.test.mjs tests/review.test.mjs",
+    "test": "node --test tests/auth.test.mjs tests/store.test.mjs tests/drafts.test.mjs tests/storage.test.mjs tests/scoring.test.mjs tests/history.test.mjs tests/database.test.mjs tests/browser.test.mjs tests/review.test.mjs tests/access.test.mjs",
     "test:store": "node --test tests/store.test.mjs",
     "test:browser": "node --test tests/browser.test.mjs",
-    "test:strict": "BASELINE_STRICT=1 node --test tests/auth.test.mjs tests/store.test.mjs tests/drafts.test.mjs tests/storage.test.mjs tests/scoring.test.mjs tests/history.test.mjs tests/database.test.mjs tests/browser.test.mjs tests/review.test.mjs",
+    "test:strict": "BASELINE_STRICT=1 node --test tests/auth.test.mjs tests/store.test.mjs tests/drafts.test.mjs tests/storage.test.mjs tests/scoring.test.mjs tests/history.test.mjs tests/database.test.mjs tests/browser.test.mjs tests/review.test.mjs tests/access.test.mjs",
     "plan:render": "node scripts/render-repair-plan.mjs",
     "test:auth": "node --test tests/auth.test.mjs",
-    "test:database": "node --test tests/database.test.mjs",
+    "test:database": "node --test tests/database.test.mjs tests/access.test.mjs",
     "test:drafts": "node --test tests/drafts.test.mjs",
     "test:storage": "node --test tests/storage.test.mjs",
     "lint": "eslint .",
     "check:bundle": "node scripts/check-bundle.mjs",
     "test:chrome": "TEST_BROWSER_CHANNEL=chrome BASELINE_STRICT=1 node --test tests/browser.test.mjs tests/review.test.mjs",
     "test:edge": "TEST_BROWSER_CHANNEL=msedge BASELINE_STRICT=1 node --test tests/browser.test.mjs tests/review.test.mjs",
-    "test:release": "node scripts/release-smoke.mjs"
+    "test:release": "node scripts/release-smoke.mjs",
+    "test:access": "node --test tests/access.test.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",

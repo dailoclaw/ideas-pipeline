@@ -6,11 +6,14 @@ Step 1 is published on main at `ab3acb1`. Step 2 implementation from `codex/data
 Live backup and staging remain deferred by the user's instruction. No SQL was executed
 against Supabase; email/password authentication is implemented locally, and no deployed policies have changed. Later step 4 tests execute local SQL in a disposable PostgreSQL WASM fixture.
 
+## Current local authorization continuation — v1.9.21
+
+The six-table policy/column-grant candidate, private membership/ledger cleanup and fail-closed legacy bootstraps are prepared and tested locally. See [candidate guarantees, tests and rollout limits](PRIVATE_DATASET_ACCESS.md). Real JWT/deployed policies and the remaining atomic supporting-mutation audit remain open. No Supabase SQL was run.
+
 ## Confirmed source findings
 
-- `supabase-schema.sql:79–84` explicitly disables RLS on all six application tables.
-- `supabase-activity-timeline-migration.sql:16` disables it again for activity. Running
-  either legacy script after a security migration would reopen access.
+- The original `supabase-schema.sql` disabled RLS on all six application tables.
+- The original activity bootstrap disabled RLS again. Both source bootstraps now enable RLS, with local role/reinstallation tests; deployed settings remain uninspected.
 - `src/lib/supabase.js` creates a browser client with a public key. `src/main.jsx`
   previously mounted the app directly. It now mounts AuthGate, which loads the app only after a positive can_access_ideas RPC result.
 - `src/lib/store.js` sends an actor of `You` and client timestamps. Activity and

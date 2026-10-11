@@ -1,5 +1,5 @@
 -- Ideas Pipeline — Supabase schema
--- Run this in your Supabase SQL Editor before first deploy
+-- Historical table bootstrap; authorization/RPC migrations require approved staging review.
 
 -- ── Ideas ────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS ideas (
@@ -75,10 +75,10 @@ CREATE INDEX IF NOT EXISTS idx_ideas_status   ON ideas(status);
 CREATE INDEX IF NOT EXISTS idx_history_idea   ON status_history(idea_id);
 CREATE INDEX IF NOT EXISTS idx_activity_idea  ON idea_activity(idea_id, occurred_at DESC);
 
--- ── Row Level Security (disable for personal tool — single user, no auth) ────
-ALTER TABLE ideas           DISABLE ROW LEVEL SECURITY;
-ALTER TABLE status_overrides DISABLE ROW LEVEL SECURITY;
-ALTER TABLE status_history   DISABLE ROW LEVEL SECURITY;
-ALTER TABLE sprint_assignments DISABLE ROW LEVEL SECURITY;
-ALTER TABLE idea_group_assignments DISABLE ROW LEVEL SECURITY;
-ALTER TABLE idea_activity    DISABLE ROW LEVEL SECURITY;
+-- ── Secure bootstrap: default deny until reviewed membership policies exist ──
+ALTER TABLE ideas           ENABLE ROW LEVEL SECURITY;
+ALTER TABLE status_overrides ENABLE ROW LEVEL SECURITY;
+ALTER TABLE status_history   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE sprint_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE idea_group_assignments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE idea_activity    ENABLE ROW LEVEL SECURITY;
