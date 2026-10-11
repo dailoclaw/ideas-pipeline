@@ -24,3 +24,5 @@ When checks change, keep `baseline` as the historical first-step result and upda
 explicitly deferred; this does not complete or hide the earlier step.
 
 On 2026-10-11 the user lifted the live backup/staging deferral for preparation and read-only inspection. Historical deferral notes above and in prior snapshots describe earlier scope. Current status is in `SUPABASE_LIVE_STATUS.md`: backup password handoff pending, no archive/staging/migration yet. Never equate authorization or prepared tooling with completed backup/restore.
+
+Later on 2026-10-11 the user requested skipping the unsuccessful backup again. Current backup status is deferred, not complete; read-only live inspection remains authorized. Do not request another password retry unless the user resumes backup. Recovery/staging and live migration acceptance remain open.

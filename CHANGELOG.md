@@ -1,5 +1,11 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.29 (2026-10-11) — User-directed backup deferral
+### Changed
+- Tracker v1.0.34 marks unsuccessful live backup deferred again at user request, preserving incomplete capture/restore status
+- Records password authentication failure after verified TLS fix; no further password retry requested
+- Read-only inspection remains available; live migrations and production approval stay pending
+
 ## v1.9.28 (2026-10-11) — Supabase backup TLS trust fix
 ### Fixes
 - Use official checksum-pinned Supabase database CA instead of system CA alone; retain full certificate/hostname verification

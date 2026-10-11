@@ -1,6 +1,6 @@
 # Supabase live inspection and backup preparation
 
-Version 1.9.28 · 2026-10-11 · no database migrations applied.
+Version 1.9.29 · 2026-10-11 · no database migrations applied.
 
 The user authorized resuming live backup/staging preparation and read-only inspection of Ideas Pipeline, project `uooouxgdurhwzzszlngc`. The earlier deferral is lifted for that work. Safari's signed-in dashboard confirmed the project identity. Subsequent backup choice: CLI, with the user entering the existing database password locally.
 
@@ -37,7 +37,7 @@ python3 /Users/dailoclaw/.openclaw/workspace/projects/ideas-webapp/scripts/backu
 
 Enter the **database password**, not your Supabase dashboard login password. The password is hidden. Computer-use access to Terminal is blocked, so the agent cannot open/operate that prompt for you. Changing a database password would also require you to perform the credential change yourself.
 
-**Current status:** tools and corrected CA verified; local hidden-password retry pending. No live backup has been captured. Even a successful dump remains unverified until restoration into isolated staging is tested. Database archives do not include Storage file bytes or all platform/Auth provider settings; those require separate inventory/capture. Global roles and Supabase-managed objects must be reviewed before restoring; never replay a raw archive into production or blindly recreate managed roles.
+**Current status:** backup deferred again by user on 2026-10-11. Tools and corrected CA remain available; no password retry is currently requested. No live backup has been captured. Even a successful dump remains unverified until restoration into isolated staging is tested. Database archives do not include Storage file bytes or all platform/Auth provider settings; those require separate inventory/capture. Global roles and Supabase-managed objects must be reviewed before restoring; never replay a raw archive into production or blindly recreate managed roles.
 
 ## Next actions
 
@@ -52,3 +52,7 @@ Enter the **database password**, not your Supabase dashboard login password. The
 Two attempted captures on 2026-10-11 failed at `pg_dump` with `SSL error: certificate verify failed`. They remain incomplete; the logs do not show a password authentication result. The official [Supabase SSL guidance](https://supabase.com/docs/guides/platform/ssl-enforcement) requires its database CA for `verify-full`. The signed-in project settings Download certificate control identified the public official download URL. Certificate stored in `scripts/certificates/supabase-prod-ca-2021.crt`, SHA-256 `700723581420dd1ac98fd7e9ac529f0ef210eadcaf87fc868a3ad7d114c2f3b7`; Supabase Root 2021 CA, valid through 2031-04-26. It is a public CA, not a private key or credential.
 
 A password-free PostgreSQL STARTTLS probe against the observed session pooler validates the certificate chain and exact hostname: verification OK, return code 0, process exit 0. No database login/query occurred in that probe. The runner retains full chain/hostname verification and rejects missing/changed CA bytes before asking for a password. Five ordinary backup tests pass. This establishes the TLS correction, not successful credentials, dump permissions, capture or restore acceptance. Retry the same local command above.
+
+## Latest user direction — backup deferred
+
+The subsequent private log showed `password authentication failed` after TLS was corrected. The user requested skipping backup for now. No recovery archive is complete; previous partial captures remain incomplete. Continue only read-only inspection/preparation while recovery and restored staging remain unresolved. Database migrations and production approval are still pending. Earlier retry instructions above are historical and apply only if the user resumes backup.
