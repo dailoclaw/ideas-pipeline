@@ -1,5 +1,13 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.23 (2026-10-11) — Local canonical mutation audit
+### Added
+- One-time private audit trigger candidate for actual idea/status/assignment edits and retained deletion metadata; server timestamps and atomic rollback
+- 22 ordinary SQL tests for security, no-ops/upserts, replay, privacy, deletion/account retention and rollback; 253 strict tests pass
+### Changed
+- Tracker v1.0.28 records local evidence and verified published main CI at 2d05076
+- Caller-reported UI activity remains separate; no live installation, push or production approval; backup/staging remains deferred
+
 ## v1.9.22 (2026-10-11) — Authorization continuation main publication
 ### Changed
 - Tracker v1.0.27 records publication of a345f57 and verified origin/main

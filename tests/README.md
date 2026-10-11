@@ -217,3 +217,7 @@ expected permission errors; no Supabase connection or real JWT is used. Bootstra
 fixtures now enable RLS, and the existing missing-RLS test explicitly disables a
 fixture table to test the guard. Current full results are in the HTML tracker.
 See [authorization candidate and limits](../docs/PRIVATE_DATASET_ACCESS.md).
+
+### Canonical mutation audit — v1.9.23
+
+`npm run test:audit` executes 22 local SQL tests for migration 005, using fictional identities in disposable PGlite. It verifies actual primary changes produce private canonical metadata atomically, server timestamps replace supplied times, no-op upserts do not add noise, replay is preserved, audit failure rolls back edit/deletion, deletion/account removal retain metadata, and clients cannot read or forge audit storage. Existing caller-reported timeline events remain separate. No real JWT, PostgREST, multi-connection, live migration or production approval is claimed. See [audit candidate and staging acceptance](../docs/TRUSTED_MUTATION_AUDIT.md).

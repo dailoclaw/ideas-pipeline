@@ -1,0 +1,36 @@
+{
+  "version": "1.9.23",
+  "date": "2026-10-11",
+  "scope": "Local disposable SQL and fixture checks only; no Supabase installation or push",
+  "strict": {
+    "tests": 253,
+    "passing": 253,
+    "failures": 0,
+    "skips": 0,
+    "todos": 0
+  },
+  "canonicalAudit": {
+    "tests": 22,
+    "passing": 22
+  },
+  "checks": {
+    "lint": "pass",
+    "build": "pass",
+    "bundleBudgets": "pass",
+    "compiledFixtureSmoke": "pass"
+  },
+  "publishedMainCI": {
+    "sha": "2d050761dcf37430dfa1521e3a4c4db1612e1af4",
+    "conclusion": "success",
+    "url": "https://github.com/dailoclaw/ideas-pipeline/actions/runs/38103756947"
+  },
+  "limits": [
+    "Fictional auth.uid fixture, no actual JWT/PostgREST",
+    "Single-connection PGlite, no independent-session contention",
+    "Private canonical metadata is distinct from caller-reported UI timeline",
+    "No free-text content retained; not a recoverable copy",
+    "Privileged administrators remain trusted; retention/owner/trigger review required",
+    "Live backup/staging deferred; Edge/manual accessibility and deployment acceptance open"
+  ],
+  "productionReady": false
+}

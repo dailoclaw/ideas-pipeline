@@ -138,3 +138,7 @@ Neither this nor fixture member-read policies verify live Supabase access. Six-t
 policy design, deployed inspection, trusted audit for other mutations, bypass-write
 restrictions and the staging matrix remain open. Migration 002 requires RLS enabled
 and cascading foreign keys; those guards alone cannot certify correct authorization.
+
+## Local canonical audit continuation — v1.9.23
+
+[Candidate 005](TRUSTED_MUTATION_AUDIT.md) captures primary changes and deletion metadata atomically in a private administrator-only audit, with actor/time derived on the server. The public activity timeline remains caller-reported and separate. All 22 new SQL audit tests and 253 strict checks pass locally. No live SQL, retention approval, JWT/PostgREST/concurrency acceptance or production approval is claimed. The earlier 001b candidate is published; main 2d05076 CI passed. Live backup/staging remains deferred.
