@@ -200,7 +200,7 @@ assets remain untouched. Do not deploy the temporary fixture build.
 Installed Chrome 155.0.8059.39 passes all 62 checks and the compiled fixture smoke;
 bundled Chromium 151.0.7922.34 passes all 205 checks and its compiled smoke. Edge
 is unavailable on the current machine, so no Edge pass is claimed. Main's CI is
-verified green at ab86823; this branch's new smoke CI step is locally verified
-but not published or run remotely. Live JWT/RLS and multi-session tests, actual
+verified green at ab86823; the new smoke CI step is published at 0b9c0a9 and locally verified,
+but its remote result is not yet verified. Live JWT/RLS and multi-session tests, actual
 Supabase reconciliation, assistive technology and deployment/rollback acceptance
 remain open. See [release decision](../docs/RELEASE_GATE.md).

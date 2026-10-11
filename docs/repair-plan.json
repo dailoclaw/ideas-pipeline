@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.22",
+  "planVersion": "1.0.23",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
-  "branch": "codex/release-gate",
+  "branch": "main",
   "readiness": "Not production-ready",
   "scopeNote": "Steps 1, 3, 5, 6, 7 & 10 complete locally; database rollout remains open",
   "deferralLabel": "Live backup & remote staging",
   "deferralNote": "Deferred by your instruction",
-  "progressNote": "Step 12 release assessment recorded: NOT APPROVED. All 205 strict checks and 62 installed Chrome checks pass; optimized fixture smoke passes in Chrome and Chromium. Published main CI at ab86823 is verified green. Edge, real JWT/RLS, restored staging/concurrency/export reconciliation, manual accessibility and rollout/rollback evidence remain open. Live backup/staging remains user-deferred. No live operations, deployment or main push for this step.",
+  "progressNote": "Step 12 assessment and test tooling published to main at 0b9c0a9; origin/main verified. Production release remains NOT APPROVED. Recorded evidence: 205 strict and 62 installed Chrome checks plus both optimized fixture smokes pass. Earlier main ab86823 CI is green; the newly published compiled-smoke workflow result is not yet verified. Live backup/staging, real JWT/RLS/integration, Edge, manual accessibility and rollout/rollback acceptance remain open.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -636,7 +636,7 @@
         {
           "text": "Pass supported Chrome/Edge smoke tests, dependency checks and production build.",
           "status": "in-progress",
-          "note": "205 strict tests, 62 installed Chrome 155 checks, both Chromium/Chrome optimized smoke, Node 24 lint/build/budgets pass. Main ab86823 CI verified green. Seven assessed development advisories; production audit zero. Edge unavailable. Added compiled-smoke CI step remains local/unpublished."
+          "note": "205 strict tests, 62 installed Chrome 155 checks, both Chromium/Chrome optimized smoke, Node 24 lint/build/budgets pass. Main ab86823 CI verified green. Seven assessed development advisories; production audit zero. Edge unavailable. Added compiled-smoke CI step published at 0b9c0a9; its remote result is not yet verified."
         },
         {
           "text": "Record the release decision and evidence; track remaining low-impact work separately.",
@@ -790,6 +790,11 @@
       "date": "2026-10-11",
       "title": "Step 12 release decision: not approved",
       "body": "Step 12 release assessment recorded: NOT APPROVED. All 205 strict checks and 62 installed Chrome checks pass; optimized fixture smoke passes in Chrome and Chromium. Published main CI at ab86823 is verified green. Edge, real JWT/RLS, restored staging/concurrency/export reconciliation, manual accessibility and rollout/rollback evidence remain open. Live backup/staging remains user-deferred. No live operations, deployment or main push for this step."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Step 12 assessment published to main",
+      "body": "User requested publication. Fast-forwarded main and pushed 0b9c0a9; confirmed origin/main. Published the release verdict, acceptance plan and browser/compiled-smoke tooling. Preserved unrelated review assets and existing snapshots. Production remains NOT APPROVED; no live SQL or deployment acceptance performed. New workflow run remains unverified."
     }
   ],
   "nextStepId": 12,

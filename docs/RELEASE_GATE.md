@@ -1,12 +1,12 @@
 # Step 12 — production release decision
 
-Version 1.9.19 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
+Version 1.9.20 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
 
 The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user explicitly deferred live backup/staging; that instruction remains in force. This assessment does not perform deployment or modify Supabase.
 
 ## Evidence and limits
 
-Application source assessed: main `ab86823d2657af5645a8c93bff2deb4ef214a555`. This branch adds release test tooling and documentation, with no application-source or database changes. [Structured release evidence](release-evidence-v1.9.19.json) records versions, results, exact CI commit and open gates.
+Application source assessed: main `ab86823d2657af5645a8c93bff2deb4ef214a555`. Release test tooling and documentation were published to main at `0b9c0a9`; no application-source or database changes were made. The versioned evidence below preserves the local assessment at the time it was recorded. [Structured release evidence](release-evidence-v1.9.19.json) records versions, results, exact CI commit and open gates.
 
 | Acceptance area | Verified | Still required |
 |---|---|---|
@@ -14,7 +14,7 @@ Application source assessed: main `ab86823d2657af5645a8c93bff2deb4ef214a555`. Th
 | Drafts and concurrency | Notes/score close, refresh recovery, failure/retry, account cleanup, local ordering and replay checks pass. Compiled fixture confirms immediate Escape persists notes. | Two independent database/API sessions, real lost-response replay and concurrent write/delete/status contention. Single-connection PGlite is not this evidence. |
 | Summaries/exports and keyboard | Fixture reconciliation, pagination, timeline, scope, filters, native forms, checkbox separation, tab navigation, focus restoration and score disclosure pass. Compiled CSV contains the saved fictional capture and notes. | Reconcile all summaries/exports against persisted staging records, including legacy-data repair and date boundaries; manual screen-reader/zoom acceptance. |
 | Browsers/build/dependencies | Node 24.21.0: lint, 205 strict tests (zero failures/TODOs/skips), build and bundle budgets pass. Installed headless Chrome 155.0.8059.39: 62 browser/review checks pass. Production-compiled fixture smoke passes in Chrome and bundled Chromium 151.0.7922.34. | Edge is not installed here. Actual deployed asset/cache behavior and installed Edge acceptance remain open. |
-| CI | [Main CI run](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38059176120) succeeded at `ab86823`: clean install, Chromium, lint, strict tests, build, bundle budgets and production audit. | This unpushed branch's new compiled-fixture CI step has passed locally, not remotely. CI success is not database or deployment approval. |
+| CI | [Main CI run](https://github.com/dailoclaw/ideas-pipeline/actions/runs/38059176120) succeeded at `ab86823`: clean install, Chromium, lint, strict tests, build, bundle budgets and production audit. | The new compiled-fixture CI step is published at `0b9c0a9` and has passed locally; its remote result is not yet verified. CI success is not database or deployment approval. |
 | Dependency exposure | [Full audit](dependency-audit-v1.9.19.json): 7 development findings (5 high, 2 moderate). [Production audit](dependency-production-audit-v1.9.19.json): zero. | Follow the [Tailwind-chain migration plan](DEPENDENCY_REVIEW.md). These build-input denial-of-service findings remain documented; zero production audit findings does not prove application security. |
 
 `npm run test:release` checks the real `dist` assets for accidental fixture-hook inclusion, then builds a separate optimized fixture application into an automatically cleaned temporary directory. It cannot access the live database. This checks production bundling and UI behavior, not real Supabase integration. The normal production output is not overwritten. The test's bundle target matches the explicit Chrome/Edge 120+ target; installed-browser execution is still required for browser acceptance.

@@ -1,5 +1,11 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.20 (2026-10-11) — Step 12 main publication
+### Changed
+- Tracker v1.0.23 records requested publication and verified origin/main at 0b9c0a9
+- Published release verdict, acceptance plan and Chrome/Edge/compiled-fixture smoke tooling; new remote CI result remains unverified
+- Production stays NOT APPROVED with real database, Edge, manual accessibility and safe rollout evidence open
+
 ## v1.9.19 (2026-10-11) — Step 12 release gate assessment
 ### Added
 - Explicit installed Chrome/Edge test channels with no silent fallback and a disposable optimized fixture smoke for navigation, drafts, CSV and anonymous gating
