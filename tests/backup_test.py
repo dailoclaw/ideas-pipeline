@@ -44,6 +44,7 @@ class BackupTests(unittest.TestCase):
                     self.assertNotIn('fixture-password', ' '.join(args))
                     self.assertEqual(env['PGPASSWORD'], 'fixture-password')
                     self.assertEqual(env['PGSSLMODE'], 'verify-full')
+                    self.assertEqual(env['PGSSLROOTCERT'], str(backup.CA_CERT))
                 self.assertNotIn('fixture-password', output.getvalue())
                 for path in capture.iterdir():
                     self.assertNotIn(b'fixture-password', path.read_bytes())
@@ -72,6 +73,21 @@ class BackupTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'interactive terminal'):
                 backup.main()
             prompt.assert_not_called()
+
+    def test_missing_certificate_stops_before_password_prompt(self):
+        with tempfile.TemporaryDirectory() as folder, patch.object(backup, 'CA_CERT', Path(folder) / 'missing.crt'), patch('sys.argv', ['backup']), patch.object(backup.getpass, 'getpass') as prompt:
+            with self.assertRaisesRegex(RuntimeError, 'certificate is missing'):
+                backup.main()
+            prompt.assert_not_called()
+
+    def test_replaced_certificate_is_rejected_before_password_prompt(self):
+        with tempfile.TemporaryDirectory() as folder:
+            certificate = Path(folder) / 'wrong.crt'
+            certificate.write_text('Untrusted replacement')
+            with patch.object(backup, 'CA_CERT', certificate), patch('sys.argv', ['backup']), patch.object(backup.getpass, 'getpass') as prompt:
+                with self.assertRaisesRegex(RuntimeError, 'checksum mismatch'):
+                    backup.main()
+                prompt.assert_not_called()
 
 if __name__ == '__main__':
     unittest.main()

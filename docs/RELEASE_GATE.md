@@ -1,6 +1,6 @@
 # Step 12 — production release decision
 
-Version 1.9.27 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
+Version 1.9.28 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
 
 The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user resumed live backup/staging preparation and read-only inspection on 2026-10-11; capture/restore and staging remain incomplete. This assessment does not perform deployment or modify Supabase.
 
@@ -67,3 +67,5 @@ Tailwind migration 6cb52ba is now published with green 281-check CI. [Read-only 
 ## Live inspection / backup handoff — v1.9.27
 
 [Current live findings](SUPABASE_LIVE_STATUS.md) confirm five public tables with RLS disabled and anonymous grants. Backup/staging preparation is now authorized, but no archive has been captured or restored and no staging project exists. Official PostgreSQL clients and the hidden-password runner are ready; three mocked security/failure tests pass. User local password entry is required. No live migrations or production acceptance occurred. Earlier deferral notes in this document/versioned evidence are historical.
+
+Backup update v1.9.28: two captures failed before authentication because system CA trust did not include the required Supabase database CA. The corrected, pinned official CA passes a password-free chain/hostname probe; five backup tests pass. Capture/restore and staging still await the local hidden-password retry. No migration or release approval.

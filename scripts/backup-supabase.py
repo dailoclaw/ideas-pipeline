@@ -14,6 +14,15 @@ from zoneinfo import ZoneInfo
 ROOT = Path(__file__).resolve().parent.parent
 PROJECT = 'uooouxgdurhwzzszlngc'
 HOST = 'aws-1-ap-southeast-2.pooler.supabase.com'
+CA_CERT = Path(__file__).resolve().parent / 'certificates' / 'supabase-prod-ca-2021.crt'
+CA_SHA256 = '700723581420dd1ac98fd7e9ac529f0ef210eadcaf87fc868a3ad7d114c2f3b7'
+
+def certificate_path():
+    if not CA_CERT.is_file():
+        raise RuntimeError('Official Supabase CA certificate is missing; no connection attempted.')
+    if hashlib.sha256(CA_CERT.read_bytes()).hexdigest() != CA_SHA256:
+        raise RuntimeError('Supabase CA certificate checksum mismatch; no connection attempted.')
+    return CA_CERT
 
 def tools_environment():
     tool_root = ROOT / '.local-tools' / 'homebrew'
@@ -37,9 +46,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--check', action='store_true', help='Verify tools only; no connection or password.')
     args = parser.parse_args()
+    certificate = certificate_path()
     binaries, env = tools_environment()
     if args.check:
-        print('PostgreSQL 17 dump/restore/psql tools verified; no database connection made.')
+        print('PostgreSQL 17 tools and pinned Supabase CA verified; no database connection made.')
         return
     if not sys.stdin.isatty():
         raise RuntimeError('Run in a local interactive terminal; never pass a password as an argument.')
@@ -50,7 +60,7 @@ def main():
         raise RuntimeError('No password entered; nothing connected.')
     env.update(PGHOST=HOST, PGPORT='5432', PGDATABASE='postgres',
                PGUSER='postgres.' + PROJECT, PGSSLMODE='verify-full',
-               PGSSLROOTCERT='/etc/ssl/cert.pem', PGCONNECT_TIMEOUT='20', PGPASSWORD=password)
+               PGSSLROOTCERT=str(certificate), PGCONNECT_TIMEOUT='20', PGPASSWORD=password)
     os.umask(0o077)
     base = ROOT / 'private-backups'
     base.mkdir(mode=0o700, exist_ok=True)

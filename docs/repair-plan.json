@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.32",
+  "planVersion": "1.0.33",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
   "branch": "codex/supabase-backup-preparation",
   "readiness": "Not production-ready",
   "scopeNote": "Live inspection resumed; backup/restore and database rollout remain open",
   "deferralLabel": "Live backup & restored staging",
-  "deferralNote": "Authorized; backup password handoff pending",
-  "progressNote": "User authorized resuming backup/staging preparation and live read-only inspection of Ideas Pipeline. Confirmed five tables with RLS disabled and anonymous read/write grants, absent private application tables and PostgreSQL 17.6. Free plan has no dashboard backups. User selected CLI backup; verified portable PostgreSQL 17 tools and prepared a hidden local-password runner with three passing security/failure tests. No backup captured, no staging created and no migrations applied. Local Terminal password handoff required; production NOT APPROVED.",
+  "deferralNote": "Authorized; corrected backup awaiting local retry",
+  "progressNote": "Two CLI backup attempts failed before password authentication with certificate verification errors. Corrected runner to use the official Supabase database CA downloaded from the signed-in dashboard; checksum pinned. Live password-free TLS probe verifies chain and pooler hostname. All five backup security/failure tests pass. Retry of hidden local-password command required. No live backup captured, staging created or migrations applied; production NOT APPROVED.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -34,7 +34,7 @@
         {
           "text": "Back up the live database schema and data.",
           "status": "in-progress",
-          "note": "Authorization resumed 2026-10-11. Confirmed Free plan has no dashboard backups. User selected CLI; official PostgreSQL 17 tools verified, hidden-password backup runner prepared and three mocked security/failure tests pass. No archive captured yet; user must run local password prompt. Restore verification remains required."
+          "note": "Authorization resumed 2026-10-11. Confirmed Free plan has no dashboard backups. User selected CLI; official PostgreSQL 17 tools verified, hidden-password backup runner prepared and three mocked security/failure tests pass. No archive captured yet; user must run local password prompt. Restore verification remains required. Two user attempts failed during TLS certificate verification before authentication. Corrected system-CA assumption using official Supabase CA, pinned checksum; password-free live chain/hostname probe passed. Five backup tests pass. Awaiting user retry; capture and restoration remain incomplete."
         },
         {
           "text": "Configure a remote staging database with representative records.",
@@ -929,6 +929,11 @@
       "date": "2026-10-11",
       "title": "Live read-only inspection resumed; CLI backup prepared",
       "body": "User authorized resuming backup/staging preparation and signed-in Safari inspection. Confirmed Ideas Pipeline PostgreSQL 17.6, five public tables with RLS disabled, anonymous grants and absent private application tables. Free plan excludes dashboard backups; user chose CLI. Official portable PostgreSQL 17 clients verified; hidden-password runner and three security/failure tests pass. No live data contents fetched, backup captured, staging created, billing change or migration applied. Local Terminal password handoff pending."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Backup TLS trust corrected after failed captures",
+      "body": "Private logs from two attempts show certificate verify failed before authentication. Runner now uses checksum-pinned official Supabase database CA rather than system CA alone. Live password-free TLS probe validates chain and pooler hostname; verify-full retained. Five backup tests pass, including missing/altered CA rejection before password prompt. No successful capture or database change; hidden-password retry remains required."
     }
   ],
   "nextStepId": 1,

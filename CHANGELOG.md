@@ -1,5 +1,13 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.28 (2026-10-11) — Supabase backup TLS trust fix
+### Fixes
+- Use official checksum-pinned Supabase database CA instead of system CA alone; retain full certificate/hostname verification
+- Reject missing/altered CA before password entry; all five backup security/failure tests pass
+### Changed
+- Diagnosed two incomplete captures from private logs; password-free live TLS verification passes, successful backup/restore still pending
+- Tracker v1.0.33 records corrected runner and local hidden-password retry; no live migration or database permission changes
+
 ## v1.9.27 (2026-10-11) — Supabase live inspection and backup preparation
 ### Added
 - Hidden local-password CLI backup runner with verified PostgreSQL 17 clients, TLS certificate verification, private permissions, archive checksums and incomplete-capture handling
