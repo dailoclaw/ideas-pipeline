@@ -1,5 +1,14 @@
 # Ideas Pipeline Web App — Changelog
 
+## v1.9.30 (2026-10-11) — Live private-dataset migration
+### Fixes
+- Apply user-approved no-backup database rollout with six-table RLS, private membership, transactional/replay RPCs, canonical audit and nine validated compatible constraints
+- Preserve existing rows and legacy classification codes; guard new/changed fields without breaking unrelated edits; add missing group FK and sprint-week CHECK
+### Added
+- Exact one-shot reviewed live SQL, independent read-only denial verification and eight local rollout/rollback regressions; 295 distinct checks pass (294 strict plus the subsequently added verification check)
+### Changed
+- Tracker v1.0.36 records actual applied migration, row preservation and zero-user login/enrollment gap; recovery and production integration acceptance remain open
+
 ## v1.9.29 (2026-10-11) — User-directed backup deferral
 ### Changed
 - Tracker v1.0.34 marks unsuccessful live backup deferred again at user request, preserving incomplete capture/restore status

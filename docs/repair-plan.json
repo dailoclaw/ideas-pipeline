@@ -1,13 +1,13 @@
 {
-  "planVersion": "1.0.34",
+  "planVersion": "1.0.36",
   "updated": "2026-10-11",
   "baselineVersion": "1.8.1",
   "branch": "codex/supabase-backup-preparation",
   "readiness": "Not production-ready",
-  "scopeNote": "Live inspection resumed; backup/restore and database rollout remain open",
+  "scopeNote": "Live migration applied by request without backup; login enrollment and release acceptance open",
   "deferralLabel": "Live backup",
-  "deferralNote": "Deferred again at your request",
-  "progressNote": "User requested skipping the unsuccessful CLI backup for now. Backup is deferred, not complete; no recovery archive or restored staging exists. TLS trust was corrected, then Supabase rejected password authentication. Read-only live inspection can continue; database-changing migrations and production approval remain pending. No database changes were made.",
+  "deferralNote": "Skipped for this rollout at your explicit request",
+  "progressNote": "User explicitly approved live migration without backup, including the concrete dashboard warning. Combined 001\u2013005 rollout applied with legacy-compatible validation and missing FK/week constraints. All six tables preserved existing contents (230 ideas). Independent read-only SQL-role checks pass: six RLS tables, zero anonymous grants, eight audit triggers, one classification guard, nine validated constraints. No application Auth users exist yet; account creation/enrollment and real JWT/browser acceptance remain open. Backup/restore/staging remain incomplete.",
   "baseline": {
     "tests": 18,
     "passing": 5,
@@ -24,7 +24,7 @@
       "short": "Regression baseline",
       "priority": "Foundation",
       "status": "in-progress",
-      "summary": "Historical local regression baseline remains complete. Live backup is deferred again at user request after unsuccessful captures; no verified recovery copy or restored staging exists.",
+      "summary": "Local baseline preserved. Live backup/restore and staging remain incomplete; user explicitly approved proceeding with the database migration without backup.",
       "actions": [
         {
           "text": "Create a working branch and preserve existing uncommitted files.",
@@ -34,7 +34,7 @@
         {
           "text": "Back up the live database schema and data.",
           "status": "deferred",
-          "note": "Authorization resumed 2026-10-11. Confirmed Free plan has no dashboard backups. User selected CLI; official PostgreSQL 17 tools verified, hidden-password backup runner prepared and three mocked security/failure tests pass. No archive captured yet; user must run local password prompt. Restore verification remains required. Two user attempts failed during TLS certificate verification before authentication. Corrected system-CA assumption using official Supabase CA, pinned checksum; password-free live chain/hostname probe passed. Five backup tests pass. Awaiting user retry; capture and restoration remain incomplete. Subsequent attempt reached password authentication and was rejected. User requested skipping backup for now; deferred again, not completed. No valid recovery archive exists."
+          "note": "Authorization resumed 2026-10-11. Confirmed Free plan has no dashboard backups. User selected CLI; official PostgreSQL 17 tools verified, hidden-password backup runner prepared and three mocked security/failure tests pass. No archive captured yet; user must run local password prompt. Restore verification remains required. Two user attempts failed during TLS certificate verification before authentication. Corrected system-CA assumption using official Supabase CA, pinned checksum; password-free live chain/hostname probe passed. Five backup tests pass. Awaiting user retry; capture and restoration remain incomplete. Subsequent attempt reached password authentication and was rejected. User requested skipping backup for now; deferred again, not completed. No valid recovery archive exists. User later explicitly approved migration without backup, including the concrete execution warning; installed rollout does not complete backup/restore."
         },
         {
           "text": "Configure a remote staging database with representative records.",
@@ -87,32 +87,32 @@
       "short": "Database access",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Read-only live inspection confirms five tables with disabled RLS and anonymous grants. User deferred the unsuccessful backup again; read-only review can continue. Policy/RPC/audit migrations remain uninstalled and live acceptance remains open.",
+      "summary": "Live six-table RLS/grants, membership/RPC and canonical audit migrations applied and independently checked without altering existing records. Step remains open: zero application Auth users exist; create/enroll the intended email/password account and verify real JWT/browser workflows.",
       "actions": [
         {
           "text": "Inspect deployed table grants and RLS settings against the supplied SQL.",
-          "status": "in-progress",
-          "note": "Original public metadata inspection retained. New inspect-release.sql supplements it with private relation/RPC/trigger/sequence metadata, missing-object visibility and inherited privilege checks. Six actual-SQL tests pass on disposable PGlite, including unsafe grant/settings and disabled-trigger fixtures; no private row contents returned. Neither inspection has run against live Supabase. Backup/staging remain deferred. Live read-only catalog subset executed on confirmed project 2026-10-11: five tables RLS disabled, all six have anonymous read/write table grants, no app_private relations, server 17.6. Remaining policies/owners/helper/trigger/data inspection still required."
+          "status": "complete",
+          "note": "Original public metadata inspection retained. New inspect-release.sql supplements it with private relation/RPC/trigger/sequence metadata, missing-object visibility and inherited privilege checks. Six actual-SQL tests pass on disposable PGlite, including unsafe grant/settings and disabled-trigger fixtures; no private row contents returned. Neither inspection has run against live Supabase. Backup/staging remain deferred. Live read-only catalog subset executed on confirmed project 2026-10-11: five tables RLS disabled, all six have anonymous read/write table grants, no app_private relations, server 17.6. Remaining policies/owners/helper/trigger/data inspection still required. Live preflight confirmed 230 ideas, no Auth users/private tables, one platform event-trigger helper, no application row triggers, four existing cascading FKs and 100 legacy classifications. Installer owner/inherited-grant guards passed. Separate post-installation SQL-role checks passed; six RLS tables, zero anonymous grants and nine validated constraints verified."
         },
         {
           "text": "Add authentication and restrict access to the permitted account or workspace members.",
           "status": "in-progress",
-          "note": "Confirmed: one private dataset, email/password. Login, retry, session handling and settings sign-out tested locally; access requires can_access_ideas() = true. Admin enrollment and real authorization tests remain pending. Sessions are memory-only; refresh requires login."
+          "note": "Confirmed: one private dataset, email/password. Login, retry, session handling and settings sign-out tested locally; access requires can_access_ideas() = true. Admin enrollment and real authorization tests remain pending. Sessions are memory-only; refresh requires login. Live membership helper/table installed; auth.users and idea_members are both empty. User must create the email/password credential, then exact intended account enrollment and real session acceptance remain required."
         },
         {
           "text": "Enable RLS on all six application tables, including child-record ownership or membership policies.",
           "status": "in-progress",
-          "note": "Local 001b candidate enables RLS, replaces legacy policies/grants, limits editable columns, validates parent visibility and denies direct creation/status/audit/private/sequence access. Both bootstrap sources now enable RLS. 26 SQL role/rollback/reinstallation checks pass. Actual deployed owners/grants and real JWT/PostgREST acceptance remain unverified."
+          "note": "Local 001b candidate enables RLS, replaces legacy policies/grants, limits editable columns, validates parent visibility and denies direct creation/status/audit/private/sequence access. Both bootstrap sources now enable RLS. 26 SQL role/rollback/reinstallation checks pass. Actual deployed owners/grants and real JWT/PostgREST acceptance remain unverified. Applied to live project 2026-10-11; independent verification confirms six RLS tables and no anonymous table/column grants. Anonymous read and unenrolled SQL-role reads/RPCs/private membership denial passed. Real JWT/PostgREST owner/unrelated/revoked tests remain open."
         },
         {
           "text": "Generate audit actor and timestamps server-side; restrict direct audit modification.",
           "status": "in-progress",
-          "note": "Candidate 005 captures actual primary edits/status overrides/assignments/deletions in private server-derived audit metadata atomically, stamps updated_at server-side and retains deletion/account-removal evidence. 22 SQL checks pass, including audit failure rollback and forged UI activity separation. Public timeline reports remain caller-supplied; canonical audit is administrator-only. No live enforcement, historical certification or retention approval claimed. Candidate published at 05b4968; remote 253-check CI passed."
+          "note": "Candidate 005 captures actual primary edits/status overrides/assignments/deletions in private server-derived audit metadata atomically, stamps updated_at server-side and retains deletion/account-removal evidence. 22 SQL checks pass, including audit failure rollback and forged UI activity separation. Public timeline reports remain caller-supplied; canonical audit is administrator-only. No live enforcement, historical certification or retention approval claimed. Candidate published at 05b4968; remote 253-check CI passed. Live private canonical audit plus eight source stamp/audit triggers installed. Catalog/enforced grants verified; no application writes or synthetic users used in live verification. Real authenticated mutation evidence and retention acceptance remain open."
         },
         {
           "text": "Roll out authentication and policies together so the legitimate user retains access.",
-          "status": "pending",
-          "note": "Live backup/staging deferral lifted for preparation and read-only inspection. Production policy/RPC installation has not started; requires captured/restored backup, staging tests and reviewed coordinated rollout."
+          "status": "in-progress",
+          "note": "User explicitly approved rollout without backup and confirmed concrete dashboard warning. Combined transaction installed with unchanged existing rows across all six tables. Live Auth users/members are zero: user-controlled credential creation, confirmed enrollment and real login acceptance still required. No recovery/staging acceptance claimed."
         }
       ],
       "verify": [
@@ -173,6 +173,22 @@
         {
           "label": "Confirmed live RLS inventory and backup status",
           "href": "SUPABASE_LIVE_STATUS.md"
+        },
+        {
+          "label": "Applied live transaction and record preservation",
+          "href": "../database/live/2026-10-11-private-dataset-rollout.sql"
+        },
+        {
+          "label": "Legacy-compatible validation used on live project",
+          "href": "../database/live/004-legacy-compatible-validation.sql"
+        },
+        {
+          "label": "Read-only live denial/catalog verification",
+          "href": "../database/live/verify-private-dataset-rollout.sql"
+        },
+        {
+          "label": "Eight executable rollout and rollback checks",
+          "href": "../tests/live-rollout.test.mjs"
         }
       ]
     },
@@ -232,12 +248,12 @@
       "short": "IDs & concurrency",
       "priority": "Critical",
       "status": "in-progress",
-      "summary": "Local SQL and frontend implementation verified: generated IDs, atomic create/status/history/activity, request deduplication and stale-status conflicts. Live migration, six-table authorization prerequisites and independent-session contention tests remain deferred. Source pushed to main at 56f08d6 by request; the frontend requires the matching database rollout to perform create/status actions.",
+      "summary": "Local SQL and frontend implementation verified: generated IDs, atomic create/status/history/activity, request deduplication and stale-status conflicts. Live migration, six-table authorization prerequisites and independent-session contention tests remain deferred. Source pushed to main at 56f08d6 by request; the frontend requires the matching database rollout to perform create/status actions. Live continuation 2026-10-11: matching database transaction/outbox/compatible validation installed; real authenticated workflow acceptance remains open.",
       "actions": [
         {
           "text": "Migrate IDs to database generation; initialize the sequence above the highest existing ID.",
           "status": "in-progress",
-          "note": "Migration 002 preserves IDs and initializes an ALWAYS identity above the old maximum. PostgreSQL tests verify deletion/rollback nonreuse and repeat-install abort. No Supabase migration executed."
+          "note": "Migration 002 preserves IDs and initializes an ALWAYS identity above the old maximum. PostgreSQL tests verify deletion/rollback nonreuse and repeat-install abort. No Supabase migration executed. Live rollout applied 2026-10-11; exact evidence in SUPABASE_LIVE_STATUS.md. Existing records unchanged; real JWT/browser acceptance remains open."
         },
         {
           "text": "Remove browser-side maxId + 1 allocation and obtain the inserted ID from the returned row.",
@@ -252,7 +268,7 @@
         {
           "text": "Put related status/history/activity changes in database transactions.",
           "status": "in-progress",
-          "note": "Create/status audit and private request ledger commit in one PostgreSQL transaction; history/activity failures roll everything back. Replay prevents duplicate requests. Supabase installation/real API acceptance remain open."
+          "note": "Create/status audit and private request ledger commit in one PostgreSQL transaction; history/activity failures roll everything back. Replay prevents duplicate requests. Supabase installation/real API acceptance remain open. Live rollout applied 2026-10-11; exact evidence in SUPABASE_LIVE_STATUS.md. Existing records unchanged; real JWT/browser acceptance remains open."
         },
         {
           "text": "Delete the parent once and use cascading foreign keys for child records.",
@@ -442,7 +458,7 @@
       "short": "History & exports",
       "priority": "High",
       "status": "in-progress",
-      "summary": "History, pagination and outbox implementation verified locally: 180 passing checks. Empty history is honest, exports refresh complete reads, legacy transitions/counts are corrected, and full/unavailable queues are visible. Migration 003 provides locally tested idempotent retry; live installation and real API acceptance remain deferred. Source pushed to main at ff1c366; no live SQL or deployment verification.",
+      "summary": "History, pagination and outbox implementation verified locally: 180 passing checks. Empty history is honest, exports refresh complete reads, legacy transitions/counts are corrected, and full/unavailable queues are visible. Migration 003 provides locally tested idempotent retry; live installation and real API acceptance remain deferred. Source pushed to main at ff1c366; no live SQL or deployment verification. Live continuation 2026-10-11: matching database transaction/outbox/compatible validation installed; real authenticated workflow acceptance remains open.",
       "actions": [
         {
           "text": "Remove fabricated fallback activity; correct legacy predecessor calculations and displayed counts.",
@@ -492,12 +508,12 @@
       "short": "Validation & rules",
       "priority": "High",
       "status": "in-progress",
-      "summary": "Application validation and planning rules verified locally. Database constraints are tested candidates; live rollout and legacy-row repair remain deferred.",
+      "summary": "Application validation and planning rules verified locally. Database constraints are tested candidates; live rollout and legacy-row repair remain deferred. Live continuation 2026-10-11: matching database transaction/outbox/compatible validation installed; real authenticated workflow acceptance remains open. One hundred existing time/platform classifications are preserved; new or changed classification fields are guarded. Full legacy mapping/CHECK cleanup remains open.",
       "actions": [
         {
           "text": "Trim and validate values at the application boundary; add appropriate database constraints.",
           "status": "in-progress",
-          "note": "Create/edit trim and validate an explicit allowlist; typed status, notes, score, priority, workspace and sprint boundaries reject before requests. SQL 004 preserves legacy reads and checks future writes in local PostgreSQL. Live rollout, preflight/legacy repair and constraint validation remain deferred."
+          "note": "Create/edit trim and validate an explicit allowlist; typed status, notes, score, priority, workspace and sprint boundaries reject before requests. SQL 004 preserves legacy reads and checks future writes in local PostgreSQL. Live rollout, preflight/legacy repair and constraint validation remain deferred. Live rollout applied 2026-10-11; exact evidence in SUPABASE_LIVE_STATUS.md. Existing records unchanged; real JWT/browser acceptance remains open."
         },
         {
           "text": "Keep unknown classifications visible instead of silently dropping ideas.",
@@ -680,7 +696,7 @@
       "short": "Release decision",
       "priority": "Release gate",
       "status": "in-progress",
-      "summary": "Production NOT APPROVED. Live read-only inspection confirms authorization gaps. User resumed backup/staging preparation and selected CLI; local hidden-password handoff pending. No backup/restore, staging or live migrations completed. Real API/concurrency and Edge/manual acceptance remain open.",
+      "summary": "Production NOT APPROVED. User-approved live migration without backup installed; existing contents of all six tables preserved and SQL-role denial/catalog checks passed. Account creation/enrollment, real JWT/API/concurrency, recovery/staging, legacy classification mapping and Edge/manual acceptance remain open.",
       "actions": [
         {
           "text": "Pass authorization allow/deny tests and confirm failed writes cannot appear successful.",
@@ -939,12 +955,22 @@
       "date": "2026-10-11",
       "title": "Unsuccessful live backup deferred again by user",
       "body": "After TLS trust correction, a subsequent attempt failed with password authentication rejected. User requested skipping this step for now. Backup marked deferred rather than complete; read-only inspection remains available. No verified capture/restore, staging or database migrations completed. Production NOT APPROVED."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Live migration applied without backup by explicit user direction",
+      "body": "User explicitly approved live migration without backup, including the concrete dashboard warning. Combined 001\u2013005 rollout applied with legacy-compatible validation and missing FK/week constraints. All six tables preserved existing contents (230 ideas). Independent read-only SQL-role checks pass: six RLS tables, zero anonymous grants, eight audit triggers, one classification guard, nine validated constraints. No application Auth users exist yet; account creation/enrollment and real JWT/browser acceptance remain open. Backup/restore/staging remain incomplete. Eight new local rollout/rollback checks pass. Final dashboard warning received action-time approval. No main push or full production approval."
+    },
+    {
+      "date": "2026-10-11",
+      "title": "Live migration evidence and tracker verification refreshed",
+      "body": "294-check strict suite passed; all eight rollout checks passed, including one post-installation SQL check added after the strict run (295 distinct passing checks). Lint/build pass. Version 1.0.35 snapshot preserves the earlier recorded test count; this update records current verification. Live migration already installed and independently verified, Auth account enrollment still pending."
     }
   ],
   "nextStepId": 2,
   "verification": {
-    "tests": 287,
-    "passing": 287,
+    "tests": 295,
+    "passing": 295,
     "knownFailures": 0,
     "unexpectedFailures": 0
   }

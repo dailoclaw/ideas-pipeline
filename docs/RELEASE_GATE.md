@@ -1,8 +1,8 @@
 # Step 12 — production release decision
 
-Version 1.9.29 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
+Version 1.9.30 · 2026-10-11 · **NOT APPROVED / Not production-ready**.
 
-The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user resumed live backup/staging preparation and read-only inspection on 2026-10-11; capture/restore and staging remain incomplete. This assessment does not perform deployment or modify Supabase.
+The local repair work passes its current checks. Production approval remains withheld because critical database authorization and real integration evidence are missing. The user resumed live backup/staging preparation and read-only inspection on 2026-10-11; capture/restore and staging remain incomplete. The user subsequently approved and completed the live database migration without backup on 2026-10-11. See the current applied-rollout evidence below; this is not full production acceptance.
 
 ## Evidence and limits
 
@@ -25,7 +25,7 @@ A six-table membership/column-grant candidate and fail-closed legacy bootstraps 
 
 ## Critical blockers — address first
 
-1. **Backup and staging are incomplete.** The user authorized resuming preparation/inspection and selected a local hidden-password CLI workflow. Complete its password handoff and verify capture/restore before changes. Capture schema, rows, policies/grants, functions/triggers, sequences and configuration; restore into an isolated staging project and verify counts/identities. A source archive is not a database backup.
+1. **Backup and staging are incomplete.** The user authorized resuming preparation/inspection and selected a local hidden-password CLI workflow. The user explicitly authorized and confirmed migration without backup; migration is now installed. Recovery remains unverified, and backup/staging acceptance remains open. Capture schema, rows, policies/grants, functions/triggers, sequences and configuration; restore into an isolated staging project and verify counts/identities. A source archive is not a database backup.
 2. **Full database authorization is unfinished.** Inspect the deployed schema using the read-only [inspection candidate](../database/security/inspect-access.sql) in the approved workflow. Complete administrator-only membership and reviewed RLS/grants for all six tables. Deny anonymous, unlisted and revoked identities; deny direct create/status/audit bypasses and client-written trusted actors/times. Verify security-definer owners, locked paths, schemas/views/sequences and public RPC execution. Legacy source bootstraps now enable RLS; actual deployed schema and prior installation paths must still be inspected. Do not run them as a shortcut.
 3. **Matching database/frontend integration is unverified.** Coordinate candidates 001–005 against the inspected staging schema, not blindly against assumed tables. Run legacy-data preflight/repair, preserve IDs, install identity/RPC/constraint changes once and confirm actual PostgREST signatures/cache. Exercise create, status, edit, notes, score, priority, group, sprint, deletion, outbox retry and exports through real authenticated API clients. Compare persisted parent/history/activity rows; a missing RPC must remain a visible failure, not a fallback to unsafe writes.
 
@@ -71,3 +71,10 @@ Tailwind migration 6cb52ba is now published with green 281-check CI. [Read-only 
 Backup update v1.9.28: two captures failed before authentication because system CA trust did not include the required Supabase database CA. The corrected, pinned official CA passes a password-free chain/hostname probe; five backup tests pass. Capture/restore and staging still await the local hidden-password retry. No migration or release approval.
 
 Latest direction v1.9.29: user deferred the unsuccessful backup again after password authentication failed. Read-only inspection can continue; no recovery copy/restored staging exists and no live migrations are applied. Earlier password-handoff instructions are historical. Production NOT APPROVED.
+
+
+## Latest live database result — v1.9.30
+
+[Live rollout evidence](SUPABASE_LIVE_STATUS.md#applied-live-rollout--2026-10-11) records the user-approved no-backup transaction, exact SQL artifact/digest, six-table record preservation and independent SQL-role denial checks. RLS/grants, atomic create/status/outbox RPCs, server audit/stamps and nine compatible validated constraints are installed. Legacy classifications were preserved with field-change validation rather than a CHECK that would break unrelated edits. Earlier candidate-only installation statements above are historical.
+
+There are zero application Auth users/members. Create and enroll the intended email/password identity before asserting permitted workflow acceptance. No real JWT/API positive test, independent-session concurrency, backup/restore/staging, classification cleanup, Edge/manual accessibility or deployed frontend acceptance is claimed. The user override authorizes this migration; it does not convert missing recovery or integration evidence into a passed production gate.
